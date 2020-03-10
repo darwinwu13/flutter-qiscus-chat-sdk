@@ -6,6 +6,7 @@ import 'dart:developer' as dev;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:tuple/tuple.dart';
 
 import 'qiscus_account.dart';
 import 'qiscus_chat_room.dart';
@@ -151,4 +152,46 @@ class ChatSdk {
       args,
     );
   }
+
+  static Future<Tuple2<QiscusChatRoom, List<QiscusComment>>> getChatRoomWithMessages(
+      int roomId) async {
+    Map<String, String> chatRoomListPairJsonStr = await _channel
+        .invokeMapMethod<String, String>('getChatRoomWithMessages', {'roomId': roomId});
+    QiscusChatRoom qiscusChatRoom =
+        QiscusChatRoom.fromJson(jsonDecode(chatRoomListPairJsonStr['chatRoom']));
+    List<QiscusComment> messages =
+        (jsonDecode(chatRoomListPairJsonStr['messages']) as List).map((each) {
+      String message = each as String;
+      return QiscusComment.fromJson(jsonDecode(message));
+    }).toList();
+
+    return Tuple2(qiscusChatRoom, messages);
+  }
+
+  static Future<QiscusChatRoom> getLocalChatRoom(int roomId) async {
+    String jsonStr = await _channel.invokeMethod('getLocalChatRoom', {'roomId': roomId});
+    Map<String, dynamic> map = jsonDecode(jsonStr);
+
+    return QiscusChatRoom.fromJson(map);
+  }
+
+  static Future<List<QiscusChatRoom>> getLocalChatRoomByIds(List<int> roomIds) async {
+    String json = await _channel.invokeMethod('getLocalChatRoomByRoomIds', {'roomIds': roomIds});
+    return (jsonDecode(json) as List).map((each) {
+      return QiscusChatRoom.fromJson(each);
+    }).toList();
+  }
+
+  //todo getAllChatRooms(boolean showParticipant,
+  //            boolean showRemoved,
+  //            boolean showEmpty,
+  //            int page,
+  //            int limit,
+  //            )
+
+  //todo getLocalChatRooms limit,offset
+
+  //todo getLocalChatRooms limit
+
+  //todo getTotalUnreadCount
 }

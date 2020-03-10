@@ -219,7 +219,7 @@ public class QiscusSdkHelper {
 
     // encode chatRoomListPair to be ready for serialized at platform channel
     public static HashMap<String, String> encodeChatRoomListPair(Pair<QiscusChatRoom, List<QiscusComment>> chatRoomListPair) {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         Gson gson = AmininGsonBuilder.createGson();
         // on success getting chat room
         QiscusChatRoom qiscusChatRoom = chatRoomListPair.first;

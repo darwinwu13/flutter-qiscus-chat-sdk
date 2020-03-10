@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -146,20 +147,49 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 break;
 
             case "getChatRoomWithMessages":
-                long roomId = call.argument("roomId");
+                int temp = call.argument("roomId");
+                long roomId = temp;
                 getChatRoomWithMessages(roomId, result);
                 break;
             case "getLocalChatRoom":
-                roomId = call.argument("roomId");
+                temp = call.argument("roomId");
+                roomId = temp;
                 getLocalChatRoom(roomId, result);
                 break;
             case "getChatRoomByRoomIds":
                 //todo will call getChatRoomByRoomIds() here
                 break;
             case "getLocalChatRoomByRoomIds":
-                List<Long> roomIds = call.argument("roomIds");
-
+                List<Integer> tempIntList = call.argument("roomIds");
+                List<Long> roomIds = new ArrayList<>(tempIntList.size());
+                for(Integer item : tempIntList){
+                    roomIds.add(item.longValue());
+                }
                 getLocalChatRoomByRoomIds(roomIds, result);
+                break;
+
+            case "getAllChatRooms":
+                boolean showParticipant = call.argument("showParticipant");
+                boolean showEmpty = call.argument("showEmpty");
+                boolean showRemoved = call.argument("showRemoved");
+                int pageInt = call.argument("page");
+                int limitInt = call.argument("limit");
+
+                getAllChatRooms(showParticipant, showRemoved, showEmpty, pageInt, limitInt, result);
+                break;
+
+            case "getLocalChatRooms":
+                int offset = 0;
+                limitInt = call.argument("limit");
+                if(call.hasArgument("offset")) {
+                    offset = call.argument("offset");
+                    getLocalChatRooms(limitInt, offset, result);
+                }else
+                    getLocalChatRooms(limitInt, result);
+
+                break;
+            case "getTotalUnreadCount":
+                getTotalUnreadCount(result);
                 break;
             default:
                 result.notImplemented();
@@ -221,7 +251,8 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             String username,
             String avatarUrl,
             JSONObject extras,
-            Result result) {
+            Result result
+    ) {
         QiscusCore.SetUserBuilder userBuilder = QiscusCore.setUser(userId, userKey)
                 .withUsername(username);
         if (avatarUrl != null && !avatarUrl.equals("")) {
@@ -336,6 +367,8 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
     }
 
+
+
     private void getLocalChatRoom(long roomId, Result result) {
         QiscusChatRoom chatRoom = QiscusCore.getDataStore().getChatRoom(roomId);
 
@@ -343,17 +376,86 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
 
-    private void getChatRoomByRoomIds(ArrayList<Long> roomIds, Result result) {
+    private void getChatRoomByRoomIds(
+            ArrayList<Long> roomIds,
+            boolean showRemoved,
+            boolean showParticipant,
+            Result result
+    ) {
         //TODO later will implement this
+        QiscusApi.getInstance().getChatRooms(roomIds, showRemoved, showParticipant)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(chatRoomList -> {
+                    // on success
+                    //todo need to implement encode chatroom list
+
+                    result.success(true);
+                }, throwable -> {
+                    // on error
+                    result.error("ERR_GET_CHATROOM_BY_IDS", throwable.getMessage(), throwable);
+                });
     }
 
     private void getLocalChatRoomByRoomIds(List<Long> roomIds, Result result) {
-        List<QiscusChatRoom> chatRooms = QiscusCore.getDataStore().getChatRooms(roomIds, null);
-        ArrayList<String> encoded = new ArrayList<>();
-        for (QiscusChatRoom chatRoom : chatRooms) {
-            encoded.add(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
+        List<QiscusChatRoom> chatRooms = QiscusCore.getDataStore().getChatRooms(roomIds, new ArrayList<>());
+        Gson gson = AmininGsonBuilder.createGson();
+        result.success(gson.toJson(chatRooms));
+    }
+
+    private void getAllChatRooms(
+            boolean showParticipant,
+            boolean showRemoved,
+            boolean showEmpty,
+            int page,
+            int limit,
+            Result result
+    ) {
+        QiscusApi.getInstance().getAllChatRooms(showParticipant, showRemoved, showEmpty, page, limit)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(chatRoomList -> {
+                    ArrayList<String> chatRooms = new ArrayList<>();
+                    for (QiscusChatRoom chatRoom : chatRoomList) {
+                        chatRooms.add(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
+                    }
+                    result.success(chatRooms);
+                }, throwable -> {
+                    result.error("ERR_GET_ALL_CHAT_ROOMS", throwable.getMessage(), throwable);
+                });
+
+    }
+
+    private void getLocalChatRooms(int limit, int offset, Result result) {
+        List<QiscusChatRoom> chatRoomList = QiscusCore.getDataStore().getChatRooms(limit, offset);
+        ArrayList<String> chatRooms = new ArrayList<>();
+        for (QiscusChatRoom chatRoom : chatRoomList) {
+            chatRooms.add(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
         }
-        result.success(encoded);
+        result.success(chatRooms);
+
+    }
+
+    private void getLocalChatRooms(int limit, Result result) {
+        List<QiscusChatRoom> chatRoomList = QiscusCore.getDataStore().getChatRooms(limit);
+        ArrayList<String> chatRooms = new ArrayList<>();
+        for (QiscusChatRoom chatRoom : chatRoomList) {
+            chatRooms.add(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
+        }
+        result.success(chatRooms);
+
+    }
+
+
+    private void getTotalUnreadCount(Result result){
+        QiscusApi.getInstance().getTotalUnreadCount()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(totalUnreadCount -> {
+                    result.success(totalUnreadCount);
+                }, throwable -> {
+                    result.error("ERR_GET_TOTAL_UNREAD_COUNT",throwable.getMessage(),throwable);
+                });
     }
 
 }
