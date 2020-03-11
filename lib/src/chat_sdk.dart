@@ -8,11 +8,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:tuple/tuple.dart';
 
-import 'qiscus_account.dart';
-import 'qiscus_chat_room.dart';
+import 'model/qiscus_account.dart';
+import 'model/qiscus_chat_room.dart';
 
-export 'qiscus_account.dart';
-export 'qiscus_chat_room.dart';
+export 'model/qiscus_account.dart';
+export 'model/qiscus_chat_room.dart';
 
 class ChatSdk {
   static const MethodChannel _channel = const MethodChannel('bahaso.com/qiscus_chat_sdk');
@@ -213,5 +213,7 @@ class ChatSdk {
     }).toList();
   }
 
-//todo getTotalUnreadCount
+  static Future<int> getTotalUnreadCount() async {
+    return await _channel.invokeMethod('getTotalUnreadCount');
+  }
 }

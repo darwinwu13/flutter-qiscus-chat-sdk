@@ -1,3 +1,3 @@
 library qiscus_sdk;
 
-export 'chat_sdk.dart';
+export 'src/chat_sdk.dart';
