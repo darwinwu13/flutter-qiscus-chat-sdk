@@ -196,16 +196,22 @@ class ChatSdk {
       'page': page,
       'limit': limit,
     });
-    var a = jsonDecode(json);
-    dev.log('all chat room: $a');
+
     return (jsonDecode(json) as List).map((each) {
       return QiscusChatRoom.fromJson(each);
     }).toList();
   }
 
-//todo getLocalChatRooms limit,offset
+  static Future<List<QiscusChatRoom>> getLocalChatRooms({int limit: 100, int offset}) async {
+    Map<String, int> arguments = {'limit': limit};
+    if (offset != null) arguments['offset'] = offset;
+    String json = await _channel.invokeMethod('getLocalChatRooms', arguments);
+    dev.log("getlocalhatrooms: $json");
 
-//todo getLocalChatRooms limit
+    return (jsonDecode(json) as List).map((each) {
+      return QiscusChatRoom.fromJson(each);
+    }).toList();
+  }
 
 //todo getTotalUnreadCount
 }

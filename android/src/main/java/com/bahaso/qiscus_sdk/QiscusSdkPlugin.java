@@ -424,22 +424,15 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
     private void getLocalChatRooms(int limit, int offset, Result result) {
+        Gson gson = AmininGsonBuilder.createGson();
         List<QiscusChatRoom> chatRoomList = QiscusCore.getDataStore().getChatRooms(limit, offset);
-        ArrayList<String> chatRooms = new ArrayList<>();
-        for (QiscusChatRoom chatRoom : chatRoomList) {
-            chatRooms.add(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
-        }
-        result.success(chatRooms);
-
+        result.success(gson.toJson(chatRoomList));
     }
 
     private void getLocalChatRooms(int limit, Result result) {
+        Gson gson = AmininGsonBuilder.createGson();
         List<QiscusChatRoom> chatRoomList = QiscusCore.getDataStore().getChatRooms(limit);
-        ArrayList<String> chatRooms = new ArrayList<>();
-        for (QiscusChatRoom chatRoom : chatRoomList) {
-            chatRooms.add(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
-        }
-        result.success(chatRooms);
+        result.success(gson.toJson(chatRoomList));
 
     }
 

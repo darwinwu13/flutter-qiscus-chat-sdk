@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -121,9 +122,26 @@ class _MyAppState extends State<MyApp> {
               child: Text('get All chat rooms'),
               onPressed: () async {
                 List<QiscusChatRoom> chatRoom = await ChatSdk.getAllChatRooms(showEmpty: true);
-                print("local all chat room : $chatRoom");
-                print("local all chat room : ${chatRoom[0].lastComment.time.toLocal()}");
-                print("local all chat room : ${DateTime.now().timeZoneOffset}");
+                dev.log(" all chat room : $chatRoom");
+                dev.log(" all chat room : ${chatRoom[0].lastComment.time.toLocal()}");
+                dev.log(" all chat room : ${DateTime
+                    .now()
+                    .timeZoneOffset}");
+              },
+            ),
+            RaisedButton(
+              child: Text('get Local chat rooms with Limit, offset'),
+              onPressed: () async {
+                List<QiscusChatRoom> chatRoom =
+                await ChatSdk.getLocalChatRooms(limit: 100, offset: 0);
+                dev.log("local all chat room limit offset: $chatRoom");
+              },
+            ),
+            RaisedButton(
+              child: Text('get Local chat rooms with Limit '),
+              onPressed: () async {
+                List<QiscusChatRoom> chatRoom = await ChatSdk.getLocalChatRooms();
+                dev.log("local all chat room  limit: $chatRoom");
               },
             ),
           ],
