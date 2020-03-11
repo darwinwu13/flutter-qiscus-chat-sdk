@@ -124,16 +124,14 @@ class _MyAppState extends State<MyApp> {
                 List<QiscusChatRoom> chatRoom = await ChatSdk.getAllChatRooms(showEmpty: true);
                 dev.log(" all chat room : $chatRoom");
                 dev.log(" all chat room : ${chatRoom[0].lastComment.time.toLocal()}");
-                dev.log(" all chat room : ${DateTime
-                    .now()
-                    .timeZoneOffset}");
+                dev.log(" all chat room : ${DateTime.now().timeZoneOffset}");
               },
             ),
             RaisedButton(
               child: Text('get Local chat rooms with Limit, offset'),
               onPressed: () async {
                 List<QiscusChatRoom> chatRoom =
-                await ChatSdk.getLocalChatRooms(limit: 100, offset: 0);
+                    await ChatSdk.getLocalChatRooms(limit: 100, offset: 0);
                 dev.log("local all chat room limit offset: $chatRoom");
               },
             ),
