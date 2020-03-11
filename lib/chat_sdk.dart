@@ -182,16 +182,30 @@ class ChatSdk {
     }).toList();
   }
 
-  //todo getAllChatRooms(boolean showParticipant,
-  //            boolean showRemoved,
-  //            boolean showEmpty,
-  //            int page,
-  //            int limit,
-  //            )
+  static Future<List<QiscusChatRoom>> getAllChatRooms({
+    bool showParticipant: true,
+    bool showRemoved: false,
+    bool showEmpty: false,
+    int page: 1,
+    int limit: 100,
+  }) async {
+    String json = await _channel.invokeMethod('getAllChatRooms', {
+      'showParticipant': showParticipant,
+      'showRemoved': showRemoved,
+      'showEmpty': showEmpty,
+      'page': page,
+      'limit': limit,
+    });
+    var a = jsonDecode(json);
+    dev.log('all chat room: $a');
+    return (jsonDecode(json) as List).map((each) {
+      return QiscusChatRoom.fromJson(each);
+    }).toList();
+  }
 
-  //todo getLocalChatRooms limit,offset
+//todo getLocalChatRooms limit,offset
 
-  //todo getLocalChatRooms limit
+//todo getLocalChatRooms limit
 
-  //todo getTotalUnreadCount
+//todo getTotalUnreadCount
 }

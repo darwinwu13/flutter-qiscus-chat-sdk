@@ -415,11 +415,8 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(chatRoomList -> {
-                    ArrayList<String> chatRooms = new ArrayList<>();
-                    for (QiscusChatRoom chatRoom : chatRoomList) {
-                        chatRooms.add(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
-                    }
-                    result.success(chatRooms);
+                    Gson gson = AmininGsonBuilder.createGson();
+                    result.success(gson.toJson(chatRoomList));
                 }, throwable -> {
                     result.error("ERR_GET_ALL_CHAT_ROOMS", throwable.getMessage(), throwable);
                 });

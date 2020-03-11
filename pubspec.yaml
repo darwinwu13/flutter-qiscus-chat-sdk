@@ -1,8 +1,8 @@
 name: qiscus_sdk
 description: Qiscus Chat SDK plugin for iOS and Android
 version: 0.0.1
-author:
-homepage:
+author: Darwin
+homepage: https://github.com/darwinwu13/flutter-qiscus-chat-sdk
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

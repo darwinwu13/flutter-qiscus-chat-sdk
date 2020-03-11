@@ -76,6 +76,7 @@ class AmininGsonBuilder {
         return new GsonBuilder()
                 .registerTypeAdapterFactory(
                         new EmptyCheckTypeAdapterFactory())
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
                 .create();
     }
 

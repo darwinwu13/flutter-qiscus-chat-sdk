@@ -117,6 +117,15 @@ class _MyAppState extends State<MyApp> {
                 print("local chat room ids : $chatRoom");
               },
             ),
+            RaisedButton(
+              child: Text('get All chat rooms'),
+              onPressed: () async {
+                List<QiscusChatRoom> chatRoom = await ChatSdk.getAllChatRooms(showEmpty: true);
+                print("local all chat room : $chatRoom");
+                print("local all chat room : ${chatRoom[0].lastComment.time.toLocal()}");
+                print("local all chat room : ${DateTime.now().timeZoneOffset}");
+              },
+            ),
           ],
         ),
       ),
