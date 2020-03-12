@@ -33,7 +33,6 @@ class _MyAppState extends State<MyApp> {
   Future<void> init() async {
     await ChatSdk.setup(appId: "testapp-hl5q64wriaulf");
     await ChatSdk.enableDebugMode(true);
-    //todo need to check what happened if already logout
     try {
       qiscusAccount = await ChatSdk.getQiscusAccount();
       setState(() {
@@ -131,6 +130,7 @@ class _MyAppState extends State<MyApp> {
                                   ChatPage(
                                     roomId: roomId,
                                     roomName: 'Edwin  Fadilah',
+                                    senderAccount: qiscusAccount,
                                   ),
                             ),
                           );
@@ -149,6 +149,7 @@ class _MyAppState extends State<MyApp> {
                                   ChatPage(
                                     roomId: roomId,
                                     roomName: 'Darwin wu',
+                                    senderAccount: qiscusAccount,
                                   ),
                             ),
                           );
