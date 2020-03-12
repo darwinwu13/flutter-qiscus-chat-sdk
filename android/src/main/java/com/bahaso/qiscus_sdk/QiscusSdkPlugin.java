@@ -11,14 +11,15 @@ import com.qiscus.sdk.chat.core.QiscusCore;
 import com.qiscus.sdk.chat.core.data.model.NotificationListener;
 import com.qiscus.sdk.chat.core.data.model.QiscusAccount;
 import com.qiscus.sdk.chat.core.data.model.QiscusChatRoom;
+import com.qiscus.sdk.chat.core.data.model.QiscusComment;
 import com.qiscus.sdk.chat.core.data.remote.QiscusApi;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -162,7 +163,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             case "getLocalChatRoomByRoomIds":
                 List<Integer> tempIntList = call.argument("roomIds");
                 List<Long> roomIds = new ArrayList<>(tempIntList.size());
-                for(Integer item : tempIntList){
+                for (Integer item : tempIntList) {
                     roomIds.add(item.longValue());
                 }
                 getLocalChatRoomByRoomIds(roomIds, result);
@@ -181,15 +182,31 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             case "getLocalChatRooms":
                 int offset = 0;
                 limitInt = call.argument("limit");
-                if(call.hasArgument("offset")) {
+                if (call.hasArgument("offset")) {
                     offset = call.argument("offset");
                     getLocalChatRooms(limitInt, offset, result);
-                }else
+                } else
                     getLocalChatRooms(limitInt, result);
 
                 break;
             case "getTotalUnreadCount":
                 getTotalUnreadCount(result);
+                break;
+
+            case "sendMessage":
+                extras = null;
+                temp = call.argument("roomId");
+                roomId = temp;
+                String message = call.argument("message");
+                if (call.hasArgument("extras")) {
+                    Map<String, Object> extrasMap = call.argument("extras");
+                    extras = new JSONObject(extrasMap);
+                }
+                sendMessage(roomId, message, extras, result);
+                break;
+
+            case "getQiscusAccount":
+                getQiscusAccount(result);
                 break;
             default:
                 result.notImplemented();
@@ -368,7 +385,6 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
 
-
     private void getLocalChatRoom(long roomId, Result result) {
         QiscusChatRoom chatRoom = QiscusCore.getDataStore().getChatRoom(roomId);
 
@@ -382,17 +398,15 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             boolean showParticipant,
             Result result
     ) {
-        //TODO later will implement this
+        //TODO later will implement this getChatRoomByRoomIds
         QiscusApi.getInstance().getChatRooms(roomIds, showRemoved, showParticipant)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(chatRoomList -> {
-                    // on success
-                    //todo need to implement encode chatroom list
+                    Gson gson = AmininGsonBuilder.createGson();
 
-                    result.success(true);
+                    result.success(gson.toJson(chatRoomList));
                 }, throwable -> {
-                    // on error
                     result.error("ERR_GET_CHATROOM_BY_IDS", throwable.getMessage(), throwable);
                 });
     }
@@ -437,15 +451,69 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
 
-    private void getTotalUnreadCount(Result result){
+    private void getTotalUnreadCount(Result result) {
         QiscusApi.getInstance().getTotalUnreadCount()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(totalUnreadCount -> {
                     result.success(totalUnreadCount);
                 }, throwable -> {
-                    result.error("ERR_GET_TOTAL_UNREAD_COUNT",throwable.getMessage(),throwable);
+                    result.error("ERR_GET_TOTAL_UNREAD_COUNT", throwable.getMessage(), throwable);
                 });
     }
+
+    private void sendMessage(long roomId, String message, JSONObject extras, Result result) {
+        //Generate message object
+        QiscusComment qiscusMessage = QiscusComment.generateMessage(roomId, message);
+        if (extras != null) qiscusMessage.setExtras(extras);
+
+        //Send message
+        QiscusApi.getInstance().sendMessage(qiscusMessage)
+                .subscribeOn(Schedulers.io()) // need to run this task on IO thread
+                .observeOn(AndroidSchedulers.mainThread()) // deliver result on main thread or UI thread
+                .subscribe(qiscusComment -> {
+                    Gson gson = AmininGsonBuilder.createGson();
+                    result.success(gson.toJson(qiscusComment));
+                }, throwable -> {
+                    result.error("ERR_FAILED_SEND_MESSAGE", throwable.getMessage(), throwable);
+                });
+
+    }
+
+
+    private void sendFileMessage(long roomId, String caption, String fileUrl, String type, File file, Result result) {
+        //todo logic check if type is file_attachment
+        // generate qiscus comment and use sendfileMesssage instead
+        String filename = "";
+        QiscusComment message = QiscusComment.generateFileAttachmentMessage(roomId, fileUrl, caption, filename);
+
+        //Send message
+        QiscusApi.getInstance().sendMessage(message)
+                .subscribeOn(Schedulers.io()) // need to run this task on IO thread
+                .observeOn(AndroidSchedulers.mainThread()) // deliver result on main thread or UI thread
+                .subscribe(qiscusComment -> {
+                    Gson gson = AmininGsonBuilder.createGson();
+                    result.success(gson.toJson(qiscusComment));
+                }, throwable -> {
+                    result.error("ERR_FAILED_SEND_MESSAGE", throwable.getMessage(), throwable);
+                });
+
+    }
+
+    /**
+     * get User That has been login
+     *
+     * @param result
+     */
+    private void getQiscusAccount(Result result) {
+        try {
+            result.success(QiscusSdkHelper.encodeQiscusAccount(QiscusCore.getQiscusAccount()));
+
+        } catch (Exception e) {
+            result.error("ERR_FAILED_GET_ACCOUNT", e.getMessage(), e);
+        }
+
+    }
+
 
 }

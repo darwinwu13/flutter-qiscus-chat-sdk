@@ -14,16 +14,18 @@ class QiscusChatRoom {
   final bool group;
   final bool channel;
   final String avatarUrl;
-//  @JsonKey(toJson: _memberToJson)
+
+  //  @JsonKey(toJson: _memberToJson)
   final List<QiscusRoomMember> member;
   final int unreadCount;
-//  @JsonKey(toJson: _lastCommentToJson)
+
+  //  @JsonKey(toJson: _lastCommentToJson)
   final QiscusComment lastComment;
   final int memberCount;
 
-//  static String _memberToJson(List<QiscusRoomMember> member) => member.toString();
+  //  static String _memberToJson(List<QiscusRoomMember> member) => member.toString();
 
-//  static String _lastCommentToJson(QiscusComment lastComment) => lastComment.toString();
+  //  static String _lastCommentToJson(QiscusComment lastComment) => lastComment.toString();
 
   QiscusChatRoom(
       this.id,
@@ -86,7 +88,7 @@ class QiscusComment {
   final String caption;
   final String attachmentName;
 
-  factory QiscusComment.fromJson(Map<String, dynamic> json) => _$QiscusCommentFromJson(json);
+  static QiscusComment fromJson(Map<String, dynamic> json) => _$QiscusCommentFromJson(json);
 
   QiscusComment(
     this.id,
@@ -152,4 +154,11 @@ class QiscusRoomMember {
   String toString() {
     return toJson().toString();
   }
+}
+
+class CommentType {
+  static const String FILE_ATTACHMENT = "file_attachment";
+  static const String TEXT = "text";
+
+//todo other type havent been implemented
 }

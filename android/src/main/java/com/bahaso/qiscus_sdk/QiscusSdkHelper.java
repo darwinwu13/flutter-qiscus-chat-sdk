@@ -18,13 +18,85 @@ import com.qiscus.sdk.chat.core.util.QiscusTextUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class QiscusSdkHelper {
 
-    public static QiscusComment parseQiscusComment(JsonElement jsonElement, long roomId) {
+    public static QiscusComment parseQiscusComment(String json) {
+        JsonObject jsonComment = JsonParser.parseString(json).getAsJsonObject();
+        return parseQiscusComment(jsonComment);
+    }
+
+    private static QiscusComment parseQiscusComment(JsonObject jsonComment) {
+        //todo need to test apakah jsonObjec di get dan di check isjsonNull efek untuk yg ga ada key
+        QiscusComment qiscusComment = new QiscusComment();
+        qiscusComment.setRoomId(jsonComment.get("roomId").isJsonNull() ? -1 :
+                jsonComment.get("roomId").getAsLong());
+        qiscusComment.setId(jsonComment.get("id").getAsLong());
+        qiscusComment.setCommentBeforeId(jsonComment.get("commentBeforeId").getAsLong());
+        qiscusComment.setUniqueId(jsonComment.get("uniqueId").getAsString());
+        qiscusComment.setSender(jsonComment.get("sender").getAsString());
+        qiscusComment.setSenderEmail(jsonComment.get("senderEmail").getAsString());
+        qiscusComment.setSenderAvatar(jsonComment.get("senderAvatar").getAsString());
+        qiscusComment.setState(jsonComment.get("state").getAsInt());
+
+        //todo after have comment need to recheck this
+        //timestamp is in nano seconds format, convert it to milliseconds by divide it
+        //long timestamp = jsonComment.get("unix_nano_timestamp").getAsLong() / 1000000L;
+        try {
+            qiscusComment.setTime(iso8601Format(jsonComment.get("time").getAsString()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        qiscusComment.setDeleted(jsonComment.get("deleted").getAsBoolean());
+        qiscusComment.setHardDeleted(jsonComment.get("hardDeleted").getAsBoolean());
+        qiscusComment.setSelected(jsonComment.get("selected").getAsBoolean());
+        qiscusComment.setHighlighted(jsonComment.get("highlighted").getAsBoolean());
+        qiscusComment.setDownloading(jsonComment.get("downloading").getAsBoolean());
+        qiscusComment.setProgress(jsonComment.get("progress").getAsInt());
+
+        if (jsonComment.has("roomName") && !jsonComment.get("roomName").isJsonNull()) {
+            qiscusComment.setRoomName(jsonComment.get("roomName").getAsString());
+        }
+
+        if (jsonComment.has("roomAvatar") && !jsonComment.get("roomAvatar").isJsonNull()) {
+            qiscusComment.setRoomAvatar(jsonComment.get("roomAvatar").getAsString());
+        }
+
+        qiscusComment.setGroupMessage(jsonComment.get("groupMessage").getAsBoolean());
+        qiscusComment.setRawType(jsonComment.get("rawType").getAsString());
+        qiscusComment.setExtraPayload(jsonComment.get("extraPayload").toString());
+
+
+        if (jsonComment.has("message") && !jsonComment.get("message").isJsonNull()) {
+            String text = jsonComment.get("message").getAsString();
+            if (QiscusTextUtil.isNotBlank(text)) {
+                qiscusComment.setMessage(text.trim());
+            }
+        }
+
+
+        if (jsonComment.has("extras") && !jsonComment.get("extras").isJsonNull()) {
+            try {
+                qiscusComment.setExtras(new JSONObject(jsonComment.get("extras").getAsJsonObject().toString()));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return qiscusComment;
+    }
+
+    public static QiscusComment parseQiscusComment(JsonObject jsonComment, long roomId) {
 
        /* final int id; v
         final int roomId; v
@@ -53,59 +125,9 @@ public class QiscusSdkHelper {
         final String caption; [by  getCaption]
         final String attachmentName; [by getAttachmentName]*/
 
-        QiscusComment qiscusComment = new QiscusComment();
-        JsonObject jsonComment = jsonElement.getAsJsonObject();
+        QiscusComment qiscusComment = parseQiscusComment(jsonComment);
         qiscusComment.setRoomId(roomId);
-        qiscusComment.setId(jsonComment.get("id").getAsLong());
-        qiscusComment.setCommentBeforeId(jsonComment.get("commentBeforeId").getAsLong());
-        qiscusComment.setUniqueId(jsonComment.get("uniqueId").getAsString());
-        qiscusComment.setSender(jsonComment.get("sender").getAsString());
-        qiscusComment.setSenderEmail(jsonComment.get("senderEmail").getAsString());
-        qiscusComment.setSenderAvatar(jsonComment.get("senderAvatar").getAsString());
-        qiscusComment.setState(jsonComment.get("state").getAsInt());
-
-        //todo after have comment need to recheck this
-        //timestamp is in nano seconds format, convert it to milliseconds by divide it
-        //long timestamp = jsonComment.get("unix_nano_timestamp").getAsLong() / 1000000L;
-        //qiscusComment.setTime(new Date(timestamp));
-
-        qiscusComment.setDeleted(jsonComment.get("deleted").getAsBoolean());
-        qiscusComment.setHardDeleted(jsonComment.get("hardDeleted").getAsBoolean());
-        qiscusComment.setSelected(jsonComment.get("selected").getAsBoolean());
-        qiscusComment.setHighlighted(jsonComment.get("highlighted").getAsBoolean());
-        qiscusComment.setDownloading(jsonComment.get("downloading").getAsBoolean());
-        qiscusComment.setProgress(jsonComment.get("progress").getAsInt());
-
-        if (jsonComment.has("roomName")) {
-            qiscusComment.setRoomName(jsonComment.get("roomName").getAsString());
-        }
-
-        if (jsonComment.has("roomAvatar")) {
-            qiscusComment.setRoomAvatar(jsonComment.get("roomAvatar").getAsString());
-        }
-
-        qiscusComment.setGroupMessage(jsonComment.get("groupMessage").getAsBoolean());
-        qiscusComment.setRawType(jsonComment.get("rawType").getAsString());
-        qiscusComment.setExtraPayload(jsonComment.get("extraPayload").toString());
-
-
-        if (jsonComment.has("message")) {
-            String text = jsonComment.get("message").getAsString();
-            if (QiscusTextUtil.isNotBlank(text)) {
-                qiscusComment.setMessage(text.trim());
-            }
-        }
-
-
-        if (jsonComment.has("extras") && !jsonComment.get("extras").isJsonNull()) {
-            try {
-                qiscusComment.setExtras(new JSONObject(jsonComment.get("extras").getAsJsonObject().toString()));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return qiscusComment;
+        return  qiscusComment;
     }
 
 
@@ -206,7 +228,7 @@ public class QiscusSdkHelper {
         chatRoom.setMember(members);
 
         chatRoom.setLastComment(jsonChatRoom.get("lastComment").isJsonNull() ? null :
-                QiscusSdkHelper.parseQiscusComment(jsonChatRoom.get("lastComment"), chatRoom.getId()));
+                QiscusSdkHelper.parseQiscusComment(jsonChatRoom.get("lastComment").getAsJsonObject(), chatRoom.getId()));
 
 
         return chatRoom;
@@ -232,9 +254,24 @@ public class QiscusSdkHelper {
     }
 
 
-    public static String encodeQiscusChatRoom(QiscusChatRoom chatRoom){
+    public static String encodeQiscusChatRoom(QiscusChatRoom chatRoom) {
         Gson gson = AmininGsonBuilder.createGson();
         return gson.toJson(chatRoom);
     }
+
+
+    public static Date iso8601Format(String formattedDate) throws ParseException {
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+            return df.parse(formattedDate);
+        } catch (IllegalArgumentException ex) {
+            // error happen in Java 6: Unknown pattern character 'X'
+            if (formattedDate.endsWith("Z")) formattedDate = formattedDate.replace("Z", "+0000");
+            else formattedDate = formattedDate.replaceAll("([+-]\\d\\d):(\\d\\d)\\s*$", "$1$2");
+            DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.getDefault());
+            return df1.parse(formattedDate);
+        }
+    }
+
 
 }

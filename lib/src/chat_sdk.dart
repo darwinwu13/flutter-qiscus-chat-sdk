@@ -3,6 +3,7 @@ library qiscus_sdk;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -146,7 +147,6 @@ class ChatSdk {
 
   static Future<bool> addOrUpdateLocalChatRoom(QiscusChatRoom chatRoom) async {
     var args = {'chatRoom': jsonEncode(chatRoom)};
-    print("args: $args");
     return await _channel.invokeMethod(
       'addOrUpdateLocalChatRoom',
       args,
@@ -161,8 +161,7 @@ class ChatSdk {
         QiscusChatRoom.fromJson(jsonDecode(chatRoomListPairJsonStr['chatRoom']));
     List<QiscusComment> messages =
         (jsonDecode(chatRoomListPairJsonStr['messages']) as List).map((each) {
-      String message = each as String;
-      return QiscusComment.fromJson(jsonDecode(message));
+      return QiscusComment.fromJson(each);
     }).toList();
 
     return Tuple2(qiscusChatRoom, messages);
@@ -215,5 +214,36 @@ class ChatSdk {
 
   static Future<int> getTotalUnreadCount() async {
     return await _channel.invokeMethod('getTotalUnreadCount');
+  }
+
+  static Future<QiscusComment> sendMessage({
+    @required int roomId,
+    String message,
+    String type,
+    File imageFile,
+    Map<String, dynamic> extras,
+    Map<String, dynamic> payload,
+  }) async {
+    String caption = "";
+    if (type == CommentType.FILE_ATTACHMENT) {
+      caption = message;
+    } else if (type == CommentType.TEXT) {
+      var args = {
+        'roomId': roomId,
+        'message': message,
+        'type': CommentType.TEXT,
+      };
+      if (extras != null) args['extras'] = extras;
+      String json = await _channel.invokeMethod('sendMessage', args);
+
+      return QiscusComment.fromJson(jsonDecode(json));
+    }
+  }
+
+  /// get Qiscus account that has been log in
+  static Future<QiscusAccount> getQiscusAccount() async {
+    String json = await _channel.invokeMethod('getQiscusAccount');
+
+    return QiscusAccount.fromJson(jsonDecode(json));
   }
 }
