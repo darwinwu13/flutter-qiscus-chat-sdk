@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -5,7 +6,7 @@ part 'qiscus_chat_room.g.dart';
 
 @immutable
 @JsonSerializable(explicitToJson: true)
-class QiscusChatRoom {
+class QiscusChatRoom extends Equatable {
   final int id;
   final String distinctId;
   final String uniqueId;
@@ -27,8 +28,7 @@ class QiscusChatRoom {
 
   //  static String _lastCommentToJson(QiscusComment lastComment) => lastComment.toString();
 
-  QiscusChatRoom(
-      this.id,
+  QiscusChatRoom(this.id,
       this.distinctId,
       this.uniqueId,
       this.name,
@@ -49,11 +49,14 @@ class QiscusChatRoom {
   String toString() {
     return toJson().toString();
   }
+
+  @override
+  List<Object> get props => [id, distinctId, uniqueId, name];
 }
 
 @immutable
 @JsonSerializable()
-class QiscusComment {
+class QiscusComment extends Equatable {
   static const int STATE_FAILED = -1;
   static const int STATE_PENDING = 0;
   static const int STATE_SENDING = 1;
@@ -90,34 +93,32 @@ class QiscusComment {
 
   static QiscusComment fromJson(Map<String, dynamic> json) => _$QiscusCommentFromJson(json);
 
-  QiscusComment(
-    this.id,
-    this.roomId,
-    this.uniqueId,
-    this.commentBeforeId,
-    this.message,
-    this.sender,
-    this.senderEmail,
-    this.senderAvatar,
-    this.time,
-    this.state,
-    this.deleted,
-    this.hardDeleted,
-    this.roomName,
-    this.roomAvatar,
-    this.groupMessage,
-    this.selected,
-    this.highlighted,
-    this.downloading,
-    this.progress,
-    this.urls,
-    this.rawType,
-    this.extraPayload,
-    this.extras,
-    this.replyTo,
-    this.caption,
-    this.attachmentName,
-  );
+  QiscusComment(this.id,
+      this.roomId,
+      this.uniqueId,
+      this.commentBeforeId,
+      this.message,
+      this.sender,
+      this.senderEmail,
+      this.senderAvatar,
+      this.time,
+      this.state,
+      this.deleted,
+      this.hardDeleted,
+      this.roomName,
+      this.roomAvatar,
+      this.groupMessage,
+      this.selected,
+      this.highlighted,
+      this.downloading,
+      this.progress,
+      this.urls,
+      this.rawType,
+      this.extraPayload,
+      this.extras,
+      this.replyTo,
+      this.caption,
+      this.attachmentName,);
 
   Map<String, dynamic> toJson() => _$QiscusCommentToJson(this);
 
@@ -125,11 +126,14 @@ class QiscusComment {
   String toString() {
     return toJson().toString();
   }
+
+  @override
+  List<Object> get props => [id, roomId, uniqueId];
 }
 
 @immutable
 @JsonSerializable()
-class QiscusRoomMember {
+class QiscusRoomMember extends Equatable {
   final String email;
   final String username;
   final String avatar;
@@ -139,14 +143,12 @@ class QiscusRoomMember {
 
   factory QiscusRoomMember.fromJson(Map<String, dynamic> json) => _$QiscusRoomMemberFromJson(json);
 
-  QiscusRoomMember(
-    this.email,
-    this.username,
-    this.avatar,
-    this.lastDeliveredCommentId,
-    this.lastReadCommentId,
-    this.extras,
-  );
+  QiscusRoomMember(this.email,
+      this.username,
+      this.avatar,
+      this.lastDeliveredCommentId,
+      this.lastReadCommentId,
+      this.extras,);
 
   Map<String, dynamic> toJson() => _$QiscusRoomMemberToJson(this);
 
@@ -154,6 +156,9 @@ class QiscusRoomMember {
   String toString() {
     return toJson().toString();
   }
+
+  @override
+  List<Object> get props => [email, username, avatar];
 }
 
 class CommentType {

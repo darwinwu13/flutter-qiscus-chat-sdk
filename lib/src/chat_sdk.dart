@@ -18,6 +18,39 @@ export 'model/qiscus_chat_room.dart';
 class ChatSdk {
   static const MethodChannel _channel = const MethodChannel('bahaso.com/qiscus_chat_sdk');
 
+  static Function(QiscusComment) _onReceiveComment;
+
+  static void init() {
+    _channel.setMethodCallHandler((MethodCall call) {
+      switch (call.method) {
+        case "onReceiveComment":
+          String json = call.arguments['comment'];
+
+          if (_onReceiveComment != null)
+            _onReceiveComment(QiscusComment.fromJson(jsonDecode(json)));
+          break;
+        default:
+          return;
+      }
+      return;
+    });
+  }
+
+  // ignore: missing_return
+  static Future<void> registerOnReceiveComment(Function(QiscusComment) onReceiveComment) {
+    _onReceiveComment = onReceiveComment;
+  }
+
+  // ignore: missing_return
+  static Future<void> unregisterOnReceiveComment() {
+    _onReceiveComment = null;
+  }
+
+  // ignore: missing_return
+  static Future<void> unregisterAllEventHandler() {
+    _onReceiveComment = null;
+  }
+
   static Future<void> setup({@required String appId}) {
     dev.log("chat Sdk setup", name: "Qiscus Chat SDK");
     return _channel.invokeMethod('setup', {'appId': appId});
@@ -153,6 +186,7 @@ class ChatSdk {
     );
   }
 
+  /// only return 20 latest messages with chat room
   static Future<Tuple2<QiscusChatRoom, List<QiscusComment>>> getChatRoomWithMessages(
       int roomId) async {
     Map<String, String> chatRoomListPairJsonStr = await _channel
@@ -245,5 +279,16 @@ class ChatSdk {
     String json = await _channel.invokeMethod('getQiscusAccount');
 
     return QiscusAccount.fromJson(jsonDecode(json));
+  }
+
+  static Future<List<QiscusComment>> getLocalComments({int roomId, int limit}) async {
+    var args = {'roomId': roomId};
+    if (limit != null) args['limit'] = limit;
+
+    String json = await _channel.invokeMethod("getLocalComments", args);
+    List<dynamic> comments = jsonDecode(json);
+    return comments.map((comment) {
+      return QiscusComment.fromJson(comment);
+    }).toList();
   }
 }

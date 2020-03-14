@@ -48,9 +48,6 @@ public class QiscusSdkHelper {
         qiscusComment.setSenderAvatar(jsonComment.get("senderAvatar").getAsString());
         qiscusComment.setState(jsonComment.get("state").getAsInt());
 
-        //todo after have comment need to recheck this
-        //timestamp is in nano seconds format, convert it to milliseconds by divide it
-        //long timestamp = jsonComment.get("unix_nano_timestamp").getAsLong() / 1000000L;
         try {
             qiscusComment.setTime(iso8601Format(jsonComment.get("time").getAsString()));
         } catch (ParseException e) {

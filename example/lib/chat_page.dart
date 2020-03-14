@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/fa_icon.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:qiscus_sdk/qiscus_sdk.dart';
+import 'dart:developer' as dev;
 
 class ChatPage extends StatefulWidget {
   final int roomId;
@@ -27,11 +28,51 @@ class _ChatPageState extends State<ChatPage> {
   String message;
   List<QiscusComment> comments = [];
   QiscusChatRoom chatRoom;
+  TextEditingController controller;
+  ScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
+    init();
+  }
+
+  void init() {
+    controller = TextEditingController();
+    scrollController = ScrollController();
+    initEventHandler();
     _getChatRoomWithMessages();
+  }
+
+  void initEventHandler() {
+    ChatSdk.registerOnReceiveComment(onReceiveComment);
+  }
+
+  void onReceiveComment(QiscusComment comment) {
+    print('on receive');
+    setState(() {
+      if (!comments.contains(comment)) {
+        comments.insert(0, comment);
+        scrollController.animateTo(
+          0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.linear,
+        );
+      }
+    });
+
+    //mark as read
+  }
+
+  //todo add lifecycle of app, use widgetBindingObserver
+
+  Future<void> _getLocalChatRoomWithMessages() async {
+    var qiscusChatroom = await ChatSdk.getLocalChatRoom(widget.roomId);
+    var qiscusComments = await ChatSdk.getLocalComments(roomId: widget.roomId, limit: 10);
+    setState(() {
+      chatRoom = qiscusChatroom;
+      comments = qiscusComments;
+    });
   }
 
   Future<void> _getChatRoomWithMessages() async {
@@ -39,6 +80,7 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {
       chatRoom = tupple.item1;
       comments = tupple.item2;
+      dev.log("comments: $comments");
     });
   }
 
@@ -72,8 +114,10 @@ class _ChatPageState extends State<ChatPage> {
           Container(
             height: 550,
             child: ListView(
+              controller: scrollController,
               shrinkWrap: true,
-              children: comments.reversed.map((QiscusComment comment) {
+              reverse: true,
+              children: comments.map((QiscusComment comment) {
                 return Container(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
@@ -111,6 +155,7 @@ class _ChatPageState extends State<ChatPage> {
                 width: 300,
                 padding: EdgeInsets.all(5),
                 child: TextField(
+                  controller: controller,
                   onChanged: (String text) {
                     message = text;
                   },
@@ -132,7 +177,15 @@ class _ChatPageState extends State<ChatPage> {
                   );
 
                   setState(() {
-                    comments.add(comment);
+                    controller.text = "";
+                    if (!comments.contains(comment)) {
+                      comments.insert(0, comment);
+                      scrollController.animateTo(
+                        0,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.linear,
+                      );
+                    }
                   });
                 },
               )
@@ -141,5 +194,11 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    ChatSdk.unregisterOnReceiveComment();
   }
 }

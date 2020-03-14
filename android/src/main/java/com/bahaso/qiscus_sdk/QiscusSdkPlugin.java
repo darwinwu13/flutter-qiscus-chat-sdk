@@ -13,6 +13,7 @@ import com.qiscus.sdk.chat.core.data.model.QiscusAccount;
 import com.qiscus.sdk.chat.core.data.model.QiscusChatRoom;
 import com.qiscus.sdk.chat.core.data.model.QiscusComment;
 import com.qiscus.sdk.chat.core.data.remote.QiscusApi;
+import com.qiscus.sdk.chat.core.data.remote.QiscusPusherApi;
 
 import org.json.JSONObject;
 
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.app.FlutterActivity;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -39,6 +41,8 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
     private Context applicationContext;
     private MethodChannel channel;
+    private QiscusEventHandler eventHandler;
+
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
@@ -50,6 +54,8 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         applicationContext = null;
         channel.setMethodCallHandler(null);
         channel = null;
+        eventHandler.unregisterEventBus();
+        eventHandler = null;
 
     }
 
@@ -58,6 +64,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
         channel = new MethodChannel(messenger, CHANNEL_NAME);
         channel.setMethodCallHandler(this);
+        eventHandler = new QiscusEventHandler(channel);
     }
 
     public static void registerWith(Registrar registrar) {
@@ -208,6 +215,24 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             case "getQiscusAccount":
                 getQiscusAccount(result);
                 break;
+
+            case "getLocalComments":
+                temp = call.argument("roomId");
+                roomId = temp;
+                if (!call.hasArgument("limit"))
+                    getLocalComments(roomId, result);
+                else {
+                    limitInt = call.argument("limit");
+                    getLocalComments(roomId, limitInt, result);
+
+                }
+                break;
+            case "registerEventHandler":
+                registerEventHandler(result);
+                break;
+            case "unregisterEventHandler":
+                unregisterEventHandler(result);
+                break;
             default:
                 result.notImplemented();
 
@@ -341,14 +366,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(qiscusAccounts -> {
                     Gson gson = AmininGsonBuilder.createGson();
-                    ArrayList<String> accounts = new ArrayList<String>();
-                    for (QiscusAccount account : qiscusAccounts) {
-                        if (account.getExtras().length() == 0) {
-                            account.setExtras(null);
-                        }
-                        accounts.add(gson.toJson(account));
-                    }
-                    result.success(accounts);
+                    result.success(gson.toJson(qiscusAccounts));
                 }, throwable -> {
                     result.error("ERR_GET_ALL_USERS", throwable.getMessage(), throwable);
                 });
@@ -515,5 +533,27 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
     }
 
+    private void getLocalComments(long roomId, Result result) {
+        List<QiscusComment> comments = QiscusCore.getDataStore().getComments(roomId);
+        Gson gson = AmininGsonBuilder.createGson();
+        result.success(gson.toJson(comments));
+    }
+
+    private void getLocalComments(long roomId, int limit, Result result) {
+        List<QiscusComment> comments = QiscusCore.getDataStore().getComments(roomId, limit);
+        Gson gson = AmininGsonBuilder.createGson();
+        result.success(gson.toJson(comments));
+    }
+
+
+    private void registerEventHandler(Result result){
+        eventHandler.registerEventBus();
+        result.success(true);
+    }
+
+    private void unregisterEventHandler(Result result){
+        eventHandler.unregisterEventBus();
+        result.success(true);
+    }
 
 }
