@@ -1,6 +1,7 @@
 package com.bahaso.qiscus_sdk;
 
 import com.google.gson.Gson;
+import com.qiscus.sdk.chat.core.event.QiscusChatRoomEvent;
 import com.qiscus.sdk.chat.core.event.QiscusCommentReceivedEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -9,15 +10,34 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.flutter.plugin.common.MethodChannel;
+import io.flutter.Log;
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
 
 public class QiscusEventHandler {
 
-    private MethodChannel channel;
+    private EventChannel eventChannel;
+    private EventChannel.EventSink eventSink;
+    private final String EVENT_CHANNEL_NAME = "bahaso.com/qiscus_chat_sdk/events";
 
-    public QiscusEventHandler(MethodChannel channel) {
-        this.channel = channel;
+    public QiscusEventHandler(BinaryMessenger messenger) {
+        eventChannel = new EventChannel(messenger, EVENT_CHANNEL_NAME);
         registerEventBus();
+        eventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(Object arguments, EventChannel.EventSink events) {
+                eventSink = events;
+                Log.e("EVENT SINK", " evet channel listened");
+
+            }
+
+            @Override
+            public void onCancel(Object arguments) {
+                eventSink = null;
+                Log.e("EVENT SINK", " event channel canceled");
+
+            }
+        });
     }
 
     public void registerEventBus() {
@@ -34,7 +54,16 @@ public class QiscusEventHandler {
     public void onReceiveComment(QiscusCommentReceivedEvent event) {
         Gson gson = AmininGsonBuilder.createGson();
         Map<String, Object> args = new HashMap<>();
-        args.put("comment", gson.toJson(event.getQiscusComment()));
-        channel.invokeMethod("onReceiveComment", args);
+        args.put("type", "comment_received");
+        args.put("comment", event.getQiscusComment());
+        if (eventSink != null)
+            eventSink.success(gson.toJson(args));
     }
+
+
+    @Subscribe
+    public void onReceiveChatRoomEvent(QiscusChatRoomEvent roomEvent) {
+
+    }
+
 }

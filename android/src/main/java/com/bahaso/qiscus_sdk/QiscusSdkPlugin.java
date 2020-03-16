@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import io.flutter.app.FlutterActivity;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -64,7 +63,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
         channel = new MethodChannel(messenger, CHANNEL_NAME);
         channel.setMethodCallHandler(this);
-        eventHandler = new QiscusEventHandler(channel);
+        eventHandler = new QiscusEventHandler(messenger);
     }
 
     public static void registerWith(Registrar registrar) {
@@ -232,6 +231,13 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 break;
             case "unregisterEventHandler":
                 unregisterEventHandler(result);
+                break;
+            case "markCommentAsRead":
+                temp = call.argument("roomId");
+                roomId = temp;
+                temp = call.argument("commentId");
+                int commentId = temp;
+                markCommentAsRead(roomId, commentId, result);
                 break;
             default:
                 result.notImplemented();
@@ -546,14 +552,20 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
 
-    private void registerEventHandler(Result result){
+    private void registerEventHandler(Result result) {
         eventHandler.registerEventBus();
         result.success(true);
     }
 
-    private void unregisterEventHandler(Result result){
+    private void unregisterEventHandler(Result result) {
         eventHandler.unregisterEventBus();
         result.success(true);
+    }
+
+    private void markCommentAsRead(long roomId, long commentId, Result result) {
+        QiscusPusherApi.getInstance().markAsRead(roomId, commentId);
+        result.success(true);
+
     }
 
 }

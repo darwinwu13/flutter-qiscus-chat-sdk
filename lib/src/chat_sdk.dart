@@ -11,44 +11,46 @@ import 'package:tuple/tuple.dart';
 
 import 'model/qiscus_account.dart';
 import 'model/qiscus_chat_room.dart';
+import 'model/qiscus_comment.dart';
 
 export 'model/qiscus_account.dart';
 export 'model/qiscus_chat_room.dart';
+export 'model/qiscus_chat_room_event.dart';
+export 'model/qiscus_comment.dart';
+export 'model/qiscus_room_member.dart';
 
 class ChatSdk {
   static const MethodChannel _channel = const MethodChannel('bahaso.com/qiscus_chat_sdk');
+  static const EventChannel _eventChannelCommentReceive =
+  const EventChannel('bahaso.com/qiscus_chat_sdk/events');
 
-  static Function(QiscusComment) _onReceiveComment;
+  static Stream<dynamic> _eventStream;
+  static StreamSubscription<dynamic> _eventSubscription;
+  static StreamController<QiscusComment> _commentReceiveController = StreamController.broadcast();
+  static StreamController<QiscusComment> _chatRoomEventController = StreamController.broadcast();
 
-  static void init() {
-    _channel.setMethodCallHandler((MethodCall call) {
-      switch (call.method) {
-        case "onReceiveComment":
-          String json = call.arguments['comment'];
+  static Stream<QiscusComment> get commentReceivedStream => _commentReceiveController.stream;
 
-          if (_onReceiveComment != null)
-            _onReceiveComment(QiscusComment.fromJson(jsonDecode(json)));
+  /// call this method to start listening to event channel, to
+  /// distribute into each events stream
+  static void startListeningToEventChannel() {
+    _eventStream = _eventChannelCommentReceive.receiveBroadcastStream();
+    _eventSubscription = _eventStream.listen((data) {
+      print('event channel data received');
+      Map<String, dynamic> result = jsonDecode(data);
+      switch (result['type']) {
+        case "comment_received":
+          _commentReceiveController.add(QiscusComment.fromJson(result['comment']));
           break;
-        default:
-          return;
+        case "chat_room_event_received":
+          break;
       }
-      return;
     });
   }
 
-  // ignore: missing_return
-  static Future<void> registerOnReceiveComment(Function(QiscusComment) onReceiveComment) {
-    _onReceiveComment = onReceiveComment;
-  }
-
-  // ignore: missing_return
-  static Future<void> unregisterOnReceiveComment() {
-    _onReceiveComment = null;
-  }
-
-  // ignore: missing_return
-  static Future<void> unregisterAllEventHandler() {
-    _onReceiveComment = null;
+  static void dispose() {
+    _eventSubscription.cancel();
+    _eventStream = null;
   }
 
   static Future<void> setup({@required String appId}) {
@@ -290,5 +292,12 @@ class ChatSdk {
     return comments.map((comment) {
       return QiscusComment.fromJson(comment);
     }).toList();
+  }
+
+  static Future<bool> markCommentAsRead(int roomId, int commentId) {
+    return _channel.invokeMethod('markCommentAsRead', {
+      'roomId': roomId,
+      'commentId': commentId,
+    });
   }
 }

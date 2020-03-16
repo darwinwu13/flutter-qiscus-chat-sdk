@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> init() async {
-    ChatSdk.init();
+    ChatSdk.startListeningToEventChannel();
     await ChatSdk.setup(appId: "testapp-hl5q64wriaulf");
     await ChatSdk.enableDebugMode(true);
     try {

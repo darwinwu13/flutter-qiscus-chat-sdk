@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:bubble/bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +33,7 @@ class _ChatPageState extends State<ChatPage> {
   QiscusChatRoom chatRoom;
   TextEditingController controller;
   ScrollController scrollController;
+  StreamSubscription _commentReceiveSubscription;
 
   @override
   void initState() {
@@ -45,7 +49,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void initEventHandler() {
-    ChatSdk.registerOnReceiveComment(onReceiveComment);
+    _commentReceiveSubscription = ChatSdk.commentReceivedStream.listen((QiscusComment comment) {
+      onReceiveComment(comment);
+    });
   }
 
   void onReceiveComment(QiscusComment comment) {
@@ -152,7 +158,7 @@ class _ChatPageState extends State<ChatPage> {
           Row(
             children: <Widget>[
               Container(
-                width: 300,
+                width: 250,
                 padding: EdgeInsets.all(5),
                 child: TextField(
                   controller: controller,
@@ -161,6 +167,17 @@ class _ChatPageState extends State<ChatPage> {
                   },
                   textInputAction: TextInputAction.newline,
                 ),
+              ),
+              RaisedButton(
+                color: Colors.blue,
+                textColor: Colors.white,
+                child: Icon(
+                  Icons.delete,
+                  size: 25,
+                ),
+                onPressed: () async {
+                  _commentReceiveSubscription.cancel();
+                },
               ),
               RaisedButton(
                 color: Colors.blue,
@@ -178,14 +195,14 @@ class _ChatPageState extends State<ChatPage> {
 
                   setState(() {
                     controller.text = "";
-                    if (!comments.contains(comment)) {
-                      comments.insert(0, comment);
-                      scrollController.animateTo(
-                        0,
-                        duration: Duration(milliseconds: 500),
-                        curve: Curves.linear,
-                      );
-                    }
+                    //                    if (!comments.contains(comment)) {
+                    //                      comments.insert(0, comment);
+                    //                      scrollController.animateTo(
+                    //                        0,
+                    //                        duration: Duration(milliseconds: 500),
+                    //                        curve: Curves.linear,
+                    //                      );
+                    //                    }
                   });
                 },
               )
@@ -199,6 +216,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     super.dispose();
-    ChatSdk.unregisterOnReceiveComment();
+    _commentReceiveSubscription.cancel();
   }
 }
