@@ -158,7 +158,7 @@ class _ChatPageState extends State<ChatPage> {
           Row(
             children: <Widget>[
               Container(
-                width: 250,
+                width: 300,
                 padding: EdgeInsets.all(5),
                 child: TextField(
                   controller: controller,
@@ -167,17 +167,6 @@ class _ChatPageState extends State<ChatPage> {
                   },
                   textInputAction: TextInputAction.newline,
                 ),
-              ),
-              RaisedButton(
-                color: Colors.blue,
-                textColor: Colors.white,
-                child: Icon(
-                  Icons.delete,
-                  size: 25,
-                ),
-                onPressed: () async {
-                  _commentReceiveSubscription.cancel();
-                },
               ),
               RaisedButton(
                 color: Colors.blue,
@@ -195,14 +184,6 @@ class _ChatPageState extends State<ChatPage> {
 
                   setState(() {
                     controller.text = "";
-                    //                    if (!comments.contains(comment)) {
-                    //                      comments.insert(0, comment);
-                    //                      scrollController.animateTo(
-                    //                        0,
-                    //                        duration: Duration(milliseconds: 500),
-                    //                        curve: Curves.linear,
-                    //                      );
-                    //                    }
                   });
                 },
               )

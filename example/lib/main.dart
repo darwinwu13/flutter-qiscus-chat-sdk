@@ -55,170 +55,164 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Builder(
-        builder: (context) =>
-            Scaffold(
-              appBar: AppBar(
-                title: const Text('Plugin example app'),
-              ),
-              body: ListView(
-                children: [
-                  Column(
-                    children: <Widget>[
-                      Center(
-                        child: Text('User log on: $username\n'),
-                      ),
-                      RaisedButton(
-                        child: Text('Logout'),
-                        onPressed: () async {
-                          await ChatSdk.clearUser();
-                          setState(() {
-                            username = '';
-                          });
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('Login  Darwin'),
-                        onPressed: () async {
-                          //QiscusChatSdk.enableFcmPushNotification(true);
-                          qiscusAccount = await ChatSdk.login(
-                              userId: "darwinwu134", userKey: "dndndn", username: "Darwin 134");
-                          print("acc:${qiscusAccount.toJson()}");
-                          setState(() {
-                            username = qiscusAccount.username;
-                          });
-                          // QiscusChatSdk.registerDeviceToken("asasdasd");
-                          //QiscusChatSdk.clearUser();
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('Login  Edwin'),
-                        onPressed: () async {
-                          qiscusAccount = await loginWithJwt();
-                          print("acc:${qiscusAccount.toJson()}");
-                          setState(() {
-                            username = qiscusAccount.username;
-                          });
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('Update Pret'),
-                        onPressed: () async {
-                          ChatSdk.updateUser(
-                              username: "Mr. Darwin X",
-                              avatarUrl:
-                              "https://d1edrlpyc25xu0.cloudfront.net/kiwari-prod/image/upload/75r6s_jOHa/1507541871-avatar-mine.png",
-                              extras: {'key': "konci bos"});
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('all Users'),
-                        onPressed: () async {
-                          ChatSdk.getAllUsers(searchUsername: 'darwin');
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('Chat User Edwin'),
-                        onPressed: () async {
-                          final chatRoom = await ChatSdk.chatUser(
-                              userId: '5da3f7e6f48c3d175649388b');
-                          print("chatRoom Id : ${chatRoom.id}");
-                          roomId = chatRoom.id;
-                          await ChatSdk.addOrUpdateLocalChatRoom(chatRoom);
-
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ChatPage(
-                                    roomId: roomId,
-                                    roomName: 'Edwin  Fadilah',
-                                    senderAccount: qiscusAccount,
-                                  ),
-                            ),
-                          );
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('Chat User Darwin'),
-                        onPressed: () async {
-                          final chatRoom = await ChatSdk.chatUser(userId: 'darwinwu134');
-                          print("chatRoom Id : ${chatRoom.id}");
-                          roomId = chatRoom.id;
-                          await ChatSdk.addOrUpdateLocalChatRoom(chatRoom);
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ChatPage(
-                                    roomId: roomId,
-                                    roomName: 'Darwin wu',
-                                    senderAccount: qiscusAccount,
-                                  ),
-                            ),
-                          );
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('Chat with Messages'),
-                        onPressed: () async {
-                          final chatRoom = await ChatSdk.getChatRoomWithMessages(roomId);
-                          print("chat with messages : $chatRoom");
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('get local chat room'),
-                        onPressed: () async {
-                          final chatRoom = await ChatSdk.getLocalChatRoom(11315282);
-                          print("local chat room : $chatRoom");
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('get local chat room by RoomIds'),
-                        onPressed: () async {
-                          final chatRoom = await ChatSdk.getLocalChatRoomByIds([11315282]);
-                          print("local chat room ids : $chatRoom");
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('get All chat rooms'),
-                        onPressed: () async {
-                          List<QiscusChatRoom> chatRoom =
-                          await ChatSdk.getAllChatRooms(showEmpty: true);
-                          dev.log(" all chat room : $chatRoom");
-                          dev.log(" all chat room : ${chatRoom[0].lastComment.time.toLocal()}");
-                          dev.log(" all chat room : ${DateTime
-                              .now()
-                              .timeZoneOffset}");
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('get Local chat rooms with Limit, offset'),
-                        onPressed: () async {
-                          List<QiscusChatRoom> chatRoom =
-                          await ChatSdk.getLocalChatRooms(limit: 100, offset: 0);
-                          dev.log("local all chat room limit offset: $chatRoom");
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('get Local chat rooms with Limit '),
-                        onPressed: () async {
-                          List<QiscusChatRoom> chatRoom = await ChatSdk.getLocalChatRooms();
-                          dev.log("local all chat room  limit: $chatRoom");
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('Refresh unread count '),
-                        onPressed: () async {
-                          int temp = await ChatSdk.getTotalUnreadCount();
-
-                          setState(() {
-                            unread = temp;
-                          });
-                        },
-                      ),
-                      Text("uread : $unread"),
-                    ],
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
+          ),
+          body: ListView(
+            children: [
+              Column(
+                children: <Widget>[
+                  Center(
+                    child: Text('User log on: $username\n'),
                   ),
+                  RaisedButton(
+                    child: Text('Logout'),
+                    onPressed: () async {
+                      await ChatSdk.clearUser();
+                      setState(() {
+                        username = '';
+                      });
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('Login  Darwin'),
+                    onPressed: () async {
+                      //QiscusChatSdk.enableFcmPushNotification(true);
+                      qiscusAccount = await ChatSdk.login(
+                          userId: "darwinwu134", userKey: "dndndn", username: "Darwin 134");
+                      print("acc:${qiscusAccount.toJson()}");
+                      setState(() {
+                        username = qiscusAccount.username;
+                      });
+                      // QiscusChatSdk.registerDeviceToken("asasdasd");
+                      //QiscusChatSdk.clearUser();
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('Login  Edwin'),
+                    onPressed: () async {
+                      qiscusAccount = await loginWithJwt();
+                      print("acc:${qiscusAccount.toJson()}");
+                      setState(() {
+                        username = qiscusAccount.username;
+                      });
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('Update Pret'),
+                    onPressed: () async {
+                      ChatSdk.updateUser(
+                          username: "Mr. Darwin X",
+                          avatarUrl:
+                              "https://d1edrlpyc25xu0.cloudfront.net/kiwari-prod/image/upload/75r6s_jOHa/1507541871-avatar-mine.png",
+                          extras: {'key': "konci bos"});
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('all Users'),
+                    onPressed: () async {
+                      ChatSdk.getAllUsers(searchUsername: 'darwin');
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('Chat User Edwin'),
+                    onPressed: () async {
+                      final chatRoom = await ChatSdk.chatUser(userId: '5da3f7e6f48c3d175649388b');
+                      print("chatRoom Id : ${chatRoom.id}");
+                      roomId = chatRoom.id;
+                      await ChatSdk.addOrUpdateLocalChatRoom(chatRoom);
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ChatPage(
+                            roomId: roomId,
+                            roomName: 'Edwin  Fadilah',
+                            senderAccount: qiscusAccount,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('Chat User Darwin'),
+                    onPressed: () async {
+                      final chatRoom = await ChatSdk.chatUser(userId: 'darwinwu134');
+                      print("chatRoom Id : ${chatRoom.id}");
+                      roomId = chatRoom.id;
+                      await ChatSdk.addOrUpdateLocalChatRoom(chatRoom);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ChatPage(
+                            roomId: roomId,
+                            roomName: 'Darwin wu',
+                            senderAccount: qiscusAccount,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('Chat with Messages'),
+                    onPressed: () async {
+                      final chatRoom = await ChatSdk.getChatRoomWithMessages(roomId);
+                      print("chat with messages : $chatRoom");
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('get local chat room'),
+                    onPressed: () async {
+                      final chatRoom = await ChatSdk.getLocalChatRoom(11315282);
+                      print("local chat room : $chatRoom");
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('get local chat room by RoomIds'),
+                    onPressed: () async {
+                      final chatRoom = await ChatSdk.getLocalChatRoomByIds([11315282]);
+                      print("local chat room ids : $chatRoom");
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('get All chat rooms'),
+                    onPressed: () async {
+                      List<QiscusChatRoom> chatRoom =
+                          await ChatSdk.getAllChatRooms(showEmpty: true);
+                      dev.log(" all chat room : $chatRoom");
+                      dev.log(" all chat room : ${chatRoom[0].lastComment.time.toLocal()}");
+                      dev.log(" all chat room : ${DateTime.now().timeZoneOffset}");
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('get Local chat rooms with Limit, offset'),
+                    onPressed: () async {
+                      List<QiscusChatRoom> chatRoom =
+                          await ChatSdk.getLocalChatRooms(limit: 100, offset: 0);
+                      dev.log("local all chat room limit offset: $chatRoom");
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('get Local chat rooms with Limit '),
+                    onPressed: () async {
+                      List<QiscusChatRoom> chatRoom = await ChatSdk.getLocalChatRooms();
+                      dev.log("local all chat room  limit: $chatRoom");
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('Refresh unread count '),
+                    onPressed: () async {
+                      int temp = await ChatSdk.getTotalUnreadCount();
+
+                      setState(() {
+                        unread = temp;
+                      });
+                    },
+                  ),
+                  Text("uread : $unread"),
                 ],
               ),
+            ],
+          ),
         ),
       ),
     );

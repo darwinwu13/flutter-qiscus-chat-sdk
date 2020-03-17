@@ -367,6 +367,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         Log.e("SDK", searchUsername);
         Log.e("SDK", page + "");
         Log.e("SDK", limit + "");
+
         QiscusApi.getInstance().getUsers(searchUsername, page, limit)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

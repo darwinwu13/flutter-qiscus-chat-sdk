@@ -2,19 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="708654a5-7c03-4188-927a-e64d3e1ef367" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/src/model/qiscus_chat_room_event.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/src/model/qiscus_comment.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/src/model/qiscus_room_member.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/src/main/java/com/bahaso/qiscus_sdk/QiscusEventHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/src/main/java/com/bahaso/qiscus_sdk/QiscusEventHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/src/main/java/com/bahaso/qiscus_sdk/QiscusSdkPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/src/main/java/com/bahaso/qiscus_sdk/QiscusSdkPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/example/android/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/lib/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/chat_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/chat_sdk.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/chat_sdk.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/model/qiscus_chat_room.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/model/qiscus_chat_room.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/model/qiscus_chat_room.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/model/qiscus_chat_room.g.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -37,8 +28,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/lib/main.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="33" column="12" selection-start-line="33" selection-start-column="12" selection-end-line="33" selection-end-column="12" />
+            <state relative-caret-position="350">
+              <caret line="38" column="19" lean-forward="true" selection-start-line="38" selection-start-column="19" selection-end-line="38" selection-end-column="19" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -49,8 +40,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/src/chat_sdk.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="37" column="28" lean-forward="true" selection-start-line="37" selection-start-column="28" selection-end-line="37" selection-end-column="28" />
+            <state relative-caret-position="428">
+              <caret line="193" column="7" selection-start-line="193" selection-start-column="7" selection-end-line="193" selection-end-column="7" />
               <folding>
                 <element signature="e#21#41#0" expanded="true" />
               </folding>
@@ -100,8 +91,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/lib/chat_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1426">
-              <caret line="97" column="34" selection-start-line="97" selection-start-column="34" selection-end-line="97" selection-end-column="34" />
+            <state relative-caret-position="1290">
+              <caret line="120" column="24" lean-forward="true" selection-start-line="120" selection-start-column="24" selection-end-line="120" selection-end-column="24" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -321,7 +312,14 @@
       <option name="project" value="LOCAL" />
       <updated>1584168675537</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="remove event handler on Receive Comment for chatSdk&#10;add Stream CommentReceived for chatSdk&#10;add how to listen to stream comment Received in UI Example">
+      <created>1584361044137</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1584361044137</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TodoView">
@@ -337,9 +335,9 @@
     <frame x="0" y="0" width="1680" height="1050" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4946581" visible="true" weight="0.23565324" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4941302" visible="true" weight="0.23565324" />
       <window_info id="Captures" order="1" side_tool="true" />
-      <window_info id="Structure" order="2" sideWeight="0.5053419" side_tool="true" visible="true" weight="0.23565324" />
+      <window_info active="true" id="Structure" order="2" sideWeight="0.5058698" side_tool="true" visible="true" weight="0.23565324" />
       <window_info id="Image Layers" order="3" />
       <window_info id="Designer" order="4" />
       <window_info id="Build Variants" order="5" side_tool="true" />
@@ -347,14 +345,14 @@
       <window_info id="Capture Tool" order="7" />
       <window_info id="Favorites" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Dart Analysis" order="0" weight="0.32977587" />
-      <window_info active="true" anchor="bottom" id="Run" order="1" sideWeight="0.499183" visible="true" weight="0.30982906" />
+      <window_info anchor="bottom" id="Run" order="1" sideWeight="0.499183" weight="0.30982906" />
       <window_info anchor="bottom" id="TODO" order="2" weight="0.32977587" />
       <window_info anchor="bottom" id="Android Profiler" order="3" show_stripe_button="false" />
       <window_info anchor="bottom" id="Logcat" order="4" />
       <window_info anchor="bottom" x="1" y="23" width="1449" height="977" id="Debug" order="5" weight="0.39807898" />
       <window_info anchor="bottom" id="Terminal" order="6" weight="0.29348987" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.500817" side_tool="true" weight="0.32977587" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32977587" />
+      <window_info anchor="bottom" id="Version Control" order="8" visible="true" weight="0.2945571" />
       <window_info anchor="bottom" id="Messages" order="9" sideWeight="0.49959317" weight="0.32977587" />
       <window_info anchor="bottom" id="Find" order="10" weight="0.32977587" />
       <window_info anchor="right" id="Device File Explorer" order="0" side_tool="true" />
@@ -372,7 +370,8 @@
     <MESSAGE value="add getQiscusAccount&#10;add sendMessage&#10;fix bug getChatRoomWithMessages" />
     <MESSAGE value="update example chat page" />
     <MESSAGE value="add event handler on Receive Comment for chatSdk&#10;add event handler example&#10;add how to handle new comment on UI at example &#10;add equatable for qiscus models" />
-    <option name="LAST_COMMIT_MESSAGE" value="add event handler on Receive Comment for chatSdk&#10;add event handler example&#10;add how to handle new comment on UI at example &#10;add equatable for qiscus models" />
+    <MESSAGE value="remove event handler on Receive Comment for chatSdk&#10;add Stream CommentReceived for chatSdk&#10;add how to listen to stream comment Received in UI Example" />
+    <option name="LAST_COMMIT_MESSAGE" value="remove event handler on Receive Comment for chatSdk&#10;add Stream CommentReceived for chatSdk&#10;add how to listen to stream comment Received in UI Example" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -741,8 +740,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/example/lib/main.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="33" column="12" selection-start-line="33" selection-start-column="12" selection-end-line="33" selection-end-column="12" />
+        <state relative-caret-position="350">
+          <caret line="38" column="19" lean-forward="true" selection-start-line="38" selection-start-column="19" selection-end-line="38" selection-end-column="19" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
@@ -751,8 +750,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/example/lib/chat_page.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1426">
-          <caret line="97" column="34" selection-start-line="97" selection-start-column="34" selection-end-line="97" selection-end-column="34" />
+        <state relative-caret-position="1290">
+          <caret line="120" column="24" lean-forward="true" selection-start-line="120" selection-start-column="24" selection-end-line="120" selection-end-column="24" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
@@ -761,8 +760,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/src/chat_sdk.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="37" column="28" lean-forward="true" selection-start-line="37" selection-start-column="28" selection-end-line="37" selection-end-column="28" />
+        <state relative-caret-position="428">
+          <caret line="193" column="7" selection-start-line="193" selection-start-column="7" selection-end-line="193" selection-end-column="7" />
           <folding>
             <element signature="e#21#41#0" expanded="true" />
           </folding>

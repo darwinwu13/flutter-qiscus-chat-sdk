@@ -22,7 +22,7 @@ export 'model/qiscus_room_member.dart';
 class ChatSdk {
   static const MethodChannel _channel = const MethodChannel('bahaso.com/qiscus_chat_sdk');
   static const EventChannel _eventChannelCommentReceive =
-  const EventChannel('bahaso.com/qiscus_chat_sdk/events');
+      const EventChannel('bahaso.com/qiscus_chat_sdk/events');
 
   static Stream<dynamic> _eventStream;
   static StreamSubscription<dynamic> _eventSubscription;
@@ -184,6 +184,14 @@ class ChatSdk {
     var args = {'chatRoom': jsonEncode(chatRoom)};
     return await _channel.invokeMethod(
       'addOrUpdateLocalChatRoom',
+      args,
+    );
+  }
+
+  static Future<bool> addOrUpdateLocalComment(QiscusComment comment) async {
+    var args = {'comment': jsonEncode(comment)};
+    return await _channel.invokeMethod(
+      'addOrUpdateLocalComment',
       args,
     );
   }
