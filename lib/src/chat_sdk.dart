@@ -11,6 +11,7 @@ import 'package:tuple/tuple.dart';
 
 import 'model/qiscus_account.dart';
 import 'model/qiscus_chat_room.dart';
+import 'model/qiscus_chat_room_event.dart';
 import 'model/qiscus_comment.dart';
 
 export 'model/qiscus_account.dart';
@@ -27,9 +28,12 @@ class ChatSdk {
   static Stream<dynamic> _eventStream;
   static StreamSubscription<dynamic> _eventSubscription;
   static StreamController<QiscusComment> _commentReceiveController = StreamController.broadcast();
-  static StreamController<QiscusComment> _chatRoomEventController = StreamController.broadcast();
+  static StreamController<QiscusChatRoomEvent> _chatRoomEventController =
+  StreamController.broadcast();
 
   static Stream<QiscusComment> get commentReceivedStream => _commentReceiveController.stream;
+
+  static Stream<QiscusChatRoomEvent> get chatRoomEventStream => _chatRoomEventController.stream;
 
   /// call this method to start listening to event channel, to
   /// distribute into each events stream
@@ -43,9 +47,20 @@ class ChatSdk {
           _commentReceiveController.add(QiscusComment.fromJson(result['comment']));
           break;
         case "chat_room_event_received":
+          dev.log(result.toString(), name: "chat sdk event channel");
+          _chatRoomEventController.add(QiscusChatRoomEvent.fromJson(result['chatRoomEvent']));
+
           break;
       }
     });
+  }
+
+  static Future<bool> subscribeToChatRoom(QiscusChatRoom chatRoom) {
+    return _channel.invokeMethod('subscribeToChatRoom', {'chatRoom': jsonEncode(chatRoom)});
+  }
+
+  static Future<bool> unsubscribeToChatRoom(QiscusChatRoom chatRoom) {
+    return _channel.invokeMethod('unsubscribeToChatRoom', {'chatRoom': jsonEncode(chatRoom)});
   }
 
   static void dispose() {

@@ -149,8 +149,8 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 break;
             case "addOrUpdateLocalChatRoom":
                 String json = call.argument("chatRoom");
-                addOrUpdateLocalChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json));
-                result.success(true);
+                addOrUpdateLocalChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+
                 break;
 
             case "getChatRoomWithMessages":
@@ -238,6 +238,18 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 temp = call.argument("commentId");
                 int commentId = temp;
                 markCommentAsRead(roomId, commentId, result);
+                break;
+            case "addOrUpdateLocalComment":
+                json = call.argument("comment");
+                addOrUpdateLocalComment(QiscusSdkHelper.parseQiscusComment(json), result);
+                break;
+            case "subscribeToChatRoom":
+                json = call.argument("chatRoom");
+                subscribeToChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+                break;
+            case "unsubscribeToChatRoom":
+                json = call.argument("chatRoom");
+                unsubscribeToChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
                 break;
             default:
                 result.notImplemented();
@@ -391,8 +403,14 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 });
     }
 
-    private void addOrUpdateLocalChatRoom(QiscusChatRoom chatRoom) {
-        QiscusCore.getDataStore().addOrUpdate(chatRoom);
+    private void addOrUpdateLocalChatRoom(QiscusChatRoom chatRoom, Result result) {
+        try {
+            QiscusCore.getDataStore().addOrUpdate(chatRoom);
+            result.success(true);
+        } catch (Exception e) {
+            result.error("ERR_FAILED_ADD_OR_UPDATE_LOCAL_CHAT_ROOM", e.getMessage(), e);
+        }
+
     }
 
     private void getChatRoomWithMessages(long roomId, Result result) {
@@ -568,5 +586,37 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         result.success(true);
 
     }
+
+    private void addOrUpdateLocalComment(QiscusComment comment, Result result) {
+        try {
+            QiscusCore.getDataStore().addOrUpdate(comment);
+            result.success(true);
+        } catch (Exception e) {
+            result.error("ERR_FAILED_TO_ADD_OR_UPDATE_LOCAL_COMMENT", e.getMessage(), e);
+        }
+
+    }
+
+    private void subscribeToChatRoom(QiscusChatRoom chatRoom, Result result) {
+        try {
+            QiscusPusherApi.getInstance().subscribeChatRoom(chatRoom);
+            result.success(true);
+        } catch (Exception e) {
+            result.error("ERR_FAILED_SUBSCRIBE_CHAT_ROOM_EVENT", e.getMessage(), e);
+
+        }
+    }
+
+    private void unsubscribeToChatRoom(QiscusChatRoom chatRoom, Result result) {
+        try {
+            QiscusPusherApi.getInstance().unsubsribeChatRoom(chatRoom);
+            result.success(true);
+        } catch (Exception e) {
+            result.error("ERR_FAILED_UNSUBSCRIBE_CHAT_ROOM_EVENT", e.getMessage(), e);
+
+        }
+
+    }
+
 
 }

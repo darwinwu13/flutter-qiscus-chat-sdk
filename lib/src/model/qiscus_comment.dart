@@ -23,7 +23,7 @@ class QiscusComment extends Equatable {
   final String senderEmail;
   final String senderAvatar;
   final DateTime time;
-  final int state;
+  int state;
   final bool deleted;
   final bool hardDeleted;
   final String roomName;

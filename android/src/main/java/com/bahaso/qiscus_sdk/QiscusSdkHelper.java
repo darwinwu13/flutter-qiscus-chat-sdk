@@ -192,7 +192,6 @@ public class QiscusSdkHelper {
         }*/
 
 
-        Log.e("SDK chat room", chatRoomJson);
         Gson gson = AmininGsonBuilder.createGson();
         QiscusChatRoom chatRoom = new QiscusChatRoom();
         JsonObject jsonChatRoom = JsonParser.parseString(chatRoomJson).getAsJsonObject();

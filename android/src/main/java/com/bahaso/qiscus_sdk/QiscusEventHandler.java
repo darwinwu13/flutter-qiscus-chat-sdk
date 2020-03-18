@@ -63,7 +63,13 @@ public class QiscusEventHandler {
 
     @Subscribe
     public void onReceiveChatRoomEvent(QiscusChatRoomEvent roomEvent) {
-
+        Log.e("SDK","on receive chat room event");
+        Gson gson = AmininGsonBuilder.createGson();
+        Map<String, Object> args = new HashMap<>();
+        args.put("type", "chat_room_event_received");
+        args.put("chatRoomEvent", roomEvent);
+        if (eventSink != null)
+            eventSink.success(gson.toJson(args));
     }
 
 }
