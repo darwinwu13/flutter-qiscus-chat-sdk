@@ -29,7 +29,7 @@ class ChatSdk {
   static StreamSubscription<dynamic> _eventSubscription;
   static StreamController<QiscusComment> _commentReceiveController = StreamController.broadcast();
   static StreamController<QiscusChatRoomEvent> _chatRoomEventController =
-  StreamController.broadcast();
+      StreamController.broadcast();
 
   static Stream<QiscusComment> get commentReceivedStream => _commentReceiveController.stream;
 
@@ -49,6 +49,9 @@ class ChatSdk {
         case "chat_room_event_received":
           dev.log(result.toString(), name: "chat sdk event channel");
           _chatRoomEventController.add(QiscusChatRoomEvent.fromJson(result['chatRoomEvent']));
+          break;
+        case "file_upload_progress":
+          dev.log(result.toString(), name: "chat sdk file upload progress");
 
           break;
       }
@@ -286,6 +289,7 @@ class ChatSdk {
     String caption = "";
     if (type == CommentType.FILE_ATTACHMENT) {
       caption = message;
+      return _sendFileMessage(roomId: roomId, caption: caption, imageFile: imageFile);
     } else if (type == CommentType.TEXT) {
       var args = {
         'roomId': roomId,
@@ -297,6 +301,17 @@ class ChatSdk {
 
       return QiscusComment.fromJson(jsonDecode(json));
     }
+  }
+
+  static Future<QiscusComment> _sendFileMessage({
+    @required int roomId,
+    String caption,
+    @required File imageFile,
+  }) async {
+    var args = {'roomId': roomId, 'caption': caption, 'filePath': imageFile.absolute.path};
+    String json = await _channel.invokeMethod('sendFileMessage', args);
+
+    return QiscusComment.fromJson(jsonDecode(json));
   }
 
   /// get Qiscus account that has been log in

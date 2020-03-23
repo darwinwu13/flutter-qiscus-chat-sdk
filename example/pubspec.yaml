@@ -16,6 +16,8 @@ dependencies:
   bubble: ^1.1.9+1
   intl: ^0.16.1
   font_awesome_flutter: ^8.7.0
+  image_picker: ^0.6.3+4
+  photo_view: ^0.9.2
 
 dev_dependencies:
   flutter_test:

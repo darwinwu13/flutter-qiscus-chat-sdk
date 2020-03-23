@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as dev;
+import 'dart:io';
 
 import 'package:bubble/bubble.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,8 +8,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/fa_icon.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:qiscus_sdk/qiscus_sdk.dart';
+import 'package:qiscus_sdk_example/send_image_preview.dart';
 
 class ChatPage extends StatefulWidget {
   final int roomId;
@@ -42,6 +45,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     init();
+    dev.log("init state");
   }
 
   Future<void> init() async {
@@ -65,45 +69,45 @@ class _ChatPageState extends State<ChatPage> {
     });
     _chatRoomEventSubscription =
         ChatSdk.chatRoomEventStream.listen((QiscusChatRoomEvent chatRoomEvent) {
-          switch (chatRoomEvent.event) {
-            case Event.READ:
-              List<QiscusComment> cmnts = comments.where((QiscusComment comment) {
-                bool isTargetComment = comment.id == chatRoomEvent.commentId ? true : false;
+      switch (chatRoomEvent.event) {
+        case Event.READ:
+          List<QiscusComment> cmnts = comments.where((QiscusComment comment) {
+            bool isTargetComment = comment.id == chatRoomEvent.commentId ? true : false;
 
-                /// retrieve previous comment that haven't been read and own by this sender
-                bool isNotReadComment = comment.state < QiscusComment.STATE_READ &&
-                    comment.state >= QiscusComment.STATE_ON_QISCUS &&
-                    comment.senderEmail == _account.email;
-                return isTargetComment || isNotReadComment;
-              }).toList();
-              setState(() {
-                cmnts.forEach((QiscusComment cmnt) {
-                  if (cmnt.state >= QiscusComment.STATE_ON_QISCUS) {
-                    cmnt.state = QiscusComment.STATE_READ;
-                    ChatSdk.addOrUpdateLocalComment(cmnt);
-                  }
-                });
-              });
-
-              break;
-            case Event.DELIVERED:
-              QiscusComment cmnt = comments.where((QiscusComment comment) {
-                return comment.id == chatRoomEvent.commentId ? true : false;
-              }).first;
-              if (cmnt.state >= QiscusComment.STATE_ON_QISCUS &&
-                  cmnt.state != QiscusComment.STATE_READ) {
-                cmnt.state = QiscusComment.STATE_DELIVERED;
-                setState(() {
-                  ChatSdk.addOrUpdateLocalComment(cmnt);
-                });
+            /// retrieve previous comment that haven't been read and own by this sender
+            bool isNotReadComment = comment.state < QiscusComment.STATE_READ &&
+                comment.state >= QiscusComment.STATE_ON_QISCUS &&
+                comment.senderEmail == _account.email;
+            return isTargetComment || isNotReadComment;
+          }).toList();
+          setState(() {
+            cmnts.forEach((QiscusComment cmnt) {
+              if (cmnt.state >= QiscusComment.STATE_ON_QISCUS) {
+                cmnt.state = QiscusComment.STATE_READ;
+                ChatSdk.addOrUpdateLocalComment(cmnt);
               }
-              break;
-            case Event.TYPING:
-              break;
-            default:
-              break;
+            });
+          });
+
+          break;
+        case Event.DELIVERED:
+          QiscusComment cmnt = comments.where((QiscusComment comment) {
+            return comment.id == chatRoomEvent.commentId ? true : false;
+          }).first;
+          if (cmnt.state >= QiscusComment.STATE_ON_QISCUS &&
+              cmnt.state != QiscusComment.STATE_READ) {
+            cmnt.state = QiscusComment.STATE_DELIVERED;
+            setState(() {
+              ChatSdk.addOrUpdateLocalComment(cmnt);
+            });
           }
-        });
+          break;
+        case Event.TYPING:
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   void onReceiveComment(QiscusComment comment) {
@@ -194,86 +198,147 @@ class _ChatPageState extends State<ChatPage> {
         title: Text(widget.roomName),
       ),
       body: ListView(
-        children: [
-          Container(
-            height: 550,
-            child: ListView(
-              controller: scrollController,
-              shrinkWrap: true,
-              reverse: true,
-              children: comments.map((QiscusComment comment) {
-                return Container(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: <Widget>[
-                      Bubble(
-                        alignment: widget.senderAccount.email == comment.senderEmail
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        color: widget.senderAccount.email == comment.senderEmail
-                            ? Colors.lightBlueAccent
-                            : Colors.white,
-                        child: Text(
-                          comment.message.trim(),
-                          style: TextStyle(),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: widget.senderAccount.email == comment.senderEmail
-                            ? MainAxisAlignment.end
-                            : MainAxisAlignment.start,
-                        children: <Widget>[
-                          Text(timeFormat(comment.time.toLocal())),
-                          widget.senderAccount.email == comment.senderEmail
-                              ? FaIcon(getCommentState(comment))
-                              : Container()
-                        ],
-                      )
-                    ],
+        padding: EdgeInsets.only(bottom: 60),
+        controller: scrollController,
+        shrinkWrap: true,
+        reverse: true,
+        children: comments.map((QiscusComment comment) {
+          return Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: <Widget>[
+                Bubble(
+                  alignment: widget.senderAccount.email == comment.senderEmail
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  color: widget.senderAccount.email == comment.senderEmail
+                      ? Colors.lightBlueAccent
+                      : Colors.white,
+                  child: Text(
+                    comment.message.trim(),
+                    style: TextStyle(),
                   ),
-                );
-              }).toList(),
+                ),
+                Row(
+                  mainAxisAlignment: widget.senderAccount.email == comment.senderEmail
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
+                  children: <Widget>[
+                    Text(timeFormat(comment.time.toLocal())),
+                    widget.senderAccount.email == comment.senderEmail
+                        ? FaIcon(getCommentState(comment))
+                        : Container()
+                  ],
+                )
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+      bottomSheet: Row(
+        children: <Widget>[
+          Container(
+            width: 265,
+            padding: EdgeInsets.all(5),
+            child: TextField(
+              controller: controller,
+              onChanged: (String text) {
+                message = text;
+              },
+              textInputAction: TextInputAction.newline,
             ),
           ),
-          Row(
-            children: <Widget>[
-              Container(
-                width: 300,
-                padding: EdgeInsets.all(5),
-                child: TextField(
-                  controller: controller,
-                  onChanged: (String text) {
-                    message = text;
-                  },
-                  textInputAction: TextInputAction.newline,
-                ),
-              ),
-              RaisedButton(
-                color: Colors.blue,
-                textColor: Colors.white,
-                child: Icon(
-                  Icons.send,
-                  size: 25,
-                ),
-                onPressed: () async {
-                  if (message != null && message != "" && !_commentSending) {
-                    _commentSending = true;
-                    var comment = await ChatSdk.sendMessage(
-                      roomId: widget.roomId,
-                      message: message,
-                      type: CommentType.TEXT,
-                    );
-                    _commentSending = false;
-                  }
-
-                  setState(() {
-                    controller.text = "";
-                    message = "";
-                  });
-                },
-              )
-            ],
+          SizedBox(
+            width: 5,
           ),
+          ButtonTheme(
+            minWidth: 50,
+            height: 50,
+            child: RaisedButton(
+              color: Colors.blue,
+              child: Icon(Icons.photo_library),
+              onPressed: () {
+                showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return Container(
+                        height: 120,
+                        child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              leading: Icon(Icons.camera_alt),
+                              title: Text("Take picture with camera"),
+                              onTap: () async {
+                                File imgFile =
+                                    await ImagePicker.pickImage(source: ImageSource.camera);
+                                dev.log("camera path file : ${imgFile.path}", name: "sdk example");
+                                Navigator.pop(context);
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => SendImagePreview(
+                                      imgFile: imgFile,
+                                      roomId: chatRoom.id,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.photo_library),
+                              title: Text("Choose picture from gallery"),
+                              onTap: () async {
+                                File imgFile =
+                                    await ImagePicker.pickImage(source: ImageSource.gallery);
+                                dev.log("camera path file : ${imgFile.path}", name: "sdk example");
+                                Navigator.pop(context);
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => SendImagePreview(
+                                      imgFile: imgFile,
+                                      roomId: chatRoom.id,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+              },
+            ),
+          ),
+          SizedBox(
+            width: 5,
+          ),
+          ButtonTheme(
+            minWidth: 50,
+            height: 50,
+            child: RaisedButton(
+              color: Colors.blue,
+              textColor: Colors.white,
+              child: Icon(
+                Icons.send,
+                size: 25,
+              ),
+              onPressed: () async {
+                if (message != null && message != "" && !_commentSending) {
+                  _commentSending = true;
+                  var comment = await ChatSdk.sendMessage(
+                    roomId: widget.roomId,
+                    message: message,
+                    type: CommentType.TEXT,
+                  );
+                  _commentSending = false;
+                }
+
+                setState(() {
+                  controller.text = "";
+                  message = "";
+                });
+              },
+            ),
+          )
         ],
       ),
     );

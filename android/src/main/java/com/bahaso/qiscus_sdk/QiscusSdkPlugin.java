@@ -14,13 +14,16 @@ import com.qiscus.sdk.chat.core.data.model.QiscusChatRoom;
 import com.qiscus.sdk.chat.core.data.model.QiscusComment;
 import com.qiscus.sdk.chat.core.data.remote.QiscusApi;
 import com.qiscus.sdk.chat.core.data.remote.QiscusPusherApi;
+import com.qiscus.sdk.chat.core.util.QiscusAndroidUtil;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -210,7 +213,13 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 }
                 sendMessage(roomId, message, extras, result);
                 break;
-
+            case "sendFileMessage":
+                temp = call.argument("roomId");
+                roomId = temp;
+                String caption = call.argument("caption");
+                String filePath = call.argument("filePath");
+                sendFileMessage(roomId, caption, filePath, result);
+                break;
             case "getQiscusAccount":
                 getQiscusAccount(result);
                 break;
@@ -524,22 +533,37 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
 
-    private void sendFileMessage(long roomId, String caption, String fileUrl, String type, File file, Result result) {
-        //todo logic check if type is file_attachment
-        // generate qiscus comment and use sendfileMesssage instead
-        String filename = "";
-        QiscusComment message = QiscusComment.generateFileAttachmentMessage(roomId, fileUrl, caption, filename);
+    private void sendFileMessage(long roomId, String caption, String filePath, Result result) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            result.error("ERR_FILE_NOT_FOUND", null, null);
+            return;
+        }
+        String filename = file.getName();
+        QiscusComment message = QiscusComment.generateFileAttachmentMessage(roomId, filePath, caption, filename);
 
-        //Send message
-        QiscusApi.getInstance().sendMessage(message)
-                .subscribeOn(Schedulers.io()) // need to run this task on IO thread
-                .observeOn(AndroidSchedulers.mainThread()) // deliver result on main thread or UI thread
-                .subscribe(qiscusComment -> {
+        QiscusApi.getInstance().sendFileMessage(
+                message, file, percentage -> {
+                    message.setProgress((int) percentage);
+                    QiscusAndroidUtil.runOnUIThread(() -> {
+                        EventBus.getDefault().post(new QiscusFileUploadProgressEvent((int) percentage));
+                    });
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(comment -> {
+
+                    QiscusCore.getDataStore()
+                            .addOrUpdateLocalPath(comment.getRoomId(),
+                                    comment.getId(), file.getAbsolutePath());
+
                     Gson gson = AmininGsonBuilder.createGson();
-                    result.success(gson.toJson(qiscusComment));
+                    result.success(gson.toJson(comment));
                 }, throwable -> {
-                    result.error("ERR_FAILED_SEND_MESSAGE", throwable.getMessage(), throwable);
+                    result.error("ERR_FAILED_SEND_FILE_MESSAGE", throwable.getMessage(), throwable);
+
                 });
+
 
     }
 
