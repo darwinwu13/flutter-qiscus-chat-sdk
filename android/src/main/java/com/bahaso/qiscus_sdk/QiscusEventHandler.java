@@ -77,7 +77,7 @@ public class QiscusEventHandler {
         Gson gson = AmininGsonBuilder.createGson();
         Map<String, Object> args = new HashMap<>();
         args.put("type", "file_upload_progress");
-        args.put("fileUploadProgressEvent", event);
+        args.put("progress", event.getProgress());
         if (eventSink != null)
             eventSink.success(gson.toJson(args));
     }

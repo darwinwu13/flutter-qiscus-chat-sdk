@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -6,6 +8,7 @@ part 'qiscus_comment.g.dart';
 
 @immutable
 @JsonSerializable()
+// ignore: must_be_immutable
 class QiscusComment extends Equatable {
   static const int STATE_FAILED = -1;
   static const int STATE_PENDING = 0;
@@ -38,39 +41,47 @@ class QiscusComment extends Equatable {
   final String extraPayload;
   final Map<String, dynamic> extras;
   final QiscusComment replyTo;
-  final String caption;
   final String attachmentName;
+
+  Map<String, dynamic> _extraPayloadMap;
 
   static QiscusComment fromJson(Map<String, dynamic> json) => _$QiscusCommentFromJson(json);
 
-  QiscusComment(
-    this.id,
-    this.roomId,
-    this.uniqueId,
-    this.commentBeforeId,
-    this.message,
-    this.sender,
-    this.senderEmail,
-    this.senderAvatar,
-    this.time,
-    this.state,
-    this.deleted,
-    this.hardDeleted,
-    this.roomName,
-    this.roomAvatar,
-    this.groupMessage,
-    this.selected,
-    this.highlighted,
-    this.downloading,
-    this.progress,
-    this.urls,
-    this.rawType,
-    this.extraPayload,
-    this.extras,
-    this.replyTo,
-    this.caption,
-    this.attachmentName,
-  );
+  String get attachmentUrl {
+    if (_extraPayloadMap == null) _extraPayloadMap = jsonDecode(extraPayload);
+    return _extraPayloadMap != null ? _extraPayloadMap['url'] : null;
+  }
+
+  String get caption {
+    if (_extraPayloadMap == null) _extraPayloadMap = jsonDecode(extraPayload);
+    return _extraPayloadMap != null ? _extraPayloadMap['caption'] : null;
+  }
+
+  QiscusComment(this.id,
+      this.roomId,
+      this.uniqueId,
+      this.commentBeforeId,
+      this.message,
+      this.sender,
+      this.senderEmail,
+      this.senderAvatar,
+      this.time,
+      this.state,
+      this.deleted,
+      this.hardDeleted,
+      this.roomName,
+      this.roomAvatar,
+      this.groupMessage,
+      this.selected,
+      this.highlighted,
+      this.downloading,
+      this.progress,
+      this.urls,
+      this.rawType,
+      this.extraPayload,
+      this.extras,
+      this.replyTo,
+      this.attachmentName,);
 
   Map<String, dynamic> toJson() => _$QiscusCommentToJson(this);
 

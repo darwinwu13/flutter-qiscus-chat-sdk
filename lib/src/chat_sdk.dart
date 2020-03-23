@@ -30,10 +30,13 @@ class ChatSdk {
   static StreamController<QiscusComment> _commentReceiveController = StreamController.broadcast();
   static StreamController<QiscusChatRoomEvent> _chatRoomEventController =
       StreamController.broadcast();
+  static StreamController<int> _fileUploadProgressController = StreamController.broadcast();
 
   static Stream<QiscusComment> get commentReceivedStream => _commentReceiveController.stream;
 
   static Stream<QiscusChatRoomEvent> get chatRoomEventStream => _chatRoomEventController.stream;
+
+  static Stream<int> get fileUploadProgressStream => _fileUploadProgressController.stream;
 
   /// call this method to start listening to event channel, to
   /// distribute into each events stream
@@ -51,6 +54,7 @@ class ChatSdk {
           _chatRoomEventController.add(QiscusChatRoomEvent.fromJson(result['chatRoomEvent']));
           break;
         case "file_upload_progress":
+          _fileUploadProgressController.add(result['progress']);
           dev.log(result.toString(), name: "chat sdk file upload progress");
 
           break;

@@ -191,6 +191,47 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  Widget _buildBubble(QiscusComment comment) {
+    Alignment aligment;
+    Color color;
+    if (widget.senderAccount.email == comment.senderEmail) {
+      aligment = Alignment.centerRight;
+      color = Colors.lightBlueAccent;
+    } else {
+      aligment = Alignment.centerLeft;
+      color = Colors.white;
+    }
+    return Bubble(alignment: aligment, color: color, child: _buildBubbleContent(comment, aligment));
+  }
+
+  Widget _buildBubbleContent(QiscusComment comment, Alignment alignment) {
+    if (comment.rawType == CommentType.FILE_ATTACHMENT) {
+      return Column(
+        children: <Widget>[
+          Container(
+            width: 200,
+            height: 200,
+            child: Image.network(comment.attachmentUrl),
+          ),
+          Container(
+            width: 200,
+            padding: EdgeInsets.only(top: 4),
+            alignment: alignment,
+            child: Text(
+              comment.caption ?? "",
+            ),
+          )
+        ],
+      );
+    } else {
+      // type text
+      return Text(
+        comment.message.trim(),
+        style: TextStyle(),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -207,18 +248,7 @@ class _ChatPageState extends State<ChatPage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: <Widget>[
-                Bubble(
-                  alignment: widget.senderAccount.email == comment.senderEmail
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  color: widget.senderAccount.email == comment.senderEmail
-                      ? Colors.lightBlueAccent
-                      : Colors.white,
-                  child: Text(
-                    comment.message.trim(),
-                    style: TextStyle(),
-                  ),
-                ),
+                _buildBubble(comment),
                 Row(
                   mainAxisAlignment: widget.senderAccount.email == comment.senderEmail
                       ? MainAxisAlignment.end

@@ -34,7 +34,6 @@ QiscusComment _$QiscusCommentFromJson(Map<String, dynamic> json) {
     json['replyTo'] == null
         ? null
         : QiscusComment.fromJson(json['replyTo'] as Map<String, dynamic>),
-    json['caption'] as String,
     json['attachmentName'] as String,
   );
 }
@@ -65,6 +64,5 @@ Map<String, dynamic> _$QiscusCommentToJson(QiscusComment instance) =>
       'extraPayload': instance.extraPayload,
       'extras': instance.extras,
       'replyTo': instance.replyTo,
-      'caption': instance.caption,
       'attachmentName': instance.attachmentName,
     };
