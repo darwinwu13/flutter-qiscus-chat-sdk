@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:bubble/bubble.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class _ChatPageState extends State<ChatPage> {
   StreamSubscription _chatRoomEventSubscription;
   QiscusAccount _account;
   bool _commentSending = false;
+  QiscusComment _dummyComment;
 
   @override
   void initState() {
@@ -112,25 +114,29 @@ class _ChatPageState extends State<ChatPage> {
 
   void onReceiveComment(QiscusComment comment) {
     print('on receive ${comment.message}');
-    setState(() {
-      if (!comments.contains(comment)) {
-        comments.insert(0, comment);
-        ChatSdk.addOrUpdateLocalComment(comment);
-        scrollController.animateTo(
-          0,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.linear,
-        );
-        if (comment.roomId == chatRoom.id) {
-          if (comment.senderEmail != _account.email) {
-            ChatSdk.markCommentAsRead(chatRoom.id, comment.id);
-            //post api to backend to set status to read here
-          }
+
+    /// remove dummy comment from lists
+    if (_dummyComment != null) {
+      comments.remove(_dummyComment);
+      _dummyComment = null;
+    }
+    if (!comments.contains(comment)) {
+      comments.insert(0, comment);
+      ChatSdk.addOrUpdateLocalComment(comment);
+      scrollController.animateTo(
+        0,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.linear,
+      );
+      if (comment.roomId == chatRoom.id) {
+        if (comment.senderEmail != _account.email) {
+          ChatSdk.markCommentAsRead(chatRoom.id, comment.id);
+          //post api to backend to set status to read here
         }
       }
-    });
-
-    //mark as read
+    }
+    if (!mounted) return;
+    setState(() {});
   }
 
   //todo add lifecycle of app, use widgetBindingObserver
@@ -154,20 +160,20 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _getChatRoomWithMessages() async {
     var tupple = await ChatSdk.getChatRoomWithMessages(widget.roomId);
-    setState(() {
-      chatRoom = tupple.item1;
-      comments = tupple.item2;
-      ChatSdk.subscribeToChatRoom(chatRoom);
+    chatRoom = tupple.item1;
+    comments = tupple.item2;
+    ChatSdk.subscribeToChatRoom(chatRoom);
 
-      QiscusComment lastComment = chatRoom.lastComment;
-      String senderEmail = lastComment?.senderEmail;
+    QiscusComment lastComment = chatRoom.lastComment;
+    String senderEmail = lastComment?.senderEmail;
 
-      /// if last comment !=null, means chat room doesnt have last comment yet, it is an empty chat room
-      if (lastComment != null && senderEmail != _account.email) {
-        ChatSdk.markCommentAsRead(chatRoom.id, lastComment.id);
-      }
-      dev.log("comments: $comments");
-    });
+    /// if last comment !=null, means chat room doesnt have last comment yet, it is an empty chat room
+    if (lastComment != null && senderEmail != _account.email) {
+      ChatSdk.markCommentAsRead(chatRoom.id, lastComment.id);
+    }
+    dev.log("comments: $comments");
+    if (!mounted) return;
+    setState(() {});
   }
 
   String timeFormat(DateTime dateTime) {
@@ -211,16 +217,32 @@ class _ChatPageState extends State<ChatPage> {
           Container(
             width: 200,
             height: 200,
-            child: Image.network(comment.attachmentUrl),
-          ),
-          Container(
-            width: 200,
-            padding: EdgeInsets.only(top: 4),
-            alignment: alignment,
-            child: Text(
-              comment.caption ?? "",
+            child: comment.isDummy
+                ? Image(image: FileImage(File(comment.attachmentUrl)))
+                : CachedNetworkImage(
+              imageUrl: comment.attachmentUrl,
+              placeholder: (context, url) =>
+                  Center(
+                    child: Container(
+                      width: 25,
+                      height: 25,
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
+          ),
+          comment.caption == null || comment.caption == ""
+              ? Container(
+            width: 200,
           )
+              : Container(
+              width: 200,
+              padding: EdgeInsets.only(top: 4),
+              alignment: alignment,
+              child: Text(
+                comment.caption ?? "",
+              ))
         ],
       );
     } else {
@@ -230,6 +252,47 @@ class _ChatPageState extends State<ChatPage> {
         style: TextStyle(),
       );
     }
+  }
+
+  Future<void> _sendFileMessage(BuildContext context, File imgFile) async {
+    Navigator.pop(context);
+    final caption = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            SendImagePreview(
+              imgFile: imgFile,
+              roomId: chatRoom.id,
+            ),
+      ),
+    );
+    _dummyComment = QiscusComment.generateDummyFileMessage(
+      chatRoom.id,
+      CommentType.FILE_ATTACHMENT,
+      _account.email,
+      {
+        'url': imgFile.path,
+        'caption': caption,
+        'dummy': true,
+      },
+    );
+    dev.log(imgFile.path);
+    if (!comments.contains(_dummyComment)) {
+      comments.insert(0, _dummyComment);
+      scrollController.animateTo(
+        0,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.linear,
+      );
+      if (!mounted) return;
+      setState(() {});
+    }
+    QiscusComment comment = await ChatSdk.sendMessage(
+        roomId: chatRoom.id,
+        message: caption,
+        type: CommentType.FILE_ATTACHMENT,
+        imageFile: imgFile);
+
+    dev.log("comment file message:  ${comment}", name: "Sdk send file message");
   }
 
   @override
@@ -302,15 +365,7 @@ class _ChatPageState extends State<ChatPage> {
                                 File imgFile =
                                     await ImagePicker.pickImage(source: ImageSource.camera);
                                 dev.log("camera path file : ${imgFile.path}", name: "sdk example");
-                                Navigator.pop(context);
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => SendImagePreview(
-                                      imgFile: imgFile,
-                                      roomId: chatRoom.id,
-                                    ),
-                                  ),
-                                );
+                                _sendFileMessage(context, imgFile);
                               },
                             ),
                             ListTile(
@@ -320,15 +375,7 @@ class _ChatPageState extends State<ChatPage> {
                                 File imgFile =
                                     await ImagePicker.pickImage(source: ImageSource.gallery);
                                 dev.log("camera path file : ${imgFile.path}", name: "sdk example");
-                                Navigator.pop(context);
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => SendImagePreview(
-                                      imgFile: imgFile,
-                                      roomId: chatRoom.id,
-                                    ),
-                                  ),
-                                );
+                                _sendFileMessage(context, imgFile);
                               },
                             ),
                           ],

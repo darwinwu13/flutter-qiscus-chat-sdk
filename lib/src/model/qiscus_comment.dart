@@ -52,9 +52,47 @@ class QiscusComment extends Equatable {
     return _extraPayloadMap != null ? _extraPayloadMap['url'] : null;
   }
 
+  bool get isDummy {
+    if (_extraPayloadMap == null) _extraPayloadMap = jsonDecode(extraPayload);
+    return _extraPayloadMap != null ? _extraPayloadMap['dummy'] ?? false : false;
+  }
+
   String get caption {
     if (_extraPayloadMap == null) _extraPayloadMap = jsonDecode(extraPayload);
     return _extraPayloadMap != null ? _extraPayloadMap['caption'] : null;
+  }
+
+  factory QiscusComment.generateDummyFileMessage(int roomId,
+      String rawType,
+      String senderEmail,
+      Map<String, dynamic> extraPayload,) {
+    return QiscusComment(
+      -1,
+      roomId,
+      "",
+      -1,
+      "",
+      "",
+      senderEmail,
+      "",
+      DateTime.now(),
+      STATE_SENDING,
+      false,
+      false,
+      "",
+      "",
+      false,
+      false,
+      false,
+      false,
+      0,
+      [],
+      rawType,
+      jsonEncode(extraPayload),
+      null,
+      null,
+      "",
+    );
   }
 
   QiscusComment(this.id,

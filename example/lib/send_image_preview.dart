@@ -5,6 +5,8 @@ import 'package:photo_view/photo_view.dart';
 import 'dart:developer' as dev;
 import 'package:qiscus_sdk/qiscus_sdk.dart';
 
+import 'locator.dart';
+
 class SendImagePreview extends StatefulWidget {
   final File imgFile;
   final int roomId;
@@ -45,12 +47,7 @@ class _SendImagePreviewState extends State<SendImagePreview> {
             IconButton(
               icon: Icon(Icons.send),
               onPressed: () async {
-                QiscusComment comment = await ChatSdk.sendMessage(
-                    roomId: widget.roomId,
-                    message: caption,
-                    type: CommentType.FILE_ATTACHMENT,
-                    imageFile: widget.imgFile);
-                dev.log("comment file message:  ${comment}", name: "Sdk send file message");
+                Navigator.pop(context, caption);
               },
             )
           ],

@@ -5,8 +5,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:qiscus_sdk/qiscus_sdk.dart';
 import 'package:qiscus_sdk_example/chat_page.dart';
+import 'package:qiscus_sdk_example/locator.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  setupLocator();
+  runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   @override
