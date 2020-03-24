@@ -236,17 +236,16 @@ class _ChatPageState extends State<ChatPage> {
               child: comment.isDummy
                   ? Image(image: FileImage(File(comment.attachmentUrl)))
                   : CachedNetworkImage(
-                imageUrl: comment.attachmentUrl,
-                placeholder: (context, url) =>
-                    Center(
-                      child: Container(
-                        width: 25,
-                        height: 25,
-                        child: CircularProgressIndicator(),
+                      imageUrl: comment.attachmentUrl,
+                      placeholder: (context, url) => Center(
+                        child: Container(
+                          width: 25,
+                          height: 25,
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
                     ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
             ),
           ),
           comment.caption == null || comment.caption == ""
