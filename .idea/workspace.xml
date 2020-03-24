@@ -2,14 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="708654a5-7c03-4188-927a-e64d3e1ef367" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/example/lib/locator.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example/lib/image_preview.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/lib/chat_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/chat_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/lib/send_image_preview.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/send_image_preview.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/example/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/example/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/src/model/qiscus_comment.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/model/qiscus_comment.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -42,6 +37,18 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/src/chat_sdk.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="241">
+              <caret line="38" column="49" selection-start-line="38" selection-start-column="25" selection-end-line="38" selection-end-column="49" />
+              <folding>
+                <element signature="e#21#41#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/example/lib/locator.dart">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="23">
@@ -53,8 +60,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/example/lib/chat_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1822">
-              <caret line="290" column="28" selection-start-line="290" selection-start-column="28" selection-end-line="290" selection-end-column="28" />
+            <state relative-caret-position="459">
+              <caret line="232" column="29" lean-forward="true" selection-start-line="232" selection-start-column="29" selection-end-line="232" selection-end-column="29" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -63,22 +70,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/src/model/qiscus_comment.dart">
+        <entry file="file://$PROJECT_DIR$/example/lib/image_preview.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="230">
-              <caret line="66" column="19" selection-start-line="66" selection-start-column="19" selection-end-line="66" selection-end-column="19" />
-              <folding>
-                <element signature="e#0#22#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="483">
+              <caret line="28" column="49" selection-start-line="28" selection-start-column="49" selection-end-line="28" selection-end-column="49" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/sdk/bin/cache/pkg/sky_engine/lib/core/uri.dart">
+        <entry file="file://$PROJECT_DIR$/lib/src/model/qiscus_comment.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6440">
-              <caret line="284" column="38" selection-start-line="284" selection-start-column="38" selection-end-line="284" selection-end-column="38" />
+            <state relative-caret-position="230">
+              <caret line="65" column="21" selection-start-line="65" selection-start-column="21" selection-end-line="65" selection-end-column="21" />
+              <folding>
+                <element signature="e#0#22#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -106,15 +113,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="483">
               <caret line="21" column="30" selection-start-line="21" selection-start-column="30" selection-end-line="21" selection-end-column="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/flutter/sdk/packages/flutter/lib/src/material/bottom_sheet.dart">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="230">
-              <caret line="24" column="38" selection-start-line="24" selection-start-column="38" selection-end-line="24" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -203,6 +201,7 @@
         <option value="$PROJECT_DIR$/example/lib/send_image_preview.dart" />
         <option value="$PROJECT_DIR$/example/pubspec.yaml" />
         <option value="$PROJECT_DIR$/lib/src/model/qiscus_comment.dart" />
+        <option value="$PROJECT_DIR$/example/lib/image_preview.dart" />
         <option value="$PROJECT_DIR$/example/lib/chat_page.dart" />
       </list>
     </option>
@@ -230,6 +229,12 @@
               <item name="qiscus_sdk" type="b2602c69:ProjectViewProjectNode" />
               <item name="qiscus_sdk" type="462c0819:PsiDirectoryNode" />
               <item name="example" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="qiscus_sdk" type="b2602c69:ProjectViewProjectNode" />
+              <item name="qiscus_sdk" type="462c0819:PsiDirectoryNode" />
+              <item name="example" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="qiscus_sdk" type="b2602c69:ProjectViewProjectNode" />
@@ -269,7 +274,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="io.flutter.reload.alreadyRun" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/example/lib" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -277,12 +282,13 @@
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/example/lib" />
+      <recent name="$PROJECT_DIR$/lib" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/lib/src/" />
       <recent name="$PROJECT_DIR$/lib/src/model/" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/lib" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -366,7 +372,14 @@
       <option name="project" value="LOCAL" />
       <updated>1584959331432</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="add example UI for send image with preview">
+      <created>1585028671019</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1585028671019</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TodoView">
@@ -380,6 +393,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48986125" visible="true" weight="0.24725275" />
       <window_info id="Captures" order="1" side_tool="true" />
@@ -391,7 +405,7 @@
       <window_info id="Capture Tool" order="7" />
       <window_info id="Favorites" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Dart Analysis" order="0" weight="0.32977587" />
-      <window_info active="true" anchor="bottom" id="Run" order="1" sideWeight="0.499183" visible="true" weight="0.31163287" />
+      <window_info active="true" anchor="bottom" id="Run" order="1" sideWeight="0.499183" visible="true" weight="0.31056562" />
       <window_info anchor="bottom" id="TODO" order="2" weight="0.32977587" />
       <window_info anchor="bottom" id="Android Profiler" order="3" show_stripe_button="false" />
       <window_info anchor="bottom" id="Logcat" order="4" />
@@ -419,7 +433,8 @@
     <MESSAGE value="remove event handler on Receive Comment for chatSdk&#10;add Stream CommentReceived for chatSdk&#10;add how to listen to stream comment Received in UI Example" />
     <MESSAGE value="add qiscus event handler for chat room event&#10;add example UI for chat room event READ and DELIVERED" />
     <MESSAGE value="refactor qiscus comment model for file attachment adaptation&#10;add example ui how to render file attachment message" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor qiscus comment model for file attachment adaptation&#10;add example ui how to render file attachment message" />
+    <MESSAGE value="add example UI for send image with preview" />
+    <option name="LAST_COMMIT_MESSAGE" value="add example UI for send image with preview" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -467,13 +482,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/flutter/sdk/packages/flutter/lib/src/material/raised_button.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="186" column="19" selection-start-line="186" selection-start-column="14" selection-end-line="186" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/qiscus_sdk.dart">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -730,16 +738,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/src/chat_sdk.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6578">
-          <caret line="286" column="19" selection-start-line="286" selection-start-column="19" selection-end-line="286" selection-end-column="19" />
-          <folding>
-            <element signature="e#21#41#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/flutter/sdk/bin/cache/pkg/sky_engine/lib/core/uri.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6440">
@@ -809,17 +807,34 @@
     <entry file="file://$PROJECT_DIR$/lib/src/model/qiscus_comment.dart">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="230">
-          <caret line="66" column="19" selection-start-line="66" selection-start-column="19" selection-end-line="66" selection-end-column="19" />
+          <caret line="65" column="21" selection-start-line="65" selection-start-column="21" selection-end-line="65" selection-end-column="21" />
           <folding>
             <element signature="e#0#22#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/lib/src/chat_sdk.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="241">
+          <caret line="38" column="49" selection-start-line="38" selection-start-column="25" selection-end-line="38" selection-end-column="49" />
+          <folding>
+            <element signature="e#21#41#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/lib/image_preview.dart">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="483">
+          <caret line="28" column="49" selection-start-line="28" selection-start-column="49" selection-end-line="28" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/example/lib/chat_page.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1822">
-          <caret line="290" column="28" selection-start-line="290" selection-start-column="28" selection-end-line="290" selection-end-column="28" />
+        <state relative-caret-position="459">
+          <caret line="232" column="29" lean-forward="true" selection-start-line="232" selection-start-column="29" selection-end-line="232" selection-end-column="29" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>

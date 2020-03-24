@@ -12,6 +12,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:qiscus_sdk/qiscus_sdk.dart';
+import 'package:qiscus_sdk_example/image_preview.dart';
 import 'package:qiscus_sdk_example/send_image_preview.dart';
 
 class ChatPage extends StatefulWidget {
@@ -214,22 +215,39 @@ class _ChatPageState extends State<ChatPage> {
     if (comment.rawType == CommentType.FILE_ATTACHMENT) {
       return Column(
         children: <Widget>[
-          Container(
-            width: 200,
-            height: 200,
-            child: comment.isDummy
-                ? Image(image: FileImage(File(comment.attachmentUrl)))
-                : CachedNetworkImage(
-                    imageUrl: comment.attachmentUrl,
-                    placeholder: (context, url) => Center(
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    if (comment.isDummy) {
+                      return ImagePreview(image: FileImage(File(comment.attachmentUrl)));
+                    } else {
+                      return ImagePreview(image: CachedNetworkImageProvider(comment.attachmentUrl));
+                    }
+                  },
+                ),
+              );
+            },
+            child: Container(
+              width: 200,
+              height: 200,
+              child: comment.isDummy
+                  ? Image(image: FileImage(File(comment.attachmentUrl)))
+                  : CachedNetworkImage(
+                imageUrl: comment.attachmentUrl,
+                placeholder: (context, url) =>
+                    Center(
                       child: Container(
                         width: 25,
                         height: 25,
                         child: CircularProgressIndicator(),
                       ),
                     ),
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
-                  ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
           ),
           comment.caption == null || comment.caption == ""
               ? Container(
