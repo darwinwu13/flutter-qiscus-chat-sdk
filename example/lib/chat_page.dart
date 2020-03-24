@@ -220,29 +220,28 @@ class _ChatPageState extends State<ChatPage> {
             child: comment.isDummy
                 ? Image(image: FileImage(File(comment.attachmentUrl)))
                 : CachedNetworkImage(
-              imageUrl: comment.attachmentUrl,
-              placeholder: (context, url) =>
-                  Center(
-                    child: Container(
-                      width: 25,
-                      height: 25,
-                      child: CircularProgressIndicator(),
+                    imageUrl: comment.attachmentUrl,
+                    placeholder: (context, url) => Center(
+                      child: Container(
+                        width: 25,
+                        height: 25,
+                        child: CircularProgressIndicator(),
+                      ),
                     ),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
                   ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-            ),
           ),
           comment.caption == null || comment.caption == ""
               ? Container(
-            width: 200,
-          )
+                  width: 200,
+                )
               : Container(
-              width: 200,
-              padding: EdgeInsets.only(top: 4),
-              alignment: alignment,
-              child: Text(
-                comment.caption ?? "",
-              ))
+                  width: 200,
+                  padding: EdgeInsets.only(top: 4),
+                  alignment: alignment,
+                  child: Text(
+                    comment.caption ?? "",
+                  ))
         ],
       );
     } else {
@@ -258,11 +257,10 @@ class _ChatPageState extends State<ChatPage> {
     Navigator.pop(context);
     final caption = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) =>
-            SendImagePreview(
-              imgFile: imgFile,
-              roomId: chatRoom.id,
-            ),
+        builder: (context) => SendImagePreview(
+          imgFile: imgFile,
+          roomId: chatRoom.id,
+        ),
       ),
     );
     _dummyComment = QiscusComment.generateDummyFileMessage(
