@@ -212,6 +212,7 @@ class ChatSdk {
 
   static Future<bool> addOrUpdateLocalComment(QiscusComment comment) async {
     var args = {'comment': jsonEncode(comment)};
+
     return await _channel.invokeMethod(
       'addOrUpdateLocalComment',
       args,
@@ -237,7 +238,7 @@ class ChatSdk {
     String jsonStr = await _channel.invokeMethod('getLocalChatRoom', {'roomId': roomId});
     Map<String, dynamic> map = jsonDecode(jsonStr);
 
-    return QiscusChatRoom.fromJson(map);
+    return map == null ? null : QiscusChatRoom.fromJson(map);
   }
 
   static Future<List<QiscusChatRoom>> getLocalChatRoomByIds(List<int> roomIds) async {
@@ -271,7 +272,6 @@ class ChatSdk {
     Map<String, int> arguments = {'limit': limit};
     if (offset != null) arguments['offset'] = offset;
     String json = await _channel.invokeMethod('getLocalChatRooms', arguments);
-    dev.log("getlocalhatrooms: $json");
 
     return (jsonDecode(json) as List).map((each) {
       return QiscusChatRoom.fromJson(each);
@@ -330,7 +330,9 @@ class ChatSdk {
     if (limit != null) args['limit'] = limit;
 
     String json = await _channel.invokeMethod("getLocalComments", args);
+
     List<dynamic> comments = jsonDecode(json);
+
     return comments.map((comment) {
       return QiscusComment.fromJson(comment);
     }).toList();
@@ -341,5 +343,27 @@ class ChatSdk {
       'roomId': roomId,
       'commentId': commentId,
     });
+  }
+
+  static Future<bool> deleteLocalCommentsByRoomId(int roomId) {
+    return _channel.invokeMethod('deleteLocalCommentsByRoomId', {
+      'roomId': roomId,
+    });
+  }
+
+  static Future<bool> deleteLocalComment(QiscusComment comment) async {
+    var args = {'comment': jsonEncode(comment)};
+    return await _channel.invokeMethod(
+      'deleteLocalComment',
+      args,
+    );
+  }
+
+  static Future<bool> deleteLocalChatRoom(int roomId) async {
+    var args = {'roomId': roomId};
+    return await _channel.invokeMethod(
+      'deleteLocalChatRoom',
+      args,
+    );
   }
 }

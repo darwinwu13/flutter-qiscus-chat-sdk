@@ -125,7 +125,6 @@ class _MyAppState extends State<MyApp> {
                       final chatRoom = await ChatSdk.chatUser(userId: '5da3f7e6f48c3d175649388b');
                       print("chatRoom Id : ${chatRoom.id}");
                       roomId = chatRoom.id;
-                      await ChatSdk.addOrUpdateLocalChatRoom(chatRoom);
 
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -144,7 +143,7 @@ class _MyAppState extends State<MyApp> {
                       final chatRoom = await ChatSdk.chatUser(userId: 'darwinwu134');
                       print("chatRoom Id : ${chatRoom.id}");
                       roomId = chatRoom.id;
-                      await ChatSdk.addOrUpdateLocalChatRoom(chatRoom);
+
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => ChatPage(

@@ -1,12 +1,10 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'qiscus_comment.g.dart';
 
-@immutable
 @JsonSerializable()
 // ignore: must_be_immutable
 class QiscusComment extends Equatable {
@@ -17,111 +15,89 @@ class QiscusComment extends Equatable {
   static const int STATE_DELIVERED = 3;
   static const int STATE_READ = 4;
 
-  final int id;
-  final int roomId;
-  final String uniqueId;
-  final int commentBeforeId;
-  final String message;
-  final String sender;
-  final String senderEmail;
-  final String senderAvatar;
-  final DateTime time;
+  int id;
+  int roomId;
+  String uniqueId;
+  int commentBeforeId;
+  String message;
+  String sender;
+  String senderEmail;
+  String senderAvatar;
+  DateTime time;
   int state;
-  final bool deleted;
-  final bool hardDeleted;
-  final String roomName;
-  final String roomAvatar;
-  final bool groupMessage;
-  final bool selected;
-  final bool highlighted;
-  final bool downloading;
-  final int progress;
-  final List<String> urls;
-  final String rawType;
-  final String extraPayload;
-  final Map<String, dynamic> extras;
-  final QiscusComment replyTo;
-  final String attachmentName;
+  bool deleted;
+  bool hardDeleted;
+  String roomName;
+  String roomAvatar;
+  bool groupMessage;
+  bool selected;
+  bool highlighted;
+  bool downloading;
+  int progress;
+  List<String> urls;
+  String rawType;
+  Map<String, dynamic> extras;
+  QiscusComment replyTo;
+  String attachmentName;
 
-  Map<String, dynamic> _extraPayloadMap;
+  @JsonKey(fromJson: _extraPayloadFromJson)
+  final Map<String, dynamic> extraPayload;
 
-  static QiscusComment fromJson(Map<String, dynamic> json) => _$QiscusCommentFromJson(json);
+  static Map<String, dynamic> _extraPayloadFromJson(source) =>
+      source == "{}" ? null : jsonDecode(source);
 
-  String get attachmentUrl {
-    if (_extraPayloadMap == null) _extraPayloadMap = jsonDecode(extraPayload);
-    return _extraPayloadMap != null ? _extraPayloadMap['url'] : null;
-  }
+  String get attachmentUrl => extraPayload != null ? extraPayload['url'] : null;
 
-  bool get isDummy {
-    if (_extraPayloadMap == null) _extraPayloadMap = jsonDecode(extraPayload);
-    return _extraPayloadMap != null ? _extraPayloadMap['dummy'] ?? false : false;
-  }
+  bool get isDummy => extraPayload != null ? extraPayload['dummy'] ?? false : false;
 
-  String get caption {
-    if (_extraPayloadMap == null) _extraPayloadMap = jsonDecode(extraPayload);
-    return _extraPayloadMap != null ? _extraPayloadMap['caption'] : null;
-  }
+  String get caption => extraPayload != null ? extraPayload['caption'] : null;
 
   factory QiscusComment.generateDummyFileMessage(int roomId,
       String rawType,
       String senderEmail,
       Map<String, dynamic> extraPayload,) {
     return QiscusComment(
-      -1,
-      roomId,
-      "",
-      -1,
-      "",
-      "",
-      senderEmail,
-      "",
-      DateTime.now(),
-      STATE_SENDING,
-      false,
-      false,
-      "",
-      "",
-      false,
-      false,
-      false,
-      false,
-      0,
-      [],
-      rawType,
-      jsonEncode(extraPayload),
-      null,
-      null,
-      "",
+      roomId: roomId,
+      senderEmail: senderEmail,
+      time: DateTime.now(),
+      state: STATE_SENDING,
+      urls: [],
+      rawType: rawType,
+      extraPayload: extraPayload,
     );
   }
 
-  QiscusComment(this.id,
-      this.roomId,
-      this.uniqueId,
-      this.commentBeforeId,
-      this.message,
-      this.sender,
-      this.senderEmail,
-      this.senderAvatar,
-      this.time,
-      this.state,
-      this.deleted,
-      this.hardDeleted,
-      this.roomName,
-      this.roomAvatar,
-      this.groupMessage,
-      this.selected,
-      this.highlighted,
-      this.downloading,
-      this.progress,
-      this.urls,
-      this.rawType,
-      this.extraPayload,
-      this.extras,
-      this.replyTo,
-      this.attachmentName,);
+  QiscusComment({
+    this.id: -1,
+    this.roomId: -1,
+    this.uniqueId: "",
+    this.commentBeforeId: -1,
+    this.message,
+    this.sender,
+    this.senderEmail,
+    this.senderAvatar,
+    this.time,
+    this.state,
+    this.deleted: false,
+    this.hardDeleted: false,
+    this.roomName: "",
+    this.roomAvatar: "",
+    this.groupMessage: false,
+    this.selected: false,
+    this.highlighted: false,
+    this.downloading: false,
+    this.progress: 0,
+    this.urls,
+    this.rawType,
+    this.extraPayload,
+    this.extras,
+    this.replyTo,
+    this.attachmentName: "",
+  });
 
   Map<String, dynamic> toJson() => _$QiscusCommentToJson(this);
+
+  static QiscusComment fromJson(Map<String, dynamic> json) => _$QiscusCommentFromJson(json);
 
   @override
   String toString() {

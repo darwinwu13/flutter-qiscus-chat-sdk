@@ -55,15 +55,27 @@ class _ChatPageState extends State<ChatPage> {
     controller = TextEditingController();
     scrollController = ScrollController();
     initEventHandler();
-    _getChatRoomWithMessages();
+    _getChatRoomData();
     _account = await ChatSdk.getQiscusAccount();
     WidgetsBinding.instance.addObserver(
       new LifecycleEventHandler(resumeCallBack: () {
-        return _getChatRoomWithMessages();
+        return _getChatRoomData();
       }, suspendingCallBack: () {
         return ChatSdk.unsubscribeToChatRoom(chatRoom);
       }),
     );
+  }
+
+  /// get local data if not exists load from remote
+  Future<void> _getChatRoomData() async {
+    await _getLocalChatRoomWithMessages();
+    if (comments.isEmpty || chatRoom == null) {
+      await _getChatRoomWithMessages();
+      ChatSdk.addOrUpdateLocalChatRoom(chatRoom);
+      comments.forEach((comment) {
+        ChatSdk.addOrUpdateLocalComment(comment);
+      });
+    }
   }
 
   void initEventHandler() {
@@ -144,10 +156,11 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _getLocalChatRoomWithMessages() async {
     var qiscusChatroom = await ChatSdk.getLocalChatRoom(widget.roomId);
-    var qiscusComments = await ChatSdk.getLocalComments(roomId: widget.roomId, limit: 10);
-    setState(() {
-      chatRoom = qiscusChatroom;
-      comments = qiscusComments;
+    var qiscusComments = await ChatSdk.getLocalComments(roomId: widget.roomId, limit: 20);
+
+    chatRoom = qiscusChatroom;
+    comments = qiscusComments;
+    if (chatRoom != null && comments != null) {
       ChatSdk.subscribeToChatRoom(chatRoom);
       QiscusComment lastComment = chatRoom.lastComment;
       String senderEmail = lastComment?.senderEmail;
@@ -156,7 +169,10 @@ class _ChatPageState extends State<ChatPage> {
       if (lastComment != null && senderEmail != _account.email) {
         ChatSdk.markCommentAsRead(chatRoom.id, lastComment.id);
       }
-    });
+    }
+    if (!mounted) return;
+
+    setState(() {});
   }
 
   Future<void> _getChatRoomWithMessages() async {
@@ -172,7 +188,6 @@ class _ChatPageState extends State<ChatPage> {
     if (lastComment != null && senderEmail != _account.email) {
       ChatSdk.markCommentAsRead(chatRoom.id, lastComment.id);
     }
-    dev.log("comments: $comments");
     if (!mounted) return;
     setState(() {});
   }

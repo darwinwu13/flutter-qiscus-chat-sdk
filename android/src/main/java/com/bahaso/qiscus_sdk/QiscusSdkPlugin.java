@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.BinaryMessenger;
@@ -252,6 +251,15 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 json = call.argument("comment");
                 addOrUpdateLocalComment(QiscusSdkHelper.parseQiscusComment(json), result);
                 break;
+            case "deleteLocalComment":
+                json = call.argument("comment");
+                deleteLocalComment(QiscusSdkHelper.parseQiscusComment(json), result);
+                break;
+            case "deleteLocalChatRoom":
+                temp = call.argument("roomId");
+                roomId = temp;
+                deleteLocalChatRoom(roomId, result);
+                break;
             case "subscribeToChatRoom":
                 json = call.argument("chatRoom");
                 subscribeToChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
@@ -259,6 +267,11 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             case "unsubscribeToChatRoom":
                 json = call.argument("chatRoom");
                 unsubscribeToChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+                break;
+            case "deleteLocalCommentsByRoomId":
+                temp = call.argument("roomId");
+                roomId = temp;
+                deleteLocalCommentsByRoomId(roomId, result);
                 break;
             default:
                 result.notImplemented();
@@ -642,5 +655,35 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
     }
 
+
+    private void deleteLocalCommentsByRoomId(long roomId, Result result) {
+        try {
+            QiscusCore.getDataStore().deleteCommentsByRoomId(roomId);
+            result.success(true);
+        } catch (Exception e) {
+            result.error("ERR_FAILED_DELETE_LOCAL_COMMENTS_BY_ROOM_ID", e.getMessage(), e);
+
+        }
+    }
+
+    private void deleteLocalComment(QiscusComment comment, Result result) {
+        try {
+            QiscusCore.getDataStore().delete(comment);
+            result.success(true);
+        } catch (Exception e) {
+            result.error("ERR_FAILED_DELETE_LOCAL_COMMENTS_BY_ROOM_ID", e.getMessage(), e);
+
+        }
+    }
+
+    private void deleteLocalChatRoom(long roomId, Result result) {
+        try {
+            QiscusCore.getDataStore().deleteChatRoom(roomId);
+            result.success(true);
+        } catch (Exception e) {
+            result.error("ERR_FAILED_DELETE_LOCAL_CHAT_ROOM", e.getMessage(), e);
+
+        }
+    }
 
 }
