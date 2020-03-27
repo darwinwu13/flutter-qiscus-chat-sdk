@@ -44,7 +44,7 @@ class QiscusComment extends Equatable {
   final Map<String, dynamic> extraPayload;
 
   static Map<String, dynamic> _extraPayloadFromJson(source) =>
-      source == "{}" ? null : jsonDecode(source);
+      source == "{}" || source == null ? null : jsonDecode(source);
 
   String get attachmentUrl => extraPayload != null ? extraPayload['url'] : null;
 

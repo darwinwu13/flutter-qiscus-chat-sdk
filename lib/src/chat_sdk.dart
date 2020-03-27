@@ -293,7 +293,8 @@ class ChatSdk {
     String caption = "";
     if (type == CommentType.FILE_ATTACHMENT) {
       caption = message;
-      return _sendFileMessage(roomId: roomId, caption: caption, imageFile: imageFile);
+      return _sendFileMessage(
+          roomId: roomId, caption: caption, imageFile: imageFile, extras: extras);
     } else if (type == CommentType.TEXT) {
       var args = {
         'roomId': roomId,
@@ -310,9 +311,11 @@ class ChatSdk {
   static Future<QiscusComment> _sendFileMessage({
     @required int roomId,
     String caption,
+    Map<String, dynamic> extras,
     @required File imageFile,
   }) async {
     var args = {'roomId': roomId, 'caption': caption, 'filePath': imageFile.absolute.path};
+    if (extras != null) args['extras'] = extras;
     String json = await _channel.invokeMethod('sendFileMessage', args);
 
     return QiscusComment.fromJson(jsonDecode(json));
@@ -366,4 +369,10 @@ class ChatSdk {
       args,
     );
   }
+
+  static Future<void> downloadImage() {
+    //todo implement download image and save to local database
+  }
+
+  static Future<QiscusComment> getPrevMessages() {}
 }
