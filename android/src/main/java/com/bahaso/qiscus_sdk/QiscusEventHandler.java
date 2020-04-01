@@ -3,6 +3,7 @@ package com.bahaso.qiscus_sdk;
 import com.google.gson.Gson;
 import com.qiscus.sdk.chat.core.event.QiscusChatRoomEvent;
 import com.qiscus.sdk.chat.core.event.QiscusCommentReceivedEvent;
+import com.qiscus.sdk.chat.core.event.QiscusMqttStatusEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -63,7 +64,7 @@ public class QiscusEventHandler {
 
     @Subscribe
     public void onReceiveChatRoomEvent(QiscusChatRoomEvent roomEvent) {
-        Log.e("SDK","on receive chat room event");
+        Log.e("SDK", "on receive chat room event");
         Gson gson = AmininGsonBuilder.createGson();
         Map<String, Object> args = new HashMap<>();
         args.put("type", "chat_room_event_received");
@@ -73,11 +74,32 @@ public class QiscusEventHandler {
     }
 
     @Subscribe
-    public void onReceiveFileUploadProgressEvent(QiscusFileUploadProgressEvent event){
+    public void onReceiveFileUploadProgressEvent(QiscusFileUploadProgressEvent event) {
         Gson gson = AmininGsonBuilder.createGson();
         Map<String, Object> args = new HashMap<>();
         args.put("type", "file_upload_progress");
         args.put("progress", event.getProgress());
+        if (eventSink != null)
+            eventSink.success(gson.toJson(args));
+    }
+
+
+    @Subscribe
+    public void onConnection(QiscusMqttStatusEvent mqttStatusEvent) {
+        Gson gson = AmininGsonBuilder.createGson();
+        Map<String, Object> args = new HashMap<>();
+        args.put("type", "mqtt_status_event");
+        switch (mqttStatusEvent) {
+            case CONNECTED:
+                args.put("status", "connected");
+                break;
+            case DISCONNECTED:
+                args.put("status", "disconnected");
+                break;
+            case RECONNETING:
+                args.put("status", "reconnecting");
+                break;
+        }
         if (eventSink != null)
             eventSink.success(gson.toJson(args));
     }

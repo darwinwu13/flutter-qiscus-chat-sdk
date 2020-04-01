@@ -15,6 +15,7 @@ import com.qiscus.sdk.chat.core.data.model.QiscusComment;
 import com.qiscus.sdk.chat.core.data.remote.QiscusApi;
 import com.qiscus.sdk.chat.core.data.remote.QiscusPusherApi;
 import com.qiscus.sdk.chat.core.util.QiscusAndroidUtil;
+import com.qiscus.sdk.chat.core.util.QiscusTextUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
@@ -31,7 +32,9 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 /**
@@ -39,6 +42,7 @@ import rx.schedulers.Schedulers;
  */
 public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     private final String CHANNEL_NAME = "bahaso.com/qiscus_chat_sdk";
+    private Func2<QiscusComment, QiscusComment, Integer> commentComparator = (lhs, rhs) -> rhs.getTime().compareTo(lhs.getTime());
 
     private Context applicationContext;
     private MethodChannel channel;
@@ -217,7 +221,11 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 roomId = temp;
                 String caption = call.argument("caption");
                 String filePath = call.argument("filePath");
-                sendFileMessage(roomId, caption, filePath, result);
+                if (call.hasArgument("extras")) {
+                    Map<String, Object> extrasMap = call.argument("extras");
+                    extras = new JSONObject(extrasMap);
+                }
+                sendFileMessage(roomId, caption, filePath, extras, result);
                 break;
             case "getQiscusAccount":
                 getQiscusAccount(result);
@@ -273,6 +281,34 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 roomId = temp;
                 deleteLocalCommentsByRoomId(roomId, result);
                 break;
+            case "getPrevMessages":
+                temp = call.argument("roomId");
+                roomId = temp;
+                limitInt = call.argument("limit");
+                int messageId = call.argument("messageId");
+                getPrevMessages(roomId, limitInt, messageId, result);
+                break;
+            case "getLocalPrevMessages":
+                temp = call.argument("roomId");
+                roomId = temp;
+                limitInt = call.argument("limit");
+                String uniqueId = call.argument("uniqueId");
+                getLocalPrevMessages(roomId, limitInt, uniqueId, result);
+                break;
+            case "getNextMessages":
+                temp = call.argument("roomId");
+                roomId = temp;
+                limitInt = call.argument("limit");
+                uniqueId = call.argument("uniqueId");
+                getNextMessages(roomId, limitInt, uniqueId, result);
+                break;
+            case "getLocalNextMessages":
+                temp = call.argument("roomId");
+                roomId = temp;
+                limitInt = call.argument("limit");
+                uniqueId = call.argument("uniqueId");
+                getLocalNextMessages(roomId, limitInt, uniqueId, result);
+                break;
             default:
                 result.notImplemented();
 
@@ -322,6 +358,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .subscribe(qiscusAccount -> {
                     result.success(QiscusSdkHelper.encodeQiscusAccount(qiscusAccount));
                 }, error -> {
+                    error.printStackTrace();
                     result.error("ERR_LOGIN_JWT", error.getMessage(), error);
                 });
     }
@@ -349,6 +386,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .subscribe(qiscusAccount -> {
                     result.success(QiscusSdkHelper.encodeQiscusAccount(qiscusAccount));
                 }, error -> {
+                    error.printStackTrace();
                     result.error("ERR_LOGIN", error.getMessage(), error);
                 });
 
@@ -366,6 +404,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .subscribe(qiscusNonce -> {
                     result.success(qiscusNonce.getNonce());
                 }, throwable -> {
+                    throwable.printStackTrace();
                     result.error("ERR_NONCE", throwable.getMessage(), throwable);
                 });
     }
@@ -379,6 +418,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
             @Override
             public void onError(Throwable throwable) {
+                throwable.printStackTrace();
                 result.error("ERR_UPDATE_USER", throwable.getMessage(), throwable);
             }
         });
@@ -409,6 +449,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                     Gson gson = AmininGsonBuilder.createGson();
                     result.success(gson.toJson(qiscusAccounts));
                 }, throwable -> {
+                    throwable.printStackTrace();
                     result.error("ERR_GET_ALL_USERS", throwable.getMessage(), throwable);
                 });
     }
@@ -421,6 +462,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .subscribe(chatRoom -> {
                     result.success(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
                 }, throwable -> {
+                    throwable.printStackTrace();
                     result.error("ERR_CHAT_USER", throwable.getMessage(), throwable);
                 });
     }
@@ -430,6 +472,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             QiscusCore.getDataStore().addOrUpdate(chatRoom);
             result.success(true);
         } catch (Exception e) {
+            e.printStackTrace();
             result.error("ERR_FAILED_ADD_OR_UPDATE_LOCAL_CHAT_ROOM", e.getMessage(), e);
         }
 
@@ -442,6 +485,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .subscribe(chatRoomListPair -> {
                     result.success(QiscusSdkHelper.encodeChatRoomListPair(chatRoomListPair));
                 }, throwable -> {
+                    throwable.printStackTrace();
                     // on error
                     String code = "ERR_FAILED_GET_CHATROOM_MESSAGES";
                     result.error(code, throwable.getMessage(), throwable);
@@ -472,6 +516,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
                     result.success(gson.toJson(chatRoomList));
                 }, throwable -> {
+                    throwable.printStackTrace();
                     result.error("ERR_GET_CHATROOM_BY_IDS", throwable.getMessage(), throwable);
                 });
     }
@@ -497,6 +542,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                     Gson gson = AmininGsonBuilder.createGson();
                     result.success(gson.toJson(chatRoomList));
                 }, throwable -> {
+                    throwable.printStackTrace();
                     result.error("ERR_GET_ALL_CHAT_ROOMS", throwable.getMessage(), throwable);
                 });
 
@@ -523,6 +569,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .subscribe(totalUnreadCount -> {
                     result.success(totalUnreadCount);
                 }, throwable -> {
+                    throwable.printStackTrace();
                     result.error("ERR_GET_TOTAL_UNREAD_COUNT", throwable.getMessage(), throwable);
                 });
     }
@@ -540,13 +587,14 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                     Gson gson = AmininGsonBuilder.createGson();
                     result.success(gson.toJson(qiscusComment));
                 }, throwable -> {
+                    throwable.printStackTrace();
                     result.error("ERR_FAILED_SEND_MESSAGE", throwable.getMessage(), throwable);
                 });
 
     }
 
 
-    private void sendFileMessage(long roomId, String caption, String filePath, Result result) {
+    private void sendFileMessage(long roomId, String caption, String filePath, JSONObject extras, Result result) {
         File file = new File(filePath);
         if (!file.exists()) {
             result.error("ERR_FILE_NOT_FOUND", null, null);
@@ -554,6 +602,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         }
         String filename = file.getName();
         QiscusComment message = QiscusComment.generateFileAttachmentMessage(roomId, filePath, caption, filename);
+        if (extras != null) message.setExtras(extras);
 
         QiscusApi.getInstance().sendFileMessage(
                 message, file, percentage -> {
@@ -573,6 +622,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                     Gson gson = AmininGsonBuilder.createGson();
                     result.success(gson.toJson(comment));
                 }, throwable -> {
+                    throwable.printStackTrace();
                     result.error("ERR_FAILED_SEND_FILE_MESSAGE", throwable.getMessage(), throwable);
 
                 });
@@ -590,6 +640,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             result.success(QiscusSdkHelper.encodeQiscusAccount(QiscusCore.getQiscusAccount()));
 
         } catch (Exception e) {
+            e.printStackTrace();
             result.error("ERR_FAILED_GET_ACCOUNT", e.getMessage(), e);
         }
 
@@ -629,6 +680,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             QiscusCore.getDataStore().addOrUpdate(comment);
             result.success(true);
         } catch (Exception e) {
+            e.printStackTrace();
             result.error("ERR_FAILED_TO_ADD_OR_UPDATE_LOCAL_COMMENT", e.getMessage(), e);
         }
 
@@ -639,6 +691,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             QiscusPusherApi.getInstance().subscribeChatRoom(chatRoom);
             result.success(true);
         } catch (Exception e) {
+            e.printStackTrace();
             result.error("ERR_FAILED_SUBSCRIBE_CHAT_ROOM_EVENT", e.getMessage(), e);
 
         }
@@ -649,6 +702,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             QiscusPusherApi.getInstance().unsubsribeChatRoom(chatRoom);
             result.success(true);
         } catch (Exception e) {
+            e.printStackTrace();
             result.error("ERR_FAILED_UNSUBSCRIBE_CHAT_ROOM_EVENT", e.getMessage(), e);
 
         }
@@ -661,6 +715,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             QiscusCore.getDataStore().deleteCommentsByRoomId(roomId);
             result.success(true);
         } catch (Exception e) {
+            e.printStackTrace();
             result.error("ERR_FAILED_DELETE_LOCAL_COMMENTS_BY_ROOM_ID", e.getMessage(), e);
 
         }
@@ -671,6 +726,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             QiscusCore.getDataStore().delete(comment);
             result.success(true);
         } catch (Exception e) {
+            e.printStackTrace();
             result.error("ERR_FAILED_DELETE_LOCAL_COMMENTS_BY_ROOM_ID", e.getMessage(), e);
 
         }
@@ -681,9 +737,90 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
             QiscusCore.getDataStore().deleteChatRoom(roomId);
             result.success(true);
         } catch (Exception e) {
+            e.printStackTrace();
             result.error("ERR_FAILED_DELETE_LOCAL_CHAT_ROOM", e.getMessage(), e);
 
         }
     }
+
+
+    private void getPrevMessages(long roomId, int limit, int messageId, Result result) {
+
+        QiscusApi.getInstance().getPreviousMessagesById(roomId, limit, messageId)
+                .toSortedList(commentComparator)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(comments -> {
+                    Gson gson = AmininGsonBuilder.createGson();
+                    result.success(gson.toJson(comments));
+                }, throwable -> {
+                    throwable.printStackTrace();
+                    result.error("ERR_FAILED_GET_PREV_MSGS", throwable.getMessage(), throwable);
+                });
+
+    }
+
+
+    private void getLocalPrevMessages(long roomId, int limit, String uniqueId, Result result) {
+        QiscusComment qiscusComment = QiscusCore.getDataStore().getComment(uniqueId);
+        QiscusCore.getDataStore().getObservableOlderCommentsThan(qiscusComment, roomId, limit * 2)
+                .flatMap(Observable::from)
+                .filter(qiscusComment1 -> qiscusComment.getId() == -1 || qiscusComment1.getId() < qiscusComment.getId())
+                .toSortedList(commentComparator)
+                .map(comments -> {
+                    if (comments.size() >= limit) {
+                        return comments.subList(0, limit);
+                    }
+                    return comments;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(qiscusComments -> {
+                    Gson gson = AmininGsonBuilder.createGson();
+                    result.success(gson.toJson(qiscusComments));
+                }, error -> {
+                    error.printStackTrace();
+                    result.error("ERR_FAILED_GET_LOCAL_PREV_MESSAGES", error.getMessage(), error);
+                });
+    }
+
+    private void getLocalNextMessages(long roomId, int limit, String uniqueId, Result result) {
+        QiscusComment qiscusComment = QiscusCore.getDataStore().getComment(uniqueId);
+
+        QiscusCore.getDataStore().getObservableCommentsAfter(qiscusComment, roomId)
+                .flatMap(Observable::from)
+                .filter(qiscusComment1 -> qiscusComment.getId() == -1 || qiscusComment1.getId() > qiscusComment.getId())
+                .toSortedList(commentComparator)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(comments -> {
+                    Gson gson = AmininGsonBuilder.createGson();
+                    result.success(gson.toJson(comments));
+                }, err->{
+                    err.printStackTrace();
+                    result.error("ERR_FAILED_GET_LOCAL_NEXT_MESSAGES",err.getMessage(),err);
+                });
+    }
+
+
+    private void getNextMessages(long roomId, int limit, String uniqueId, Result result) {
+        QiscusComment qiscusComment = QiscusCore.getDataStore().getComment(uniqueId);
+
+        QiscusApi.getInstance().getNextMessagesById(roomId, limit, qiscusComment.getId())
+                .filter(qiscusComment1 -> qiscusComment.getId() == -1 || qiscusComment1.getId() > qiscusComment.getId())
+                .toSortedList(commentComparator)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(comments -> {
+                    Gson gson = AmininGsonBuilder.createGson();
+                    result.success(gson.toJson(comments));
+                }, throwable -> {
+                    throwable.printStackTrace();
+                    result.error("ERR_FAILED_GET_NEXT_MSGS", throwable.getMessage(), throwable);
+
+                });
+    }
+
+
 
 }

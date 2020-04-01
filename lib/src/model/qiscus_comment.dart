@@ -52,10 +52,12 @@ class QiscusComment extends Equatable {
 
   String get caption => extraPayload != null ? extraPayload['caption'] : null;
 
-  factory QiscusComment.generateDummyFileMessage(int roomId,
-      String rawType,
-      String senderEmail,
-      Map<String, dynamic> extraPayload,) {
+  factory QiscusComment.generateDummyFileMessage(
+    int roomId,
+    String rawType,
+    String senderEmail,
+    Map<String, dynamic> extraPayload,
+  ) {
     return QiscusComment(
       roomId: roomId,
       senderEmail: senderEmail,

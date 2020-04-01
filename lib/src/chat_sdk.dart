@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:qiscus_sdk/src/utilities/qiscus_mqtt_status_event.dart';
 import 'package:tuple/tuple.dart';
 
 import 'model/qiscus_account.dart';
@@ -21,16 +22,23 @@ export 'model/qiscus_comment.dart';
 export 'model/qiscus_room_member.dart';
 
 class ChatSdk {
+  static bool _hasSetup = false;
+
   static const MethodChannel _channel = const MethodChannel('bahaso.com/qiscus_chat_sdk');
   static const EventChannel _eventChannelCommentReceive =
-      const EventChannel('bahaso.com/qiscus_chat_sdk/events');
+  const EventChannel('bahaso.com/qiscus_chat_sdk/events');
 
   static Stream<dynamic> _eventStream;
   static StreamSubscription<dynamic> _eventSubscription;
   static StreamController<QiscusComment> _commentReceiveController = StreamController.broadcast();
+  static StreamController<QiscusMqttStatusEvent> _mqttStatusEventController =
+  StreamController.broadcast();
   static StreamController<QiscusChatRoomEvent> _chatRoomEventController =
-      StreamController.broadcast();
+  StreamController.broadcast();
   static StreamController<int> _fileUploadProgressController = StreamController.broadcast();
+
+  static Stream<QiscusMqttStatusEvent> get mqttStatusEventStream =>
+      _mqttStatusEventController.stream;
 
   static Stream<QiscusComment> get commentReceivedStream => _commentReceiveController.stream;
 
@@ -40,33 +48,53 @@ class ChatSdk {
 
   /// call this method to start listening to event channel, to
   /// distribute into each events stream
-  static void startListeningToEventChannel() {
-    _eventStream = _eventChannelCommentReceive.receiveBroadcastStream();
-    _eventSubscription = _eventStream.listen((data) {
-      print('event channel data received');
-      Map<String, dynamic> result = jsonDecode(data);
-      switch (result['type']) {
-        case "comment_received":
-          _commentReceiveController.add(QiscusComment.fromJson(result['comment']));
-          break;
-        case "chat_room_event_received":
-          dev.log(result.toString(), name: "chat sdk event channel");
-          _chatRoomEventController.add(QiscusChatRoomEvent.fromJson(result['chatRoomEvent']));
-          break;
-        case "file_upload_progress":
-          _fileUploadProgressController.add(result['progress']);
-          dev.log(result.toString(), name: "chat sdk file upload progress");
+  static void _startListeningToEventChannel() {
+    if (_eventStream == null && _eventSubscription == null) {
+      _eventStream = _eventChannelCommentReceive.receiveBroadcastStream();
+      _eventSubscription = _eventStream.listen((data) {
+        print('event channel data received');
+        Map<String, dynamic> result = jsonDecode(data);
+        switch (result['type']) {
+          case "comment_received":
+            _commentReceiveController.add(QiscusComment.fromJson(result['comment']));
+            break;
+          case "chat_room_event_received":
+            dev.log(result.toString(), name: "chat sdk event channel");
+            _chatRoomEventController.add(QiscusChatRoomEvent.fromJson(result['chatRoomEvent']));
+            break;
+          case "file_upload_progress":
+            _fileUploadProgressController.add(result['progress']);
+            dev.log(result.toString(), name: "chat sdk file upload progress");
 
-          break;
-      }
-    });
+            break;
+          case "mqtt_status_event":
+            QiscusMqttStatusEvent statusEvent;
+            if (result['status'] == "connected") {
+              statusEvent = QiscusMqttStatusEvent.CONNECTED;
+              //todo: add implementation to load newest comment from remote, to handle
+              //todo: if there is a pause in the app, that wont receive comment
+              //todo: add to on receive comment stream controller
+            } else if (result['status'] == "disconnected")
+              statusEvent = QiscusMqttStatusEvent.DISCONNECTED;
+            else if (result['status'] == "reconnecting")
+              statusEvent = QiscusMqttStatusEvent.RECONNECTING;
+
+            _mqttStatusEventController.add(statusEvent);
+            break;
+        }
+      });
+    }
   }
 
   static Future<bool> subscribeToChatRoom(QiscusChatRoom chatRoom) {
+    checkSetup();
+
     return _channel.invokeMethod('subscribeToChatRoom', {'chatRoom': jsonEncode(chatRoom)});
   }
 
   static Future<bool> unsubscribeToChatRoom(QiscusChatRoom chatRoom) {
+    checkSetup();
+
     return _channel.invokeMethod('unsubscribeToChatRoom', {'chatRoom': jsonEncode(chatRoom)});
   }
 
@@ -75,32 +103,54 @@ class ChatSdk {
     _eventStream = null;
   }
 
-  static Future<void> setup({@required String appId}) {
-    dev.log("chat Sdk setup", name: "Qiscus Chat SDK");
-    return _channel.invokeMethod('setup', {'appId': appId});
+  static Future<void> setup({@required String appId}) async {
+    if (!_hasSetup) {
+      _startListeningToEventChannel();
+      dev.log("chat Sdk setup", name: "Qiscus Chat SDK");
+      await _channel.invokeMethod('setup', {'appId': appId});
+      _hasSetup = true;
+
+      return;
+    }
   }
 
   static Future<void> clearUser() {
+    checkSetup();
+
     dev.log("chat sdk clearing user", name: "Qiscus Chat SDK");
     return _channel.invokeMethod("clearUser");
   }
 
+  static bool checkSetup() {
+    if (!_hasSetup) throw Exception("Chat Sdk has not been setup");
+
+    return true;
+  }
+
   static Future<void> registerDeviceToken(String token) {
+    checkSetup();
+
     dev.log("chat sdk register device token", name: "Qiscus Chat SDK");
     return _channel.invokeMethod("registerDeviceToken", {"token": token});
   }
 
   static Future<void> removeDeviceToken(String token) {
+    checkSetup();
+
     dev.log("chat sdk remove device token", name: "Qiscus Chat SDK");
     return _channel.invokeMethod("removeDeviceToken", {"token": token});
   }
 
   static Future<void> enableFcmPushNotification(bool value) {
+    checkSetup();
+
     dev.log("chat sdk enable fcm push notification", name: "Qiscus Chat SDK");
     return _channel.invokeMethod("setEnableFcmPushNotification", {"value": value});
   }
 
   static Future<void> enableDebugMode(bool value) {
+    checkSetup();
+
     dev.log("chat sdk enable debug mode", name: "Qiscus Chat SDK");
     return _channel.invokeMethod("enableDebugMode", {"value": value});
   }
@@ -114,6 +164,8 @@ class ChatSdk {
     String avatarUrl: '',
     Map<String, dynamic> extras,
   }) async {
+    checkSetup();
+
     dev.log("chat sdk login", name: "Qiscus Chat SDK");
     Map<String, dynamic> arguments = _prepareLoginArguments(
       userId: userId,
@@ -144,6 +196,8 @@ class ChatSdk {
   }
 
   static Future<QiscusAccount> loginWithJWT(Future<String> getJWTToken(String nonce)) async {
+    checkSetup();
+
     dev.log("chat sdk loginWithJWT", name: "Qiscus Chat SDK");
     String nonce = await _channel.invokeMethod('getNonce');
 
@@ -161,6 +215,8 @@ class ChatSdk {
     @required String avatarUrl,
     Map<String, dynamic> extras,
   }) async {
+    checkSetup();
+
     dev.log("chat sdk updateUser", name: "Qiscus Chat SDK");
 
     Map<String, dynamic> arguments = {
@@ -175,11 +231,14 @@ class ChatSdk {
   }
 
   static Future<bool> hasLogin() {
+    checkSetup();
+
     return _channel.invokeMethod('hasLogin');
   }
 
-  static Future<List<QiscusAccount>> getAllUsers(
-      {String searchUsername: '', int page, int limit}) async {
+  static Future<List<QiscusAccount>> getAllUsers({String searchUsername: '', int page, int limit}) async {
+    checkSetup();
+
     List<String> list = await _channel.invokeMethod(
         'getAllUsers', {'searchUsername': searchUsername, 'page': page, 'limit': limit});
 
@@ -192,14 +251,19 @@ class ChatSdk {
     @required String userId,
     Map<String, dynamic> extras,
   }) async {
-    Map<String, dynamic> arguments = {
-      'userId': userId,
-    };
-    if (extras != null) arguments['extras'] = extras;
+    checkSetup();
+    if (await hasLogin()) {
+      Map<String, dynamic> arguments = {
+        'userId': userId,
+      };
+      if (extras != null) arguments['extras'] = extras;
 
-    String json = await _channel.invokeMethod('chatUser', arguments);
+      String json = await _channel.invokeMethod('chatUser', arguments);
 
-    return QiscusChatRoom.fromJson(jsonDecode(json));
+      return QiscusChatRoom.fromJson(jsonDecode(json));
+    }
+
+    throw Exception("Can't chat user hasn't login yet");
   }
 
   static Future<bool> addOrUpdateLocalChatRoom(QiscusChatRoom chatRoom) async {
@@ -220,14 +284,13 @@ class ChatSdk {
   }
 
   /// only return 20 latest messages with chat room
-  static Future<Tuple2<QiscusChatRoom, List<QiscusComment>>> getChatRoomWithMessages(
-      int roomId) async {
+  static Future<Tuple2<QiscusChatRoom, List<QiscusComment>>> getChatRoomWithMessages(int roomId) async {
     Map<String, String> chatRoomListPairJsonStr = await _channel
         .invokeMapMethod<String, String>('getChatRoomWithMessages', {'roomId': roomId});
     QiscusChatRoom qiscusChatRoom =
-        QiscusChatRoom.fromJson(jsonDecode(chatRoomListPairJsonStr['chatRoom']));
+    QiscusChatRoom.fromJson(jsonDecode(chatRoomListPairJsonStr['chatRoom']));
     List<QiscusComment> messages =
-        (jsonDecode(chatRoomListPairJsonStr['messages']) as List).map((each) {
+    (jsonDecode(chatRoomListPairJsonStr['messages']) as List).map((each) {
       return QiscusComment.fromJson(each);
     }).toList();
 
@@ -255,17 +318,23 @@ class ChatSdk {
     int page: 1,
     int limit: 100,
   }) async {
-    String json = await _channel.invokeMethod('getAllChatRooms', {
-      'showParticipant': showParticipant,
-      'showRemoved': showRemoved,
-      'showEmpty': showEmpty,
-      'page': page,
-      'limit': limit,
-    });
+    checkSetup();
 
-    return (jsonDecode(json) as List).map((each) {
-      return QiscusChatRoom.fromJson(each);
-    }).toList();
+    if (await hasLogin()) {
+      String json = await _channel.invokeMethod('getAllChatRooms', {
+        'showParticipant': showParticipant,
+        'showRemoved': showRemoved,
+        'showEmpty': showEmpty,
+        'page': page,
+        'limit': limit,
+      });
+
+      return (jsonDecode(json) as List).map((each) {
+        return QiscusChatRoom.fromJson(each);
+      }).toList();
+    }
+
+    throw Exception("Can't get all chat rooms, you need to login ");
   }
 
   static Future<List<QiscusChatRoom>> getLocalChatRooms({int limit: 100, int offset}) async {
@@ -290,22 +359,27 @@ class ChatSdk {
     Map<String, dynamic> extras,
     Map<String, dynamic> payload,
   }) async {
-    String caption = "";
-    if (type == CommentType.FILE_ATTACHMENT) {
-      caption = message;
-      return _sendFileMessage(
-          roomId: roomId, caption: caption, imageFile: imageFile, extras: extras);
-    } else if (type == CommentType.TEXT) {
-      var args = {
-        'roomId': roomId,
-        'message': message,
-        'type': CommentType.TEXT,
-      };
-      if (extras != null) args['extras'] = extras;
-      String json = await _channel.invokeMethod('sendMessage', args);
+    checkSetup();
+    if (await hasLogin()) {
+      String caption = "";
+      if (type == CommentType.FILE_ATTACHMENT) {
+        caption = message;
+        return _sendFileMessage(
+            roomId: roomId, caption: caption, imageFile: imageFile, extras: extras);
+      } else if (type == CommentType.TEXT) {
+        var args = {
+          'roomId': roomId,
+          'message': message,
+          'type': CommentType.TEXT,
+        };
+        if (extras != null) args['extras'] = extras;
+        String json = await _channel.invokeMethod('sendMessage', args);
 
-      return QiscusComment.fromJson(jsonDecode(json));
+        return QiscusComment.fromJson(jsonDecode(json));
+      }
     }
+
+    throw Exception("Can't send message, you need to login");
   }
 
   static Future<QiscusComment> _sendFileMessage({
@@ -314,18 +388,25 @@ class ChatSdk {
     Map<String, dynamic> extras,
     @required File imageFile,
   }) async {
-    var args = {'roomId': roomId, 'caption': caption, 'filePath': imageFile.absolute.path};
-    if (extras != null) args['extras'] = extras;
-    String json = await _channel.invokeMethod('sendFileMessage', args);
+    checkSetup();
+    if (await hasLogin()) {
+      var args = {'roomId': roomId, 'caption': caption, 'filePath': imageFile.absolute.path};
+      if (extras != null) args['extras'] = extras;
+      String json = await _channel.invokeMethod('sendFileMessage', args);
 
-    return QiscusComment.fromJson(jsonDecode(json));
+      return QiscusComment.fromJson(jsonDecode(json));
+    }
   }
 
   /// get Qiscus account that has been log in
   static Future<QiscusAccount> getQiscusAccount() async {
-    String json = await _channel.invokeMethod('getQiscusAccount');
+    checkSetup();
+    if (await hasLogin()) {
+      String json = await _channel.invokeMethod('getQiscusAccount');
 
-    return QiscusAccount.fromJson(jsonDecode(json));
+      return QiscusAccount.fromJson(jsonDecode(json));
+    }
+    throw Exception("Can't get qiscus account, you need to login first");
   }
 
   static Future<List<QiscusComment>> getLocalComments({int roomId, int limit}) async {
@@ -374,5 +455,107 @@ class ChatSdk {
     //todo implement download image and save to local database
   }
 
-  static Future<QiscusComment> getPrevMessages() {}
+  static Future<List<QiscusComment>> getPrevMessages(QiscusComment comment, {int limit: 20}) async {
+    checkSetup();
+
+    if (await hasLogin()) {
+      var args = {
+        'roomId': comment.roomId,
+        'messageId': comment.id,
+        'limit': limit,
+      };
+
+      String json = await _channel.invokeMethod(
+        'getPrevMessages',
+        args,
+      );
+
+      List<dynamic> comments = jsonDecode(json);
+
+      var list = comments.map((comment) {
+        return QiscusComment.fromJson(comment);
+      }).toList();
+
+      return list;
+    }
+
+    throw Exception("Can't get previous message, you need to login");
+  }
+
+  static Future<List<QiscusComment>> getLocalPrevMessages(QiscusComment comment,
+      {int limit: 20}) async {
+    checkSetup();
+
+    var args = {
+      'roomId': comment.roomId,
+      'uniqueId': comment.uniqueId,
+      'limit': limit,
+    };
+
+    String json = await _channel.invokeMethod(
+      'getLocalPrevMessages',
+      args,
+    );
+
+    List<dynamic> comments = jsonDecode(json);
+
+    var list = comments.map((comment) {
+      return QiscusComment.fromJson(comment);
+    }).toList();
+
+    return list;
+  }
+
+  static Future<List<QiscusComment>> getNextMessages(QiscusComment comment, {int limit: 20}) async {
+    checkSetup();
+    if (await hasLogin()) {
+      var args = {
+        'roomId': comment.roomId,
+        'uniqueId': comment.uniqueId,
+        'limit': limit,
+      };
+
+      String json = await _channel.invokeMethod(
+        'getNextMessages',
+        args,
+      );
+
+      List<dynamic> comments = jsonDecode(json);
+
+      var list = comments.map((comment) {
+        return QiscusComment.fromJson(comment);
+      }).toList();
+
+      return list;
+    }
+
+    throw Exception("Can't get next message, you need to login");
+  }
+
+  static Future<List<QiscusComment>> getLocalNextMessages(QiscusComment comment,
+      {int limit: 20}) async {
+    checkSetup();
+    if (await hasLogin()) {
+      var args = {
+        'roomId': comment.roomId,
+        'uniqueId': comment.uniqueId,
+        'limit': limit,
+      };
+
+      String json = await _channel.invokeMethod(
+        'getLocalNextMessages',
+        args,
+      );
+
+      List<dynamic> comments = jsonDecode(json);
+
+      var list = comments.map((comment) {
+        return QiscusComment.fromJson(comment);
+      }).toList();
+
+      return list;
+    }
+
+    throw Exception("Can't get next message, you need to login");
+  }
 }

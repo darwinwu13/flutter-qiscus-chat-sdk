@@ -54,9 +54,9 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> init() async {
     controller = TextEditingController();
     scrollController = ScrollController();
+    _account = await ChatSdk.getQiscusAccount();
     initEventHandler();
     _getChatRoomData();
-    _account = await ChatSdk.getQiscusAccount();
     WidgetsBinding.instance.addObserver(
       new LifecycleEventHandler(resumeCallBack: () {
         return _getChatRoomData();
@@ -402,8 +402,13 @@ class _ChatPageState extends State<ChatPage> {
                               leading: Icon(Icons.photo_library),
                               title: Text("Choose picture from gallery"),
                               onTap: () async {
+                                //await ChatSdk.getLocalPrevMessages(comments.first);
+                                //await ChatSdk.getPrevMessages(comments.first);
+                                await ChatSdk.getLocalNextMessages(comments[10]);
+                                await ChatSdk.getNextMessages(comments[10]);
+                                return;
                                 File imgFile =
-                                    await ImagePicker.pickImage(source: ImageSource.gallery);
+                                await ImagePicker.pickImage(source: ImageSource.gallery);
                                 dev.log("camera path file : ${imgFile.path}", name: "sdk example");
                                 _sendFileMessage(context, imgFile);
                               },
