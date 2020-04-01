@@ -124,6 +124,8 @@ class _MyAppState extends State<MyApp> {
                       final chatRoom = await ChatSdk.chatUser(userId: '5da3f7e6f48c3d175649388b');
                       print("chatRoom Id : ${chatRoom.id}");
                       roomId = chatRoom.id;
+                      // if wanna test offline mode remove the comment below
+                      //roomId = 11315282;
 
                       Navigator.of(context).push(
                         MaterialPageRoute(

@@ -56,26 +56,14 @@ class _ChatPageState extends State<ChatPage> {
     scrollController = ScrollController();
     _account = await ChatSdk.getQiscusAccount();
     initEventHandler();
-    _getChatRoomData();
+    _loadChatRoomWithComments();
     WidgetsBinding.instance.addObserver(
       new LifecycleEventHandler(resumeCallBack: () {
-        return _getChatRoomData();
+        return _loadChatRoomWithComments();
       }, suspendingCallBack: () {
         return ChatSdk.unsubscribeToChatRoom(chatRoom);
       }),
     );
-  }
-
-  /// get local data if not exists load from remote
-  Future<void> _getChatRoomData() async {
-    await _getLocalChatRoomWithMessages();
-    if (comments.isEmpty || chatRoom == null) {
-      await _getChatRoomWithMessages();
-      ChatSdk.addOrUpdateLocalChatRoom(chatRoom);
-      comments.forEach((comment) {
-        ChatSdk.addOrUpdateLocalComment(comment);
-      });
-    }
   }
 
   void initEventHandler() {
@@ -152,15 +140,12 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {});
   }
 
-  //todo add lifecycle of app, use widgetBindingObserver
+  Future<void> _loadChatRoomWithComments() async {
+    var tuple = await ChatSdk.loadChatRoomWithComments(widget.roomId);
 
-  Future<void> _getLocalChatRoomWithMessages() async {
-    var qiscusChatroom = await ChatSdk.getLocalChatRoom(widget.roomId);
-    var qiscusComments = await ChatSdk.getLocalComments(roomId: widget.roomId, limit: 20);
-
-    chatRoom = qiscusChatroom;
-    comments = qiscusComments;
-    if (chatRoom != null && comments != null) {
+    chatRoom = tuple.item1;
+    comments = tuple.item2;
+    if (chatRoom != null && comments.isNotEmpty) {
       ChatSdk.subscribeToChatRoom(chatRoom);
       QiscusComment lastComment = chatRoom.lastComment;
       String senderEmail = lastComment?.senderEmail;
@@ -175,22 +160,6 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {});
   }
 
-  Future<void> _getChatRoomWithMessages() async {
-    var tupple = await ChatSdk.getChatRoomWithMessages(widget.roomId);
-    chatRoom = tupple.item1;
-    comments = tupple.item2;
-    ChatSdk.subscribeToChatRoom(chatRoom);
-
-    QiscusComment lastComment = chatRoom.lastComment;
-    String senderEmail = lastComment?.senderEmail;
-
-    /// if last comment !=null, means chat room doesnt have last comment yet, it is an empty chat room
-    if (lastComment != null && senderEmail != _account.email) {
-      ChatSdk.markCommentAsRead(chatRoom.id, lastComment.id);
-    }
-    if (!mounted) return;
-    setState(() {});
-  }
 
   String timeFormat(DateTime dateTime) {
     return DateFormat("HH:mm").format(dateTime);
@@ -404,9 +373,8 @@ class _ChatPageState extends State<ChatPage> {
                               onTap: () async {
                                 //await ChatSdk.getLocalPrevMessages(comments.first);
                                 //await ChatSdk.getPrevMessages(comments.first);
-                                await ChatSdk.getLocalNextMessages(comments[10]);
-                                await ChatSdk.getNextMessages(comments[10]);
-                                return;
+                                //await ChatSdk.getLocalNextMessages(comments[10]);
+                                //                                await ChatSdk.getNextMessages(comments[10]);
                                 File imgFile =
                                 await ImagePicker.pickImage(source: ImageSource.gallery);
                                 dev.log("camera path file : ${imgFile.path}", name: "sdk example");

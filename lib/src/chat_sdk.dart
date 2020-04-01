@@ -5,9 +5,11 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:io';
 
+import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:qiscus_sdk/src/utilities/qiscus_mqtt_status_event.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
 import 'model/qiscus_account.dart';
@@ -87,6 +89,36 @@ class ChatSdk {
         }
       });
     }
+  }
+
+  static Future<Tuple2<QiscusChatRoom, Stream<QiscusComment>>> loadChatRoomWithCommentsStream(
+      int roomId) async {
+    bool hasConnection = await DataConnectionChecker().hasConnection;
+    QiscusChatRoom chatRoom;
+    List<QiscusComment> comments = [];
+    if (hasConnection) {
+      var chatRoomTuple = await getChatRoomWithComments(roomId);
+      chatRoom = chatRoomTuple.item1;
+      comments = chatRoomTuple.item2;
+      addOrUpdateLocalChatRoom(chatRoom);
+    } else {
+      chatRoom = await getLocalChatRoom(roomId);
+    }
+    var localComments = await getLocalComments(roomId: roomId, limit: 20);
+    var commentsStream = Stream.fromIterable(comments)
+        .mergeWith([Stream.fromIterable(localComments)])
+        .distinct()
+        .doOnData((QiscusComment comment) {
+      if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
+    });
+    return Tuple2(chatRoom, commentsStream);
+  }
+
+  static Future<Tuple2<QiscusChatRoom, List<QiscusComment>>> loadChatRoomWithComments(
+      int roomId) async {
+    var tuple = await loadChatRoomWithCommentsStream(roomId);
+
+    return Tuple2(tuple.item1, await tuple.item2.toList());
   }
 
   static Future<void> _loadNewComment() async {
@@ -297,7 +329,12 @@ class ChatSdk {
     );
   }
 
+  static Future<Tuple2<QiscusChatRoom, List<QiscusComment>>> getChatRoomWithComments(int roomId) {
+    return getChatRoomWithMessages(roomId);
+  }
+
   /// only return 20 latest messages with chat room
+  /// @deprecated name is inconsistent with model name, instead you should use getChatRoomWithComments
   static Future<Tuple2<QiscusChatRoom, List<QiscusComment>>> getChatRoomWithMessages(
       int roomId) async {
     Map<String, String> chatRoomListPairJsonStr = await _channel
@@ -326,6 +363,7 @@ class ChatSdk {
     }).toList();
   }
 
+  /// retrieve all chat room a logged user has
   static Future<List<QiscusChatRoom>> getAllChatRooms({
     bool showParticipant: true,
     bool showRemoved: false,
