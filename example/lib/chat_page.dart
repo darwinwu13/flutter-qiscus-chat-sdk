@@ -42,6 +42,7 @@ class _ChatPageState extends State<ChatPage> {
   StreamSubscription _chatRoomEventSubscription;
   QiscusAccount _account;
   bool _commentSending = false;
+  bool _endOfComments = false;
   QiscusComment _dummyComment;
 
   @override
@@ -57,6 +58,11 @@ class _ChatPageState extends State<ChatPage> {
     _account = await ChatSdk.getQiscusAccount();
     initEventHandler();
     _loadChatRoomWithComments();
+    //listener for list view
+    scrollController.addListener(() {
+      if (scrollController.offset == scrollController.position.maxScrollExtent)
+        loadMoreComments(comments.last);
+    });
     WidgetsBinding.instance.addObserver(
       new LifecycleEventHandler(resumeCallBack: () {
         return _loadChatRoomWithComments();
@@ -113,7 +119,7 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void onReceiveComment(QiscusComment comment) {
+  Future<void> onReceiveComment(QiscusComment comment) async {
     print('on receive ${comment.message}');
 
     /// remove dummy comment from lists
@@ -123,7 +129,8 @@ class _ChatPageState extends State<ChatPage> {
     }
     if (!comments.contains(comment)) {
       comments.insert(0, comment);
-      ChatSdk.addOrUpdateLocalComment(comment);
+
+      await ChatSdk.addOrUpdateLocalComment(comment);
       scrollController.animateTo(
         0,
         duration: Duration(milliseconds: 500),
@@ -159,7 +166,6 @@ class _ChatPageState extends State<ChatPage> {
 
     setState(() {});
   }
-
 
   String timeFormat(DateTime dateTime) {
     return DateFormat("HH:mm").format(dateTime);
@@ -294,38 +300,63 @@ class _ChatPageState extends State<ChatPage> {
     dev.log("comment file message:  ${comment}", name: "Sdk send file message");
   }
 
+  Future<void> loadMoreComments(QiscusComment comment) async {
+    var oldComments = await ChatSdk.loadOlderComments(comment);
+    setState(() {
+      if (oldComments.isNotEmpty)
+        comments = comments + oldComments;
+      else
+        _endOfComments = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.roomName),
       ),
-      body: ListView(
+      body: ListView.builder(
         padding: EdgeInsets.only(bottom: 60),
         controller: scrollController,
-        shrinkWrap: true,
         reverse: true,
-        children: comments.map((QiscusComment comment) {
-          return Container(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                _buildBubble(comment),
-                Row(
-                  mainAxisAlignment: widget.senderAccount.email == comment.senderEmail
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.start,
-                  children: <Widget>[
-                    Text(timeFormat(comment.time.toLocal())),
-                    widget.senderAccount.email == comment.senderEmail
-                        ? FaIcon(getCommentState(comment))
-                        : Container()
-                  ],
-                )
-              ],
-            ),
-          );
-        }).toList(),
+        itemCount: _endOfComments ? comments.length : comments.length + 1,
+        itemBuilder: (context, index) {
+          if (comments.isNotEmpty) {
+            QiscusComment comment = index < comments.length ? comments[index] : null;
+            return index == comments.length
+                ? Container(
+              color: Colors.lightBlueAccent,
+              child: FlatButton(
+                child: Text("Load More"),
+                onPressed: () {
+                  loadMoreComments(comments.last);
+                },
+              ),
+            )
+                : Container(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  _buildBubble(comment),
+                  Row(
+                    mainAxisAlignment: widget.senderAccount.email == comment.senderEmail
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(timeFormat(comment.time.toLocal())),
+                      widget.senderAccount.email == comment.senderEmail
+                          ? FaIcon(getCommentState(comment))
+                          : Container()
+                    ],
+                  )
+                ],
+              ),
+            );
+          } else {
+            return Container();
+          }
+        },
       ),
       bottomSheet: Row(
         children: <Widget>[
