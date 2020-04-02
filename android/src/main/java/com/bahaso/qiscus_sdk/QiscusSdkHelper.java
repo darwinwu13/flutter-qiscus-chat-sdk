@@ -1,7 +1,5 @@
 package com.bahaso.qiscus_sdk;
 
-import android.util.Log;
-
 import androidx.core.util.Pair;
 
 import com.google.gson.Gson;
@@ -21,7 +19,6 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -70,7 +67,11 @@ public class QiscusSdkHelper {
         }
 
         qiscusComment.setGroupMessage(jsonComment.get("groupMessage").getAsBoolean());
-        qiscusComment.setRawType(jsonComment.get("rawType").getAsString());
+        if (jsonComment.get("rawType").isJsonNull())
+            qiscusComment.setRawType("text");
+        else
+            qiscusComment.setRawType(jsonComment.get("rawType").getAsString());
+
         qiscusComment.setExtraPayload(jsonComment.get("extraPayload").toString());
 
 
@@ -124,7 +125,7 @@ public class QiscusSdkHelper {
 
         QiscusComment qiscusComment = parseQiscusComment(jsonComment);
         qiscusComment.setRoomId(roomId);
-        return  qiscusComment;
+        return qiscusComment;
     }
 
 
