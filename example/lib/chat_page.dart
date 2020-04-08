@@ -65,8 +65,11 @@ class _ChatPageState extends State<ChatPage> {
     });
     WidgetsBinding.instance.addObserver(
       new LifecycleEventHandler(resumeCallBack: () {
+        initEventHandler();
         return _loadChatRoomWithComments();
       }, suspendingCallBack: () {
+        _commentReceiveSubscription.cancel();
+        _chatRoomEventSubscription.cancel();
         return ChatSdk.unsubscribeToChatRoom(chatRoom);
       }),
     );
@@ -80,6 +83,7 @@ class _ChatPageState extends State<ChatPage> {
         ChatSdk.chatRoomEventStream.listen((QiscusChatRoomEvent chatRoomEvent) {
       switch (chatRoomEvent.event) {
         case Event.READ:
+          dev.log("read");
           List<QiscusComment> cmnts = comments.where((QiscusComment comment) {
             bool isTargetComment = comment.id == chatRoomEvent.commentId ? true : false;
 
@@ -89,6 +93,7 @@ class _ChatPageState extends State<ChatPage> {
                 comment.senderEmail == _account.email;
             return isTargetComment || isNotReadComment;
           }).toList();
+
           setState(() {
             cmnts.forEach((QiscusComment cmnt) {
               if (cmnt.state >= QiscusComment.STATE_ON_QISCUS) {

@@ -226,7 +226,7 @@ class ChatSdk {
     return _channel.invokeMethod("enableDebugMode", {"value": value});
   }
 
-  static Future<void> setNotificationListener() {}
+  static Future<void> _setNotificationListener() {}
 
   static Future<QiscusAccount> login({
     @required String userId,

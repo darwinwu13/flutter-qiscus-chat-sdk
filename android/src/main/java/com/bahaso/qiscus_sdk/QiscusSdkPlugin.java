@@ -95,7 +95,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 break;
             case "setEnableFcmPushNotification":
                 setEnableFcmPushNotification((boolean) call.argument("value"));
-                result.success(null);
+                result.success(true);
                 break;
             case "registerDeviceToken":
                 registerDeviceToken((String) call.argument("token"));
