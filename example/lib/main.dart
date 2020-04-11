@@ -8,6 +8,7 @@ import 'package:qiscus_sdk_example/chat_page.dart';
 import 'package:qiscus_sdk_example/locator.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
   runApp(MyApp());
 }
@@ -26,7 +27,7 @@ class _MyAppState extends State<MyApp> {
   QiscusAccount qiscusAccount;
 
   String ACCESS_TOKEN =
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjM3YjFlZjNkNTMxNmVlMGE1ZjJlNjQ0ODQ1YmZmN2IwNmYwMzViNzBmZTk5M2NkMzkzZjYyOTk5NDA2ODg0OTVlY2NkNmIzYjE4ZjEyODJiIn0.eyJhdWQiOiI1ZDgyMThmMmY0OGMzZDZiOTQ2NDUxNDIiLCJqdGkiOiIzN2IxZWYzZDUzMTZlZTBhNWYyZTY0NDg0NWJmZjdiMDZmMDM1YjcwZmU5OTNjZDM5M2Y2Mjk5OTQwNjg4NDk1ZWNjZDZiM2IxOGYxMjgyYiIsImlhdCI6MTU4NjI1MTE4NiwibmJmIjoxNTg2MjUxMTg2LCJleHAiOjE2MTc3ODcxODYsInN1YiI6IjVkYTNmN2U2ZjQ4YzNkMTc1NjQ5Mzg4YiIsInNjb3BlcyI6WyJmcmVlIl19.UM5bMUfjGi3iQ7BmSiKSjzMmSQAeVpjbJni8tzyq65F0qTrZzmtXjeAUKpXpIkWLM-jC0yU0qpHuCL5W8iw8kCumYLyzlf6AXk639vpobt1qmbAjVWzTrndjkg6O4dKFC9RuidAG2uH2BnDplUqm8t6EfBUfRcvEVrq7w5ulQ2gbwb9EbBrQsUtmt9mbOoqhOVgOPf1GCLgXqj5SjHGMjKcj485igdklLySBwUNsVWtntuHw3VoMZkoRbavToAYxMUZTCtdNq-LLfFR3epp3RUuuAoltUSKnLpt9JHOq67quYt8Wh4fDN7UGA-jOWX_r09wy4BWJvqPvRsE0B1Jqzfkull_66rv4iO1y82LAvoDnVYmXQu_CtkBD083n-4f1RtahxtDOyYHDPDWSmN0BNWyNEF4AFORe3TOZ1ay8n8-nM565LGsZ2ttrwtIyd720iZn9BGiRcRyv695yz7l_866szc5aV3QR-A8o9eR-hdtAYxstMcbUZI0WL57hZ1wMdJdKe0UB29otK-VjvBjgAt_AMZ7zP7TE-kgVV8GW7b17WEl7OVB8bBZTJ2KNZNZ7jNwpJa4DhAEHO92me_sLKOVirwPcxX1fkWo3RTRhH0rK2NHRfEf-i69pYot8FnepU0OY5vVCZFu_71A6OAM_kJwhxXUusfKT8tAVx0-COuE";
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImI3NzhiM2RmMGRhNDkzYjQzMmY0ZGU0ZDIzMzA3N2U2MTY4NjE3ZjhkN2UzNmI5NWI3M2FmMTZlNGE1MTZkMWU5NjFjN2ZlMjE0ZDM5ZGU3In0.eyJhdWQiOiI1ZDgyMThmMmY0OGMzZDZiOTQ2NDUxNDIiLCJqdGkiOiJiNzc4YjNkZjBkYTQ5M2I0MzJmNGRlNGQyMzMwNzdlNjE2ODYxN2Y4ZDdlMzZiOTViNzNhZjE2ZTRhNTE2ZDFlOTYxYzdmZTIxNGQzOWRlNyIsImlhdCI6MTU4NjU5MTIyNSwibmJmIjoxNTg2NTkxMjI1LCJleHAiOjE2MTgxMjcyMjUsInN1YiI6IjVkYTNmN2U2ZjQ4YzNkMTc1NjQ5Mzg4YiIsInNjb3BlcyI6WyJmcmVlIl19.k4nQNbbKKJeYHW8iblyuahh8zGDc2iavaojo297gsSZDXeDz97LbHrFBttRN35rzaf7jMLPq-hCrD_i2vgXKH82-Yo1hT0MqxDpACuzUoAsZU3hRuO0lhCBpGfi8a82BwMUwpGj8cT7ZKY_vC5_zq42Pzi5h_af5P7EAyTougn0k_pLgfSiLkZR9ltrgWrtO5J_CRcxueQDp0eTNp0p7DkEuZvuLs2lKGGAFJ8XhW6lmmZUq5vEbcLtxdfsKHYXw4sviqVvgX8vbF-bBzVUt6I9TXB5sQpSRJ4D5wG3YTJbwZrSYydS4Hb7npIovTSkxEiXRri3vsqRD5mUU0IABmIM58RerqxHXCse2Ouqdaz1yNxJIzbkZb4Zr27k191zxC-jfGP8Gok8QCI1a1b6EG0LjwQwoB-eg1MjhfenY7UFrVRwrY68joN6PgF0F7VKEYHaeeBGsNJFQzBDqvOQ6deE_UrO9FOY26olTHvLUtgRQT8Q4lSmgvNH8hJdE4eWx4nLKOrLWHhcOefw2TMbcjbmH5EKu6lhMZLBpA487VVvMLQyFNDqLFzVa1tVdXRWjvsj3BNA8Sz3m8cqzI0U7ImN8yhNsh5trbkcbGUiwxJS1Xjy0vY3pGm3okRwQsRVvkJWAjKaN9CbYMuQGxMHB0Z4KTMb3ObzNafvHNIZYLJo";
 
   @override
   void initState() {
@@ -117,6 +118,27 @@ class _MyAppState extends State<MyApp> {
                     child: Text('all Users'),
                     onPressed: () async {
                       ChatSdk.getAllUsers(searchUsername: 'darwin');
+                    },
+                  ),
+                  RaisedButton(
+                    child: Text('Chat User Chandra'),
+                    onPressed: () async {
+                      final chatRoom = await ChatSdk.chatUser(userId: '5dba91daf48c3d33bb41a6f5');
+                      print("chatRoom Id : ${chatRoom.id}");
+                      roomId = chatRoom.id;
+                      // if wanna test offline mode remove the comment below
+                      //roomId = 11315282;
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ChatPage(
+                                roomId: roomId,
+                                roomName: 'Chandra',
+                                senderAccount: qiscusAccount,
+                              ),
+                        ),
+                      );
                     },
                   ),
                   RaisedButton(

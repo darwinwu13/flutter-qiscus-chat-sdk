@@ -28,15 +28,15 @@ class ChatSdk {
 
   static const MethodChannel _channel = const MethodChannel('bahaso.com/qiscus_chat_sdk');
   static const EventChannel _eventChannelCommentReceive =
-  const EventChannel('bahaso.com/qiscus_chat_sdk/events');
+      const EventChannel('bahaso.com/qiscus_chat_sdk/events');
 
   static Stream<dynamic> _eventStream;
   static StreamSubscription<dynamic> _eventSubscription;
   static StreamController<QiscusComment> _commentReceiveController = StreamController.broadcast();
   static StreamController<QiscusMqttStatusEvent> _mqttStatusEventController =
-  StreamController.broadcast();
+      StreamController.broadcast();
   static StreamController<QiscusChatRoomEvent> _chatRoomEventController =
-  StreamController.broadcast();
+      StreamController.broadcast();
   static StreamController<int> _fileUploadProgressController = StreamController.broadcast();
 
   static Stream<QiscusMqttStatusEvent> get mqttStatusEventStream =>
@@ -92,7 +92,8 @@ class ChatSdk {
   }
 
   static Future<Tuple2<QiscusChatRoom, Stream<QiscusComment>>> loadChatRoomWithCommentsStream(
-      int roomId,) async {
+    int roomId,
+  ) async {
     bool hasConnection = await DataConnectionChecker().hasConnection;
     QiscusChatRoom chatRoom;
     List<QiscusComment> comments = [];
@@ -109,21 +110,23 @@ class ChatSdk {
         .mergeWith([Stream.fromIterable(localComments)])
         .distinct()
         .doOnData((QiscusComment comment) {
-      if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
-    });
+          if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
+        });
     _lastSentComment = chatRoom?.lastComment;
 
     return Tuple2(chatRoom, commentsStream);
   }
 
   static Future<Tuple2<QiscusChatRoom, List<QiscusComment>>> loadChatRoomWithComments(
-      int roomId,) async {
+    int roomId,
+  ) async {
     var tuple = await loadChatRoomWithCommentsStream(roomId);
 
     return Tuple2(tuple.item1, await tuple.item2.toList());
   }
 
-  static Stream<QiscusComment> loadOlderCommentsStream(QiscusComment comment, {
+  static Stream<QiscusComment> loadOlderCommentsStream(
+    QiscusComment comment, {
     int limit: 20,
   }) async* {
     bool hasConnection = await DataConnectionChecker().hasConnection;
@@ -136,8 +139,8 @@ class ChatSdk {
         .mergeWith([Stream.fromIterable(localComments)])
         .distinct()
         .doOnData((QiscusComment comment) {
-      if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
-    });
+          if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
+        });
   }
 
   static Future<List<QiscusComment>> loadOlderComments(QiscusComment comment, {int limit: 20}) {
@@ -370,9 +373,9 @@ class ChatSdk {
     Map<String, String> chatRoomListPairJsonStr = await _channel
         .invokeMapMethod<String, String>('getChatRoomWithMessages', {'roomId': roomId});
     QiscusChatRoom qiscusChatRoom =
-    QiscusChatRoom.fromJson(jsonDecode(chatRoomListPairJsonStr['chatRoom']));
+        QiscusChatRoom.fromJson(jsonDecode(chatRoomListPairJsonStr['chatRoom']));
     List<QiscusComment> messages =
-    (jsonDecode(chatRoomListPairJsonStr['messages']) as List).map((each) {
+        (jsonDecode(chatRoomListPairJsonStr['messages']) as List).map((each) {
       return QiscusComment.fromJson(each);
     }).toList();
     _lastSentComment = qiscusChatRoom.lastComment;
@@ -564,7 +567,8 @@ class ChatSdk {
     throw Exception("Can't get previous message, you need to login");
   }
 
-  static Future<List<QiscusComment>> getLocalPrevMessages(QiscusComment comment, {
+  static Future<List<QiscusComment>> getLocalPrevMessages(
+    QiscusComment comment, {
     int limit: 20,
   }) async {
     checkSetup();
@@ -611,7 +615,8 @@ class ChatSdk {
     throw Exception("Can't get next message, you need to login");
   }
 
-  static Future<List<QiscusComment>> getLocalNextMessages(QiscusComment comment, {
+  static Future<List<QiscusComment>> getLocalNextMessages(
+    QiscusComment comment, {
     int limit: 20,
   }) async {
     checkSetup();

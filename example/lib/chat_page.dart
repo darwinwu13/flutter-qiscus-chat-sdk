@@ -331,33 +331,33 @@ class _ChatPageState extends State<ChatPage> {
             QiscusComment comment = index < comments.length ? comments[index] : null;
             return index == comments.length
                 ? Container(
-              color: Colors.lightBlueAccent,
-              child: FlatButton(
-                child: Text("Load More"),
-                onPressed: () {
-                  loadMoreComments(comments.last);
-                },
-              ),
-            )
-                : Container(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: <Widget>[
-                  _buildBubble(comment),
-                  Row(
-                    mainAxisAlignment: widget.senderAccount.email == comment.senderEmail
-                        ? MainAxisAlignment.end
-                        : MainAxisAlignment.start,
-                    children: <Widget>[
-                      Text(timeFormat(comment.time.toLocal())),
-                      widget.senderAccount.email == comment.senderEmail
-                          ? FaIcon(getCommentState(comment))
-                          : Container()
-                    ],
+                    color: Colors.lightBlueAccent,
+                    child: FlatButton(
+                      child: Text("Load More"),
+                      onPressed: () {
+                        loadMoreComments(comments.last);
+                      },
+                    ),
                   )
-                ],
-              ),
-            );
+                : Container(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: <Widget>[
+                        _buildBubble(comment),
+                        Row(
+                          mainAxisAlignment: widget.senderAccount.email == comment.senderEmail
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text(timeFormat(comment.time.toLocal())),
+                            widget.senderAccount.email == comment.senderEmail
+                                ? FaIcon(getCommentState(comment))
+                                : Container()
+                          ],
+                        )
+                      ],
+                    ),
+                  );
           } else {
             return Container();
           }
@@ -412,7 +412,7 @@ class _ChatPageState extends State<ChatPage> {
                                 //await ChatSdk.getLocalNextMessages(comments[10]);
                                 //                                await ChatSdk.getNextMessages(comments[10]);
                                 File imgFile =
-                                await ImagePicker.pickImage(source: ImageSource.gallery);
+                                    await ImagePicker.pickImage(source: ImageSource.gallery);
                                 dev.log("camera path file : ${imgFile.path}", name: "sdk example");
                                 _sendFileMessage(context, imgFile);
                               },
