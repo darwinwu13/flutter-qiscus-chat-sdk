@@ -18,7 +18,12 @@ public class QiscusFirebaseMessaging extends FirebaseMessagingService {
 
         Log.d("Qiscus", "onNewToken " + s);
         //Notify Qiscus Chat SDK about FCM token
-        QiscusCore.registerDeviceToken(s);
+        try {
+            QiscusCore.registerDeviceToken(s);
+        }catch (Exception e){
+            Log.e("CHAT SDK","FAILED TO Register device on new token");
+            Log.e("CHAT SDK",e.getMessage());
+        }
     }
 
     @Override

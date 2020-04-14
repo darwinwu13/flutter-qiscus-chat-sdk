@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:uuid/uuid.dart';
+
 class QiscusUtility {
   Random _random = Random();
   List<String> _symbols = List();
@@ -27,5 +29,11 @@ class QiscusUtility {
       buf.write(_symbols[_random.nextInt(_symbols.length)]);
     }
     return buf.toString();
+  }
+
+  static String getUuid() {
+    var uuid = Uuid();
+
+    return uuid.v4();
   }
 }

@@ -28,17 +28,18 @@ public class QiscusEventHandler {
             @Override
             public void onListen(Object arguments, EventChannel.EventSink events) {
                 eventSink = events;
-                Log.e("EVENT SINK", " evet channel listened");
+                Log.w("EVENT SINK", " event channel listened");
 
             }
 
             @Override
             public void onCancel(Object arguments) {
                 eventSink = null;
-                Log.e("EVENT SINK", " event channel canceled");
+                Log.w("EVENT SINK", " event channel canceled");
 
             }
         });
+        Log.w("CHAT SDK","qiscus event handler constructed");
     }
 
     public void registerEventBus() {
@@ -53,6 +54,7 @@ public class QiscusEventHandler {
 
     @Subscribe
     public void onReceiveComment(QiscusCommentReceivedEvent event) {
+        Log.d("CHAT SDK","receive event ");
         Gson gson = AmininGsonBuilder.createGson();
         Map<String, Object> args = new HashMap<>();
         args.put("type", "comment_received");
@@ -64,7 +66,7 @@ public class QiscusEventHandler {
 
     @Subscribe
     public void onReceiveChatRoomEvent(QiscusChatRoomEvent roomEvent) {
-        Log.e("SDK", "on receive chat room event");
+        Log.w("SDK", "on receive chat room event");
         Gson gson = AmininGsonBuilder.createGson();
         Map<String, Object> args = new HashMap<>();
         args.put("type", "chat_room_event_received");
@@ -100,6 +102,7 @@ public class QiscusEventHandler {
                 args.put("status", "reconnecting");
                 break;
         }
+        Log.d("CHAT SDK EVENT HANDLER","MQTT "+mqttStatusEvent);
         if (eventSink != null)
             eventSink.success(gson.toJson(args));
     }

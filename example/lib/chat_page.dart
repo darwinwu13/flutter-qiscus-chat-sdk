@@ -44,6 +44,7 @@ class _ChatPageState extends State<ChatPage> {
   bool _commentSending = false;
   bool _endOfComments = false;
   QiscusComment _dummyComment;
+  LifecycleEventHandler _observer;
 
   @override
   void initState() {
@@ -63,16 +64,15 @@ class _ChatPageState extends State<ChatPage> {
       if (scrollController.offset == scrollController.position.maxScrollExtent)
         loadMoreComments(comments.last);
     });
-    WidgetsBinding.instance.addObserver(
-      new LifecycleEventHandler(resumeCallBack: () {
-        initEventHandler();
-        return _loadChatRoomWithComments();
-      }, suspendingCallBack: () {
-        _commentReceiveSubscription.cancel();
-        _chatRoomEventSubscription.cancel();
-        return ChatSdk.unsubscribeToChatRoom(chatRoom);
-      }),
-    );
+    _observer = new LifecycleEventHandler(resumeCallBack: () {
+      initEventHandler();
+      return _loadChatRoomWithComments();
+    }, suspendingCallBack: () {
+      _commentReceiveSubscription.cancel();
+      _chatRoomEventSubscription.cancel();
+      return ChatSdk.unsubscribeToChatRoom(chatRoom);
+    });
+    WidgetsBinding.instance.addObserver(_observer);
   }
 
   void initEventHandler() {
@@ -125,7 +125,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> onReceiveComment(QiscusComment comment) async {
-    print('on receive ${comment.message}');
+    if (comment.roomId != widget.roomId) return;
+    dev.log('on receive ${comment.message}', name: "on comment received");
 
     /// remove dummy comment from lists
     if (_dummyComment != null) {
@@ -277,7 +278,6 @@ class _ChatPageState extends State<ChatPage> {
     );
     _dummyComment = QiscusComment.generateDummyFileMessage(
       chatRoom.id,
-      CommentType.FILE_ATTACHMENT,
       _account.email,
       {
         'url': imgFile.path,
@@ -466,6 +466,8 @@ class _ChatPageState extends State<ChatPage> {
     ChatSdk.unsubscribeToChatRoom(chatRoom);
     _commentReceiveSubscription.cancel();
     _chatRoomEventSubscription.cancel();
+    WidgetsBinding.instance.removeObserver(_observer);
+    print('chat page disposed');
   }
 }
 

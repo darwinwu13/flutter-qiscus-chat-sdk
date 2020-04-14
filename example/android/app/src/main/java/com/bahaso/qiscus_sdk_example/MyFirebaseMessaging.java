@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.Log;
 import io.flutter.plugins.firebasemessaging.FlutterFirebaseMessagingService;
 
 
@@ -44,30 +45,39 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
     private List<FirebaseMessagingService> messagingServices = new ArrayList<>();
     private Map<Class, FirebaseMessagingService> messagingServicesMap = new HashMap<>();
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
+    public MyFirebaseMessaging() {
+        super();
         QiscusFCMWrapper fcmQiscus = new QiscusFCMWrapper();
         FlutterFCMWrapper fcmFlutter = new FlutterFCMWrapper();
         messagingServices.add(fcmQiscus);
         messagingServices.add(fcmFlutter);
         messagingServicesMap.put(QiscusFCMWrapper.class, fcmQiscus);
         messagingServicesMap.put(FlutterFCMWrapper.class, fcmFlutter);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d("CHAT SDK","on create start");
+
         attachDelegateContext(service -> {
             service.attachContext(getBaseContext());
             service.onCreate();
         });
+        Log.d("CHAT SDK","on create end");
 
     }
 
     @Override
     public void onNewToken(@NonNull String s) {
         super.onNewToken(s);
+        Log.d("CHAT SDK","on new token start");
 
         delegate(service -> {
+            Log.d("CHAT SDK","s value "+ s);
             service.onNewToken(s);
         });
+        Log.d("CHAT SDK","on new token end");
 
     }
 
@@ -75,7 +85,8 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         FirebaseMessagingService fcm;
-        if (remoteMessage.getData().get("qiscus_sdk") != null) {
+        Log.d("FCM","on my fcm message received : "+remoteMessage.getData().get("qiscus_sdk"));
+        if (remoteMessage.getData().containsKey("qiscus_sdk")) {
             fcm = messagingServicesMap.get(QiscusFCMWrapper.class);
         } else {
             fcm = messagingServicesMap.get(FlutterFCMWrapper.class);

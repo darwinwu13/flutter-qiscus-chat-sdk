@@ -56,8 +56,10 @@ class ChatSdk {
     if (_eventStream == null && _eventSubscription == null) {
       _eventStream = _eventChannelCommentReceive.receiveBroadcastStream();
       _eventSubscription = _eventStream.listen((data) {
-        print('event channel data received');
         Map<String, dynamic> result = jsonDecode(data);
+        dev.log('event channel data received ${result.toString()}',
+            name: 'chat sdk stream listener');
+
         switch (result['type']) {
           case "comment_received":
             _commentReceiveController.add(QiscusComment.fromJson(result['comment']));
@@ -190,7 +192,7 @@ class ChatSdk {
 
   static Future<void> clearUser() {
     checkSetup();
-
+    _lastSentComment = null;
     dev.log("chat sdk clearing user", name: "Qiscus Chat SDK");
     return _channel.invokeMethod("clearUser");
   }
@@ -372,12 +374,15 @@ class ChatSdk {
       int roomId) async {
     Map<String, String> chatRoomListPairJsonStr = await _channel
         .invokeMapMethod<String, String>('getChatRoomWithMessages', {'roomId': roomId});
+
     QiscusChatRoom qiscusChatRoom =
         QiscusChatRoom.fromJson(jsonDecode(chatRoomListPairJsonStr['chatRoom']));
+
     List<QiscusComment> messages =
         (jsonDecode(chatRoomListPairJsonStr['messages']) as List).map((each) {
       return QiscusComment.fromJson(each);
     }).toList();
+
     _lastSentComment = qiscusChatRoom.lastComment;
 
     return Tuple2(qiscusChatRoom, messages);

@@ -15,6 +15,7 @@ dependencies:
   equatable: ^1.1.1
   rxdart: ^0.23.1
   data_connection_checker: ^0.3.4
+  uuid: ^2.0.4
 
 dev_dependencies:
   flutter_test:

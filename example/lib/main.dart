@@ -7,10 +7,11 @@ import 'package:qiscus_sdk/qiscus_sdk.dart';
 import 'package:qiscus_sdk_example/chat_page.dart';
 import 'package:qiscus_sdk_example/locator.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupLocator();
-  runApp(MyApp());
+  setupLocator().then((bool value) {
+    runApp(MyApp());
+  });
 }
 
 class MyApp extends StatefulWidget {
@@ -36,9 +37,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> init() async {
-    await ChatSdk.setup(appId: "testappdu-dktm3ffo7mg");
-    await ChatSdk.enableDebugMode(true);
-    await ChatSdk.enableFcmPushNotification(true);
     try {
       qiscusAccount = await ChatSdk.getQiscusAccount();
       setState(() {

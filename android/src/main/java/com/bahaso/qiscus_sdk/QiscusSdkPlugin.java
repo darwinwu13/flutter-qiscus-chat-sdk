@@ -1,6 +1,7 @@
 package com.bahaso.qiscus_sdk;
 
 import android.app.Application;
+import android.app.job.JobScheduler;
 import android.content.Context;
 import android.util.Log;
 
@@ -14,6 +15,8 @@ import com.qiscus.sdk.chat.core.data.model.QiscusChatRoom;
 import com.qiscus.sdk.chat.core.data.model.QiscusComment;
 import com.qiscus.sdk.chat.core.data.remote.QiscusApi;
 import com.qiscus.sdk.chat.core.data.remote.QiscusPusherApi;
+import com.qiscus.sdk.chat.core.event.QiscusUserEvent;
+import com.qiscus.sdk.chat.core.util.BuildVersionUtil;
 import com.qiscus.sdk.chat.core.util.QiscusAndroidUtil;
 import com.qiscus.sdk.chat.core.util.QiscusTextUtil;
 
@@ -48,6 +51,9 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     private MethodChannel channel;
     private QiscusEventHandler eventHandler;
 
+    public QiscusSdkPlugin() {
+        Log.d("CHAT SDK","sdk plugin constructed");
+    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
@@ -70,9 +76,11 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         channel = new MethodChannel(messenger, CHANNEL_NAME);
         channel.setMethodCallHandler(this);
         eventHandler = new QiscusEventHandler(messenger);
+        Log.w("CHAT SDK","on attach to engine");
     }
 
     public static void registerWith(Registrar registrar) {
+        Log.w("CHAT SDK","register with");
         final QiscusSdkPlugin plugin = new QiscusSdkPlugin();
         plugin.onAttachToEngine(registrar.messenger(), registrar.context());
     }
@@ -318,7 +326,15 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
     private void setup(String appId) {
+        if (BuildVersionUtil.isOreoOrHigher()) {
+            JobScheduler jobScheduler = (JobScheduler) applicationContext.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            if (jobScheduler != null) {
+                jobScheduler.cancelAll();
+            }
+        }
         QiscusCore.setup((Application) applicationContext, appId);
+
+
     }
 
     private void enableDebugMode(boolean value) {

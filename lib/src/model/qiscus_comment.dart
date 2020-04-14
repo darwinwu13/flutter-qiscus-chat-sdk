@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:qiscus_sdk/src/utilities/qiscus_utility.dart';
 
 part 'qiscus_comment.g.dart';
 
@@ -54,19 +56,41 @@ class QiscusComment extends Equatable {
 
   factory QiscusComment.generateDummyFileMessage(
     int roomId,
-    String rawType,
     String senderEmail,
     Map<String, dynamic> extraPayload,
   ) {
     return QiscusComment(
       roomId: roomId,
+      uniqueId: _generateUniqueId(),
       senderEmail: senderEmail,
       time: DateTime.now(),
       state: STATE_SENDING,
       urls: [],
-      rawType: rawType,
+      rawType: CommentType.FILE_ATTACHMENT,
       extraPayload: extraPayload,
     );
+  }
+
+  factory QiscusComment.generateDummyTextMessage(int roomId,
+      String senderEmail,
+      Map<String, dynamic> extraPayload,) {
+    return QiscusComment(
+      roomId: roomId,
+      uniqueId: _generateUniqueId(),
+      senderEmail: senderEmail,
+      time: DateTime.now(),
+      state: STATE_SENDING,
+      urls: [],
+      rawType: CommentType.FILE_ATTACHMENT,
+      extraPayload: extraPayload,
+    );
+  }
+
+  static String _generateUniqueId() {
+    String platform;
+    platform = Platform.isAndroid ? "android_" : "ios_";
+
+    return platform + QiscusUtility.getRandomString(13) + "_" + QiscusUtility.getUuid();
   }
 
   QiscusComment({

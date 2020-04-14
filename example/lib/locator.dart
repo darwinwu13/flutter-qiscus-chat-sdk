@@ -6,7 +6,11 @@ import 'package:qiscus_sdk/qiscus_sdk.dart';
 
 GetIt locator = GetIt.instance;
 
-void setupLocator() {
+Future<bool> setupLocator() async {
+  await ChatSdk.setup(appId: "testappdu-dktm3ffo7mg");
+  //await ChatSdk.enableDebugMode(false);
+  await ChatSdk.enableFcmPushNotification(true);
+
   locator.registerSingleton(FirebaseMessaging());
 
   var fcm = locator<FirebaseMessaging>();
@@ -25,8 +29,12 @@ void setupLocator() {
     },
   );
 
-  String topic = 'aminin_diskusi_5da3f7e6f48c3d175649388b';
+  String chandraId = "5dba91daf48c3d33bb41a6f5";
+  String edwinId = "5da3f7e6f48c3d175649388b";
+  String topic = 'receive_chat_from_sender_$chandraId';
   fcm.subscribeToTopic(topic);
 
   print('fcm initiated');
+
+  return true;
 }
