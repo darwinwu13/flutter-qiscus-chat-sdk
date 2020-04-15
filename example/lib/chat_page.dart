@@ -293,9 +293,9 @@ class _ChatPageState extends State<ChatPage> {
       roomId: chatRoom.id,
       senderEmail: _account.email,
       type: "aminin_diskusi_file",
+      fileUrl: imgFile.path,
+      caption: caption,
       payload: {
-        'url': imgFile.path,
-        'caption': caption,
         'sesion_id': 'anjay sssekali',
       },
     );

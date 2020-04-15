@@ -90,7 +90,9 @@ class QiscusComment extends Equatable {
     @required int roomId,
     @required String senderEmail,
     @required String type,
+    @required String fileUrl,
     @required Map<String, dynamic> payload,
+    String caption,
   }) {
     return QiscusComment(
       id: _generateId(),
@@ -105,7 +107,11 @@ class QiscusComment extends Equatable {
       rawType: CommentType.CUSTOM,
       extraPayload: {
         'type': type,
-        'content': payload,
+        'content': {
+          'url': fileUrl,
+          'caption': caption,
+        }
+          ..addAll(payload),
       },
       dummy: true,
     );
