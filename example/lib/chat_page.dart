@@ -277,9 +277,9 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
     _dummyComment = QiscusComment.generateDummyFileMessage(
-      chatRoom.id,
-      _account.email,
-      {
+      roomId: chatRoom.id,
+      senderEmail: _account.email,
+      extraPayload: {
         'url': imgFile.path,
         'caption': caption,
       },
@@ -445,6 +445,7 @@ class _ChatPageState extends State<ChatPage> {
                     type: CommentType.TEXT,
                   );
                   _commentSending = false;
+                  print("comment sent ${comment}");
                 }
 
                 setState(() {

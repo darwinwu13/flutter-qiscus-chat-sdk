@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:qiscus_sdk/src/utilities/qiscus_utility.dart';
 
@@ -54,12 +55,12 @@ class QiscusComment extends Equatable {
 
   String get caption => extraPayload != null ? extraPayload['caption'] : null;
 
-  factory QiscusComment.generateDummyFileMessage(
-    int roomId,
-    String senderEmail,
-    Map<String, dynamic> extraPayload,
-      Map<String, dynamic> extras,
-  ) {
+  factory QiscusComment.generateDummyFileMessage({
+    @required int roomId,
+    @required String senderEmail,
+    @required Map<String, dynamic> extraPayload,
+    Map<String, dynamic> extras,
+  }) {
     return QiscusComment(
       roomId: roomId,
       uniqueId: _generateUniqueId(),
@@ -78,9 +79,11 @@ class QiscusComment extends Equatable {
     );
   }
 
-  factory QiscusComment.generateDummyTextMessage(int roomId,
-      String senderEmail,
-      Map<String, dynamic> extras,) {
+  factory QiscusComment.generateDummyTextMessage({
+    @required int roomId,
+    @required String senderEmail,
+    Map<String, dynamic> extras,
+  }) {
     return QiscusComment(
       roomId: roomId,
       uniqueId: _generateUniqueId(),
@@ -112,7 +115,7 @@ class QiscusComment extends Equatable {
     this.sender,
     this.senderEmail,
     this.senderAvatar,
-    this.time,
+    DateTime time,
     this.state,
     this.deleted: false,
     this.hardDeleted: false,
@@ -129,7 +132,20 @@ class QiscusComment extends Equatable {
     this.extras,
     this.replyTo,
     this.attachmentName: "",
-  });
+  }) {
+    DateTime dt = time?.toUtc() ?? DateTime.now().toUtc();
+    DateTime utc = DateTime.utc(
+      dt.year,
+      dt.month,
+      dt.day,
+      dt.hour,
+      dt.minute,
+      dt.second,
+      0,
+      0,
+    );
+    time = utc;
+  }
 
   Map<String, dynamic> toJson() => _$QiscusCommentToJson(this);
 

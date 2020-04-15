@@ -81,15 +81,12 @@ class _MyAppState extends State<MyApp> {
                   RaisedButton(
                     child: Text('Login  Darwin'),
                     onPressed: () async {
-                      //QiscusChatSdk.enableFcmPushNotification(true);
                       qiscusAccount = await ChatSdk.login(
                           userId: "darwinwu134", userKey: "dndndn", username: "Darwin 134");
                       print("acc:${qiscusAccount.toJson()}");
                       setState(() {
                         username = qiscusAccount.username;
                       });
-                      // QiscusChatSdk.registerDeviceToken("asasdasd");
-                      //QiscusChatSdk.clearUser();
                     },
                   ),
                   RaisedButton(
