@@ -282,7 +282,6 @@ class _ChatPageState extends State<ChatPage> {
       {
         'url': imgFile.path,
         'caption': caption,
-        'dummy': true,
       },
     );
     dev.log(imgFile.path);

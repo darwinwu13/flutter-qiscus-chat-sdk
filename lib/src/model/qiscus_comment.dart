@@ -63,26 +63,34 @@ class QiscusComment extends Equatable {
       roomId: roomId,
       uniqueId: _generateUniqueId(),
       senderEmail: senderEmail,
+      sender: "",
+      senderAvatar: "",
       time: DateTime.now(),
       state: STATE_SENDING,
       urls: [],
       rawType: CommentType.FILE_ATTACHMENT,
-      extraPayload: extraPayload,
+      extraPayload: extraPayload
+        ..addAll(
+          {'dummy': true},
+        ),
     );
   }
 
   factory QiscusComment.generateDummyTextMessage(int roomId,
       String senderEmail,
-      Map<String, dynamic> extraPayload,) {
+      Map<String, dynamic> extras,) {
     return QiscusComment(
       roomId: roomId,
       uniqueId: _generateUniqueId(),
       senderEmail: senderEmail,
+      sender: "",
+      senderAvatar: "",
       time: DateTime.now(),
       state: STATE_SENDING,
       urls: [],
-      rawType: CommentType.FILE_ATTACHMENT,
-      extraPayload: extraPayload,
+      rawType: CommentType.TEXT,
+      extraPayload: {'dummy': true},
+      extras: extras,
     );
   }
 
