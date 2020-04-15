@@ -58,6 +58,7 @@ class QiscusComment extends Equatable {
     int roomId,
     String senderEmail,
     Map<String, dynamic> extraPayload,
+      Map<String, dynamic> extras,
   ) {
     return QiscusComment(
       roomId: roomId,
@@ -73,6 +74,7 @@ class QiscusComment extends Equatable {
         ..addAll(
           {'dummy': true},
         ),
+      extras: extras,
     );
   }
 
