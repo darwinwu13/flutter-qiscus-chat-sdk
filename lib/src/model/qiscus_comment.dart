@@ -82,6 +82,7 @@ class QiscusComment extends Equatable {
   factory QiscusComment.generateDummyTextMessage({
     @required int roomId,
     @required String senderEmail,
+    @required String message,
     Map<String, dynamic> extras,
   }) {
     return QiscusComment(
@@ -90,6 +91,7 @@ class QiscusComment extends Equatable {
       senderEmail: senderEmail,
       sender: "",
       senderAvatar: "",
+      message: message,
       time: DateTime.now(),
       state: STATE_SENDING,
       urls: [],
