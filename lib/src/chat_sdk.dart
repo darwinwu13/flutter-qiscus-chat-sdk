@@ -535,6 +535,17 @@ class ChatSdk {
     );
   }
 
+  static Future<bool> deleteLocalCommentByUniqueId(String uniqueId, int commentId) async {
+    var args = {
+      'commentId': commentId,
+      'uniqueId': uniqueId,
+    };
+    return await _channel.invokeMethod(
+      'deleteLocalCommentByUniqueId',
+      args,
+    );
+  }
+
   static Future<bool> deleteLocalChatRoom(int roomId) async {
     var args = {'roomId': roomId};
     return await _channel.invokeMethod(
