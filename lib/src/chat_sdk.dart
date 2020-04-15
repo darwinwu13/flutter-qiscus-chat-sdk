@@ -456,7 +456,7 @@ class ChatSdk {
       String caption = "";
       if (type == CommentType.FILE_ATTACHMENT) {
         caption = message;
-        return _sendFileMessage(
+        return sendFileMessage(
             roomId: roomId, caption: caption, imageFile: imageFile, extras: extras);
       } else if (type == CommentType.TEXT) {
         var args = {
@@ -468,13 +468,41 @@ class ChatSdk {
         String json = await _channel.invokeMethod('sendMessage', args);
 
         return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));
+      } else {
+        return sendCustomMessage(
+          roomId: roomId,
+          message: message,
+          payload: payload,
+          type: type,
+        );
       }
     }
 
     throw Exception("Can't send message, you need to login");
   }
 
-  static Future<QiscusComment> _sendFileMessage({
+  static Future<QiscusComment> sendCustomMessage({
+    @required int roomId,
+    @required String message,
+    @required String type,
+    @required Map<String, dynamic> payload,
+  }) async {
+    checkSetup();
+    if (await hasLogin()) {
+      var args = {
+        'roomId': roomId,
+        'message': message,
+        'type': type,
+        'payload': payload,
+      };
+      String json = await _channel.invokeMethod('sendCustomMessage', args);
+
+      return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));
+    }
+    return null;
+  }
+
+  static Future<QiscusComment> sendFileMessage({
     @required int roomId,
     String caption,
     Map<String, dynamic> extras,
@@ -488,6 +516,8 @@ class ChatSdk {
 
       return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));
     }
+
+    return null;
   }
 
   /// get Qiscus account that has been log in

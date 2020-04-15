@@ -126,12 +126,11 @@ class _MyAppState extends State<MyApp> {
 
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ChatPage(
-                                roomId: roomId,
-                                roomName: 'Chandra',
-                                senderAccount: qiscusAccount,
-                              ),
+                          builder: (context) => ChatPage(
+                            roomId: roomId,
+                            roomName: 'Chandra',
+                            senderAccount: qiscusAccount,
+                          ),
                         ),
                       );
                     },

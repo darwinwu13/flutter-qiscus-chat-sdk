@@ -51,9 +51,17 @@ class QiscusComment extends Equatable {
 
   String get attachmentUrl => extraPayload != null ? extraPayload['url'] : null;
 
-  bool get isDummy => extraPayload != null ? extraPayload['dummy'] ?? false : false;
+  @JsonKey(ignore: true)
+  bool dummy;
+
+  bool get isDummy => dummy;
 
   String get caption => extraPayload != null ? extraPayload['caption'] : null;
+
+  Map<String, dynamic> get payload =>
+      rawType == CommentType.CUSTOM ? extraPayload['content'] : extraPayload;
+
+  String get customType => rawType == CommentType.CUSTOM ? extraPayload['type'] : null;
 
   factory QiscusComment.generateDummyFileMessage({
     @required int roomId,
@@ -72,11 +80,36 @@ class QiscusComment extends Equatable {
       state: STATE_SENDING,
       urls: [],
       rawType: CommentType.FILE_ATTACHMENT,
-      extraPayload: extraPayload
-        ..addAll(
-          {'dummy': true},
-        ),
+      extraPayload: extraPayload,
+      dummy: true,
       extras: extras,
+    );
+  }
+
+  factory QiscusComment.generateDummyCustomMessage({
+    @required int roomId,
+    @required String senderEmail,
+    @required String message,
+    @required String type,
+    @required Map<String, dynamic> payload,
+  }) {
+    return QiscusComment(
+      id: _generateId(),
+      roomId: roomId,
+      uniqueId: _generateUniqueId(),
+      senderEmail: senderEmail,
+      message: message,
+      sender: "",
+      senderAvatar: "",
+      time: DateTime.now(),
+      state: STATE_SENDING,
+      urls: [],
+      rawType: CommentType.CUSTOM,
+      dummy: true,
+      extraPayload: {
+        'type': type,
+        'content': payload,
+      },
     );
   }
 
@@ -98,7 +131,7 @@ class QiscusComment extends Equatable {
       state: STATE_SENDING,
       urls: [],
       rawType: CommentType.TEXT,
-      extraPayload: {'dummy': true},
+      dummy: true,
       extras: extras,
     );
   }
@@ -142,6 +175,7 @@ class QiscusComment extends Equatable {
     this.extras,
     this.replyTo,
     this.attachmentName: "",
+    this.dummy: false,
   }) {
     DateTime dt = time?.toUtc() ?? DateTime.now().toUtc();
     DateTime utc = DateTime.utc(
@@ -173,6 +207,7 @@ class QiscusComment extends Equatable {
 class CommentType {
   static const String FILE_ATTACHMENT = "file_attachment";
   static const String TEXT = "text";
+  static const String CUSTOM = "custom";
 
 //todo other type havent been implemented
 }

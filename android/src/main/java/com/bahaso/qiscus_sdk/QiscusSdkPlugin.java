@@ -222,6 +222,18 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 }
                 sendMessage(roomId, message, extras, result);
                 break;
+            case "sendCustomMessage":
+                JSONObject payload = null;
+                temp = call.argument("roomId");
+                roomId = temp;
+                message = call.argument("message");
+                String type = call.argument("type");
+                if (call.hasArgument("payload")) {
+                    Map<String, Object> payloadMap = call.argument("payload");
+                    payload = new JSONObject(payloadMap);
+                }
+                sendCustomMessage(roomId, message, type, payload, result);
+                break;
             case "sendFileMessage":
                 temp = call.argument("roomId");
                 roomId = temp;
@@ -591,6 +603,30 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                     throwable.printStackTrace();
                     result.error("ERR_GET_TOTAL_UNREAD_COUNT", throwable.getMessage(), throwable);
                 });
+    }
+
+    private void sendCustomMessage(
+            long roomId,
+            String message,
+            String type,
+            JSONObject payload,
+            Result result
+    ) {
+        QiscusComment qiscusComment = QiscusComment.generateCustomMessage(roomId, message, type, payload);
+
+        //Send message
+        QiscusApi.getInstance().sendMessage(qiscusComment)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(comment -> {
+                    Gson gson = AmininGsonBuilder.createGson();
+                    result.success(gson.toJson(comment));
+                }, throwable -> {
+                    throwable.printStackTrace();
+                    result.error("ERR_FAILED_SEND_CUSTOM_MESSAGE", throwable.getMessage(), throwable);
+                });
+
+
     }
 
     private void sendMessage(long roomId, String message, JSONObject extras, Result result) {
