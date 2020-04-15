@@ -62,6 +62,7 @@ class QiscusComment extends Equatable {
     Map<String, dynamic> extras,
   }) {
     return QiscusComment(
+      id: _generateId(),
       roomId: roomId,
       uniqueId: _generateUniqueId(),
       senderEmail: senderEmail,
@@ -86,6 +87,7 @@ class QiscusComment extends Equatable {
     Map<String, dynamic> extras,
   }) {
     return QiscusComment(
+      id: _generateId(),
       roomId: roomId,
       uniqueId: _generateUniqueId(),
       senderEmail: senderEmail,
@@ -106,6 +108,12 @@ class QiscusComment extends Equatable {
     platform = Platform.isAndroid ? "android_" : "ios_";
 
     return platform + QiscusUtility.getRandomString(13) + "_" + QiscusUtility.getUuid();
+  }
+
+  static int _generateId() {
+    return -1 * DateTime
+        .now()
+        .microsecondsSinceEpoch;
   }
 
   QiscusComment({

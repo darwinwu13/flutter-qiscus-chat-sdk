@@ -15,10 +15,8 @@ import com.qiscus.sdk.chat.core.data.model.QiscusChatRoom;
 import com.qiscus.sdk.chat.core.data.model.QiscusComment;
 import com.qiscus.sdk.chat.core.data.remote.QiscusApi;
 import com.qiscus.sdk.chat.core.data.remote.QiscusPusherApi;
-import com.qiscus.sdk.chat.core.event.QiscusUserEvent;
 import com.qiscus.sdk.chat.core.util.BuildVersionUtil;
 import com.qiscus.sdk.chat.core.util.QiscusAndroidUtil;
-import com.qiscus.sdk.chat.core.util.QiscusTextUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
@@ -52,7 +50,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     private QiscusEventHandler eventHandler;
 
     public QiscusSdkPlugin() {
-        Log.d("CHAT SDK","sdk plugin constructed");
+        Log.d("CHAT SDK", "sdk plugin constructed");
     }
 
     @Override
@@ -76,11 +74,11 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         channel = new MethodChannel(messenger, CHANNEL_NAME);
         channel.setMethodCallHandler(this);
         eventHandler = new QiscusEventHandler(messenger);
-        Log.w("CHAT SDK","on attach to engine");
+        Log.w("CHAT SDK", "on attach to engine");
     }
 
     public static void registerWith(Registrar registrar) {
-        Log.w("CHAT SDK","register with");
+        Log.w("CHAT SDK", "register with");
         final QiscusSdkPlugin plugin = new QiscusSdkPlugin();
         plugin.onAttachToEngine(registrar.messenger(), registrar.context());
     }
@@ -271,6 +269,11 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 json = call.argument("comment");
                 deleteLocalComment(QiscusSdkHelper.parseQiscusComment(json), result);
                 break;
+            case "deleteLocalCommentByUniqueId":
+                String uniqueId = call.argument("uniqueId");
+                commentId = call.argument("commentId");
+                deleteLocalCommentByUniqueId(uniqueId, (long) commentId, result);
+                break;
             case "deleteLocalChatRoom":
                 temp = call.argument("roomId");
                 roomId = temp;
@@ -300,7 +303,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 temp = call.argument("roomId");
                 roomId = temp;
                 limitInt = call.argument("limit");
-                String uniqueId = call.argument("uniqueId");
+                uniqueId = call.argument("uniqueId");
                 getLocalPrevMessages(roomId, limitInt, uniqueId, result);
                 break;
             case "getNextMessages":
@@ -737,13 +740,28 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         }
     }
 
+    private void deleteLocalCommentByUniqueId(String uniqueId, long commentId, Result result) {
+        try {
+            //generate a dummy comment
+            QiscusComment comment = QiscusComment.generateMessage(-1, "");
+            comment.setId(commentId);
+            comment.setUniqueId(uniqueId);
+            QiscusCore.getDataStore().delete(comment);
+            result.success(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.error("ERR_FAILED_DELETE_LOCAL_COMMENTS_BY_UNIQUE_ID", e.getMessage(), e);
+
+        }
+    }
+
     private void deleteLocalComment(QiscusComment comment, Result result) {
         try {
             QiscusCore.getDataStore().delete(comment);
             result.success(true);
         } catch (Exception e) {
             e.printStackTrace();
-            result.error("ERR_FAILED_DELETE_LOCAL_COMMENTS_BY_ROOM_ID", e.getMessage(), e);
+            result.error("ERR_FAILED_DELETE_LOCAL_COMMENT_BY_ID", e.getMessage(), e);
 
         }
     }
@@ -812,9 +830,9 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 .subscribe(comments -> {
                     Gson gson = AmininGsonBuilder.createGson();
                     result.success(gson.toJson(comments));
-                }, err->{
+                }, err -> {
                     err.printStackTrace();
-                    result.error("ERR_FAILED_GET_LOCAL_NEXT_MESSAGES",err.getMessage(),err);
+                    result.error("ERR_FAILED_GET_LOCAL_NEXT_MESSAGES", err.getMessage(), err);
                 });
     }
 
@@ -836,7 +854,6 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
                 });
     }
-
 
 
 }
