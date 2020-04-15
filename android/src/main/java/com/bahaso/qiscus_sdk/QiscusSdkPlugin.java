@@ -19,6 +19,7 @@ import com.qiscus.sdk.chat.core.util.BuildVersionUtil;
 import com.qiscus.sdk.chat.core.util.QiscusAndroidUtil;
 
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -234,11 +235,24 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 }
                 sendCustomMessage(roomId, message, type, payload, result);
                 break;
-            case "sendFileMessage":
+            case "sendCustomFileMessage":
+                payload = null;
                 temp = call.argument("roomId");
                 roomId = temp;
                 String caption = call.argument("caption");
                 String filePath = call.argument("filePath");
+                type = call.argument("type");
+                if (call.hasArgument("payload")) {
+                    Map<String, Object> payloadMap = call.argument("payload");
+                    payload = new JSONObject(payloadMap);
+                }
+                sendCustomFileMessage(roomId, caption, type, filePath, payload, result);
+                break;
+            case "sendFileMessage":
+                temp = call.argument("roomId");
+                roomId = temp;
+                caption = call.argument("caption");
+                filePath = call.argument("filePath");
                 if (call.hasArgument("extras")) {
                     Map<String, Object> extrasMap = call.argument("extras");
                     extras = new JSONObject(extrasMap);
@@ -657,6 +671,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         }
         String filename = file.getName();
         QiscusComment message = QiscusComment.generateFileAttachmentMessage(roomId, filePath, caption, filename);
+
         if (extras != null) message.setExtras(extras);
 
         QiscusApi.getInstance().sendFileMessage(
@@ -680,6 +695,89 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                     throwable.printStackTrace();
                     result.error("ERR_FAILED_SEND_FILE_MESSAGE", throwable.getMessage(), throwable);
 
+                });
+
+
+    }
+
+
+    private void sendCustomFileMessage(
+            long roomId,
+            String caption,
+            String type,
+            String filePath,
+            JSONObject payload,
+            Result result
+    ) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            result.error("ERR_FILE_NOT_FOUND", null, null);
+            return;
+        }
+        String filename = file.getName();
+        QiscusComment message = QiscusComment.generateMessage(roomId, String.format("[file] %s [/file]", filePath));
+        message.setRawType("custom");
+
+
+
+        QiscusApi.getInstance()
+                .upload(file, percentage -> {
+                    message.setProgress((int) percentage);
+                    QiscusAndroidUtil.runOnUIThread(() -> {
+                        EventBus.getDefault().post(new QiscusFileUploadProgressEvent((int) percentage));
+                    });
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(uri -> {
+                    // on success get Uri
+                    JSONObject json = new JSONObject();
+                    try {
+                        payload.put("url", uri.toString())
+                                .put("caption", caption)
+                                .put("filename", filename);
+                        json.put("type", type)
+                                .put("content", payload);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    message.setExtraPayload(json.toString());
+                    QiscusCore.getDataStore().addOrUpdate(message);
+
+                    QiscusApi.getInstance()
+                            .sendMessage(message)
+                            .doOnSubscribe(() -> QiscusCore.getDataStore().addOrUpdate(message))
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(comment -> {
+                                QiscusCore.getDataStore()
+                                        .addOrUpdateLocalPath(
+                                                comment.getRoomId(),
+                                                comment.getId(),
+                                                file.getAbsolutePath()
+                                        );
+
+                                Gson gson = AmininGsonBuilder.createGson();
+                                result.success(gson.toJson(comment));
+                            }, throwable -> {
+                                throwable.printStackTrace();
+                                result.error(
+                                        "ERR_FAILED_SEND_CUSTOM_FILE_MESSAGE",
+                                        throwable.getMessage(),
+                                        throwable
+                                );
+
+                            });
+
+
+                }, throwable -> {
+                    // on error
+                    throwable.printStackTrace();
+                    result.error(
+                            "ERR_FAILED_SEND_CUSTOM_FILE_MESSAGE",
+                            throwable.getMessage(),
+                            throwable
+                    );
                 });
 
 

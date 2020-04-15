@@ -8,7 +8,7 @@ GetIt locator = GetIt.instance;
 
 Future<bool> setupLocator() async {
   await ChatSdk.setup(appId: "testappdu-dktm3ffo7mg");
-  //await ChatSdk.enableDebugMode(false);
+  await ChatSdk.enableDebugMode(true);
   await ChatSdk.enableFcmPushNotification(true);
 
   locator.registerSingleton(FirebaseMessaging());

@@ -457,7 +457,11 @@ class ChatSdk {
       if (type == CommentType.FILE_ATTACHMENT) {
         caption = message;
         return sendFileMessage(
-            roomId: roomId, caption: caption, imageFile: imageFile, extras: extras);
+          roomId: roomId,
+          caption: caption,
+          imageFile: imageFile,
+          payload: payload,
+        );
       } else if (type == CommentType.TEXT) {
         var args = {
           'roomId': roomId,
@@ -505,14 +509,38 @@ class ChatSdk {
   static Future<QiscusComment> sendFileMessage({
     @required int roomId,
     String caption,
-    Map<String, dynamic> extras,
+    Map<String, dynamic> payload,
     @required File imageFile,
   }) async {
     checkSetup();
     if (await hasLogin()) {
       var args = {'roomId': roomId, 'caption': caption, 'filePath': imageFile.absolute.path};
-      if (extras != null) args['extras'] = extras;
+      if (payload != null) args['payload'] = payload;
       String json = await _channel.invokeMethod('sendFileMessage', args);
+
+      return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));
+    }
+
+    return null;
+  }
+
+  static Future<QiscusComment> sendCustomFileMessage({
+    @required int roomId,
+    @required String type,
+    @required Map<String, dynamic> payload,
+    @required File imageFile,
+    String caption: "",
+  }) async {
+    checkSetup();
+    if (await hasLogin()) {
+      var args = {
+        'roomId': roomId,
+        'caption': caption,
+        'type': type,
+        'payload': payload,
+        'filePath': imageFile.absolute.path,
+      };
+      String json = await _channel.invokeMethod('sendCustomFileMessage', args);
 
       return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));
     }

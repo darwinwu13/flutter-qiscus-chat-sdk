@@ -49,14 +49,14 @@ class QiscusComment extends Equatable {
   static Map<String, dynamic> _extraPayloadFromJson(source) =>
       source == "{}" || source == null ? null : jsonDecode(source);
 
-  String get attachmentUrl => extraPayload != null ? extraPayload['url'] : null;
+  String get attachmentUrl => payload != null ? payload['url'] : null;
 
   @JsonKey(ignore: true)
   bool dummy;
 
   bool get isDummy => dummy;
 
-  String get caption => extraPayload != null ? extraPayload['caption'] : null;
+  String get caption => payload != null ? payload['caption'] : null;
 
   Map<String, dynamic> get payload =>
       rawType == CommentType.CUSTOM ? extraPayload['content'] : extraPayload;
@@ -83,6 +83,31 @@ class QiscusComment extends Equatable {
       extraPayload: extraPayload,
       dummy: true,
       extras: extras,
+    );
+  }
+
+  factory QiscusComment.generateDummyCustomFileMessage({
+    @required int roomId,
+    @required String senderEmail,
+    @required String type,
+    @required Map<String, dynamic> payload,
+  }) {
+    return QiscusComment(
+      id: _generateId(),
+      roomId: roomId,
+      uniqueId: _generateUniqueId(),
+      senderEmail: senderEmail,
+      sender: "",
+      senderAvatar: "",
+      time: DateTime.now(),
+      state: STATE_SENDING,
+      urls: [],
+      rawType: CommentType.CUSTOM,
+      extraPayload: {
+        'type': type,
+        'content': payload,
+      },
+      dummy: true,
     );
   }
 
@@ -144,9 +169,7 @@ class QiscusComment extends Equatable {
   }
 
   static int _generateId() {
-    return -1 * DateTime
-        .now()
-        .microsecondsSinceEpoch;
+    return -1 * DateTime.now().microsecondsSinceEpoch;
   }
 
   QiscusComment({
@@ -188,7 +211,7 @@ class QiscusComment extends Equatable {
       0,
       0,
     );
-    time = utc;
+    this.time = utc;
   }
 
   Map<String, dynamic> toJson() => _$QiscusCommentToJson(this);

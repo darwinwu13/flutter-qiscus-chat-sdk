@@ -158,6 +158,7 @@ class _ChatPageState extends State<ChatPage> {
 
     chatRoom = tuple.item1;
     comments = tuple.item2;
+
     if (chatRoom != null && comments.isNotEmpty) {
       ChatSdk.subscribeToChatRoom(chatRoom);
       QiscusComment lastComment = chatRoom.lastComment;
@@ -208,7 +209,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildBubbleContent(QiscusComment comment, Alignment alignment) {
-    if (comment.rawType == CommentType.FILE_ATTACHMENT) {
+    if (comment.rawType == CommentType.FILE_ATTACHMENT ||
+        comment.customType == "aminin_diskusi_file") {
       return Column(
         children: <Widget>[
           GestureDetector(
@@ -276,12 +278,25 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
     );
-    _dummyComment = QiscusComment.generateDummyFileMessage(
+
+    ///dummy file message
+    //    _dummyComment = QiscusComment.generateDummyFileMessage(
+    //      roomId: chatRoom.id,
+    //      senderEmail: _account.email,
+    //      extraPayload: {
+    //        'url': imgFile.path,
+    //        'caption': caption,
+    //      },
+    //    );
+
+    _dummyComment = QiscusComment.generateDummyCustomFileMessage(
       roomId: chatRoom.id,
       senderEmail: _account.email,
-      extraPayload: {
+      type: "aminin_diskusi_file",
+      payload: {
         'url': imgFile.path,
         'caption': caption,
+        'sesion_id': 'anjay sssekali',
       },
     );
     dev.log(imgFile.path);
@@ -295,11 +310,22 @@ class _ChatPageState extends State<ChatPage> {
       if (!mounted) return;
       setState(() {});
     }
-    QiscusComment comment = await ChatSdk.sendMessage(
-        roomId: chatRoom.id,
-        message: caption,
-        type: CommentType.FILE_ATTACHMENT,
-        imageFile: imgFile);
+    /* QiscusComment comment = await ChatSdk.sendFileMessage(
+      roomId: chatRoom.id,
+      caption: caption,
+      imageFile: imgFile,
+      payload: {'ess': 'ass'},
+    );*/
+
+    QiscusComment comment = await ChatSdk.sendCustomFileMessage(
+      roomId: chatRoom.id,
+      caption: caption,
+      type: _dummyComment.customType,
+      imageFile: imgFile,
+      payload: {
+        'session_id': 'anjay sssekali',
+      },
+    );
 
     dev.log("comment file message:  ${comment}", name: "Sdk send file message");
   }
@@ -439,10 +465,17 @@ class _ChatPageState extends State<ChatPage> {
               onPressed: () async {
                 if (message != null && message != "" && !_commentSending) {
                   _commentSending = true;
-                  var comment = await ChatSdk.sendMessage(
+                  /*var comment = await ChatSdk.sendMessage(
                     roomId: widget.roomId,
                     message: message,
                     type: CommentType.TEXT,
+                  );*/
+
+                  var comment = await ChatSdk.sendCustomMessage(
+                    roomId: widget.roomId,
+                    type: "aminin_diskusi_text",
+                    message: message,
+                    payload: {'session_id': 'asu'},
                   );
                   _commentSending = false;
                   print("comment sent ${comment}");

@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -268,6 +269,26 @@ public class QiscusSdkHelper {
             DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.getDefault());
             return df1.parse(formattedDate);
         }
+    }
+
+    public static JSONObject mergeJSONObjects(JSONObject json1, JSONObject json2) {
+        JSONObject merged = new JSONObject();
+        JSONObject[] objs = new JSONObject[]{json1, json2};
+        try {
+            for (JSONObject obj : objs) {
+                Iterator it = obj.keys();
+                while (it.hasNext()) {
+                    String key = (String) it.next();
+
+                    merged.put(key, obj.get(key));
+
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return merged;
     }
 
 

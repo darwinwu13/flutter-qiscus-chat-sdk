@@ -1,9 +1,13 @@
 package com.bahaso.qiscus_sdk;
 
+import android.app.Activity;
+import android.app.Application;
+
 import com.google.gson.Gson;
 import com.qiscus.sdk.chat.core.event.QiscusChatRoomEvent;
 import com.qiscus.sdk.chat.core.event.QiscusCommentReceivedEvent;
 import com.qiscus.sdk.chat.core.event.QiscusMqttStatusEvent;
+import com.qiscus.sdk.chat.core.util.QiscusAndroidUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -36,10 +40,9 @@ public class QiscusEventHandler {
             public void onCancel(Object arguments) {
                 eventSink = null;
                 Log.w("EVENT SINK", " event channel canceled");
-
             }
         });
-        Log.w("CHAT SDK","qiscus event handler constructed");
+        Log.w("CHAT SDK", "qiscus event handler constructed");
     }
 
     public void registerEventBus() {
@@ -54,13 +57,16 @@ public class QiscusEventHandler {
 
     @Subscribe
     public void onReceiveComment(QiscusCommentReceivedEvent event) {
-        Log.d("CHAT SDK","receive event ");
+        Log.d("CHAT SDK", "receive event ");
         Gson gson = AmininGsonBuilder.createGson();
         Map<String, Object> args = new HashMap<>();
         args.put("type", "comment_received");
         args.put("comment", event.getQiscusComment());
         if (eventSink != null)
-            eventSink.success(gson.toJson(args));
+            QiscusAndroidUtil.runOnUIThread(() -> {
+                eventSink.success(gson.toJson(args));
+            });
+
     }
 
 
@@ -72,7 +78,9 @@ public class QiscusEventHandler {
         args.put("type", "chat_room_event_received");
         args.put("chatRoomEvent", roomEvent);
         if (eventSink != null)
-            eventSink.success(gson.toJson(args));
+            QiscusAndroidUtil.runOnUIThread(() -> {
+                eventSink.success(gson.toJson(args));
+            });
     }
 
     @Subscribe
@@ -82,7 +90,9 @@ public class QiscusEventHandler {
         args.put("type", "file_upload_progress");
         args.put("progress", event.getProgress());
         if (eventSink != null)
-            eventSink.success(gson.toJson(args));
+            QiscusAndroidUtil.runOnUIThread(() -> {
+                eventSink.success(gson.toJson(args));
+            });
     }
 
 
@@ -102,9 +112,11 @@ public class QiscusEventHandler {
                 args.put("status", "reconnecting");
                 break;
         }
-        Log.d("CHAT SDK EVENT HANDLER","MQTT "+mqttStatusEvent);
+        Log.d("CHAT SDK EVENT HANDLER", "MQTT " + mqttStatusEvent);
         if (eventSink != null)
-            eventSink.success(gson.toJson(args));
+            QiscusAndroidUtil.runOnUIThread(() -> {
+                eventSink.success(gson.toJson(args));
+            });
     }
 
 }
