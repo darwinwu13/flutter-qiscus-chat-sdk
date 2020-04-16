@@ -445,9 +445,9 @@ class ChatSdk {
 
   static Future<QiscusComment> sendMessage({
     @required int roomId,
-    String message,
-    String type,
+    String type: CommentType.TEXT,
     File imageFile,
+    String message,
     Map<String, dynamic> extras,
     Map<String, dynamic> payload,
   }) async {
