@@ -54,5 +54,5 @@ class QiscusChatRoom extends Equatable {
   }
 
   @override
-  List<Object> get props => [id, distinctId, uniqueId, name];
+  List<Object> get props => [id, distinctId, uniqueId, name, options];
 }
