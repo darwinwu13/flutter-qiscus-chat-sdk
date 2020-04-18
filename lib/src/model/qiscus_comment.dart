@@ -110,8 +110,7 @@ class QiscusComment extends Equatable {
         'content': {
           'url': fileUrl,
           'caption': caption,
-        }
-          ..addAll(payload),
+        }..addAll(payload),
       },
       dummy: true,
     );

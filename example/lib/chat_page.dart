@@ -280,16 +280,16 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     ///dummy file message
-    //    _dummyComment = QiscusComment.generateDummyFileMessage(
-    //      roomId: chatRoom.id,
-    //      senderEmail: _account.email,
-    //      extraPayload: {
-    //        'url': imgFile.path,
-    //        'caption': caption,
-    //      },
-    //    );
+    _dummyComment = QiscusComment.generateDummyFileMessage(
+      roomId: chatRoom.id,
+      senderEmail: _account.email,
+      extraPayload: {
+        'url': imgFile.path,
+        'caption': caption,
+      },
+    );
 
-    _dummyComment = QiscusComment.generateDummyCustomFileMessage(
+    /* _dummyComment = QiscusComment.generateDummyCustomFileMessage(
       roomId: chatRoom.id,
       senderEmail: _account.email,
       type: "aminin_diskusi_file",
@@ -298,7 +298,7 @@ class _ChatPageState extends State<ChatPage> {
       payload: {
         'sesion_id': 'anjay sssekali',
       },
-    );
+    );*/
     dev.log(imgFile.path);
     if (!comments.contains(_dummyComment)) {
       comments.insert(0, _dummyComment);
@@ -310,14 +310,14 @@ class _ChatPageState extends State<ChatPage> {
       if (!mounted) return;
       setState(() {});
     }
-    /* QiscusComment comment = await ChatSdk.sendFileMessage(
+    QiscusComment comment = await ChatSdk.sendFileMessage(
       roomId: chatRoom.id,
       caption: caption,
       imageFile: imgFile,
-      payload: {'ess': 'ass'},
-    );*/
+      extras: {'session_id': 'idk la'},
+    );
 
-    QiscusComment comment = await ChatSdk.sendCustomFileMessage(
+    /* QiscusComment comment = await ChatSdk.sendCustomFileMessage(
       roomId: chatRoom.id,
       caption: caption,
       type: _dummyComment.customType,
@@ -325,7 +325,7 @@ class _ChatPageState extends State<ChatPage> {
       payload: {
         'session_id': 'anjay sssekali',
       },
-    );
+    );*/
 
     dev.log("comment file message:  ${comment}", name: "Sdk send file message");
   }
@@ -465,18 +465,19 @@ class _ChatPageState extends State<ChatPage> {
               onPressed: () async {
                 if (message != null && message != "" && !_commentSending) {
                   _commentSending = true;
-                  /*var comment = await ChatSdk.sendMessage(
+                  var comment = await ChatSdk.sendMessage(
                     roomId: widget.roomId,
                     message: message,
+                    extras: {'session_id': 'asuu'},
                     type: CommentType.TEXT,
-                  );*/
-
+                  );
+/*
                   var comment = await ChatSdk.sendCustomMessage(
                     roomId: widget.roomId,
                     type: "aminin_diskusi_text",
                     message: message,
                     payload: {'session_id': 'asu'},
-                  );
+                  );*/
                   _commentSending = false;
                   print("comment sent ${comment}");
                 }

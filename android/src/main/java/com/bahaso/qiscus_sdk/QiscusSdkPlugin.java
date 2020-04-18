@@ -160,6 +160,17 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 }
                 chatUser(userId, extras, result);
                 break;
+            case "updateChatRoom":
+                int temp = call.argument("roomId");
+                long roomId = temp;
+                String name = call.argument("name");
+                avatarUrl = call.argument("avatarUrl");
+                if (call.hasArgument("extras")) {
+                    Map<String, Object> extrasMap = call.argument("extras");
+                    extras = new JSONObject(extrasMap);
+                }
+                updateChatRoom(roomId, name, avatarUrl, extras, result);
+                break;
             case "addOrUpdateLocalChatRoom":
                 String json = call.argument("chatRoom");
                 addOrUpdateLocalChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
@@ -167,8 +178,8 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 break;
 
             case "getChatRoomWithMessages":
-                int temp = call.argument("roomId");
-                long roomId = temp;
+                temp = call.argument("roomId");
+                roomId = temp;
                 getChatRoomWithMessages(roomId, result);
                 break;
             case "getLocalChatRoom":
@@ -512,6 +523,24 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 });
     }
 
+    private void updateChatRoom(
+            long roomId,
+            String name,
+            String avatarUrl,
+            JSONObject extras,
+            Result result
+    ) {
+
+        QiscusApi.getInstance().updateChatRoom(roomId, name, avatarUrl, extras)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(chatRoom -> {
+                    result.success(QiscusSdkHelper.encodeQiscusChatRoom(chatRoom));
+                }, throwable -> {
+                    result.error("ERR_CHAT_USER", throwable.getMessage(), throwable);
+                });
+    }
+
     private void addOrUpdateLocalChatRoom(QiscusChatRoom chatRoom, Result result) {
         try {
             QiscusCore.getDataStore().addOrUpdate(chatRoom);
@@ -717,7 +746,6 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
         String filename = file.getName();
         QiscusComment message = QiscusComment.generateMessage(roomId, String.format("[file] %s [/file]", filePath));
         message.setRawType("custom");
-
 
 
         QiscusApi.getInstance()

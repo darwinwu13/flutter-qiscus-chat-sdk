@@ -460,7 +460,7 @@ class ChatSdk {
           roomId: roomId,
           caption: caption,
           imageFile: imageFile,
-          payload: payload,
+          extras: extras,
         );
       } else if (type == CommentType.TEXT) {
         var args = {
@@ -509,13 +509,13 @@ class ChatSdk {
   static Future<QiscusComment> sendFileMessage({
     @required int roomId,
     String caption,
-    Map<String, dynamic> payload,
+    Map<String, dynamic> extras,
     @required File imageFile,
   }) async {
     checkSetup();
     if (await hasLogin()) {
       var args = {'roomId': roomId, 'caption': caption, 'filePath': imageFile.absolute.path};
-      if (payload != null) args['payload'] = payload;
+      if (extras != null) args['extras'] = extras;
       String json = await _channel.invokeMethod('sendFileMessage', args);
 
       return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));
@@ -714,5 +714,28 @@ class ChatSdk {
     }
 
     throw Exception("Can't get next message, you need to login");
+  }
+
+  static Future<QiscusChatRoom> updateChatRoom({
+    @required int roomId,
+    @required String name,
+    String avatarUrl: "",
+    Map<String, dynamic> extras,
+  }) async {
+    checkSetup();
+    if (await hasLogin()) {
+      var args = {
+        'roomId': roomId,
+        'name': name,
+        'avatarUrl': avatarUrl,
+      };
+      if (extras != null) args['extras'] = extras;
+
+      String json = await _channel.invokeMethod('updateChatRoom', args);
+
+      return QiscusChatRoom.fromJson(jsonDecode(json));
+    }
+
+    throw Exception("Can't update chat room you need to login");
   }
 }
