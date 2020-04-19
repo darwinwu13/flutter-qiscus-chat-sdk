@@ -157,7 +157,7 @@ public class QiscusSdkHelper {
     }
 
 
-    public static QiscusChatRoom parseQiscusChatRoom(String chatRoomJson) {
+    public static QiscusChatRoom parseQiscusChatRoom(String chatRoomJson) throws JSONException {
 
         /*{
             "id":11315282, v
@@ -204,12 +204,10 @@ public class QiscusSdkHelper {
         chatRoom.setDistinctId(jsonChatRoom.get("distinctId").getAsString());
         chatRoom.setUniqueId(jsonChatRoom.get("uniqueId").getAsString());
 
-        try {
+
             chatRoom.setOptions(jsonChatRoom.get("options").isJsonNull() ? null :
-                    new JSONObject(jsonChatRoom.get("options").getAsString()));
-        } catch (JSONException ignored) {
-            //Do nothing
-        }
+                    new JSONObject(jsonChatRoom.get("options").getAsJsonObject().toString()));
+
         chatRoom.setAvatarUrl(jsonChatRoom.get("avatarUrl").getAsString());
         chatRoom.setChannel(jsonChatRoom.get("channel").getAsBoolean());
         chatRoom.setMemberCount(jsonChatRoom.get("memberCount").getAsInt());

@@ -23,6 +23,15 @@ export 'model/qiscus_chat_room_event.dart';
 export 'model/qiscus_comment.dart';
 export 'model/qiscus_room_member.dart';
 
+extension SortExtension<T> on Stream<T> {
+  Stream<T> sort(Function(T lhs, T rhs) comparator) {
+    return toList()
+        .asStream()
+        .map((list) => list..sort(comparator))
+        .flatMap((list) => Stream.fromIterable(list));
+  }
+}
+
 class ChatSdk {
   static bool _hasSetup = false;
 
@@ -49,6 +58,9 @@ class ChatSdk {
   static Stream<int> get fileUploadProgressStream => _fileUploadProgressController.stream;
 
   static QiscusComment _lastSentComment;
+
+  static Function(QiscusComment a, QiscusComment b) commentComparator =
+      (QiscusComment a, QiscusComment b) => a.time.compareTo(b.time);
 
   /// call this method to start listening to event channel, to
   /// distribute into each events stream
@@ -111,6 +123,7 @@ class ChatSdk {
     var commentsStream = Stream.fromIterable(comments)
         .mergeWith([Stream.fromIterable(localComments)])
         .distinct()
+        .sort(commentComparator)
         .doOnData((QiscusComment comment) {
           if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
         });
@@ -140,6 +153,7 @@ class ChatSdk {
     yield* Stream.fromIterable(comments)
         .mergeWith([Stream.fromIterable(localComments)])
         .distinct()
+        .sort(commentComparator)
         .doOnData((QiscusComment comment) {
           if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
         });
@@ -164,6 +178,7 @@ class ChatSdk {
     yield* Stream.fromIterable(comments)
         .mergeWith([Stream.fromIterable(localComments)])
         .distinct()
+        .sort(commentComparator)
         .doOnData((QiscusComment comment) {
           if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
         });

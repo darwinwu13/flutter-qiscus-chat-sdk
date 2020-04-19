@@ -138,7 +138,8 @@ class _MyAppState extends State<MyApp> {
                   RaisedButton(
                     child: Text('Chat User Edwin'),
                     onPressed: () async {
-                      final chatRoom = await ChatSdk.chatUser(userId: '5da3f7e6f48c3d175649388b');
+                      final chatRoom = await ChatSdk.chatUser(
+                          userId: '5da3f7e6f48c3d175649388b', extras: {'esss': "assad"});
                       print("chatRoom Id : ${chatRoom.id}");
                       roomId = chatRoom.id;
                       // if wanna test offline mode remove the comment below

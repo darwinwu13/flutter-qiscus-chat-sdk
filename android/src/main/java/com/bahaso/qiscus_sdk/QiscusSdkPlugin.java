@@ -173,7 +173,12 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 break;
             case "addOrUpdateLocalChatRoom":
                 String json = call.argument("chatRoom");
-                addOrUpdateLocalChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+                try {
+                    addOrUpdateLocalChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    result.error("ERR_FAILED_TO_PARSE_CHAT_ROOM", e.getMessage(), e.getStackTrace());
+                }
 
                 break;
 
@@ -318,11 +323,21 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 break;
             case "subscribeToChatRoom":
                 json = call.argument("chatRoom");
-                subscribeToChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+                try {
+                    subscribeToChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    result.error("ERR_FAILED_TO_PARSE_CHAT_ROOM", e.getMessage(), e.getStackTrace());
+                }
                 break;
             case "unsubscribeToChatRoom":
                 json = call.argument("chatRoom");
-                unsubscribeToChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+                try {
+                    unsubscribeToChatRoom(QiscusSdkHelper.parseQiscusChatRoom(json), result);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    result.error("ERR_FAILED_TO_PARSE_CHAT_ROOM", e.getMessage(), e.getStackTrace());
+                }
                 break;
             case "deleteLocalCommentsByRoomId":
                 temp = call.argument("roomId");
