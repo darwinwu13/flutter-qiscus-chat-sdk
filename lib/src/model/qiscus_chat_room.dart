@@ -2,8 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'qiscus_room_member.dart';
 import 'qiscus_comment.dart';
+import 'qiscus_room_member.dart';
 
 part 'qiscus_chat_room.g.dart';
 
@@ -31,7 +31,8 @@ class QiscusChatRoom extends Equatable {
 
   //  static String _lastCommentToJson(QiscusComment lastComment) => lastComment.toString();
 
-  QiscusChatRoom(this.id,
+  QiscusChatRoom(
+      this.id,
       this.distinctId,
       this.uniqueId,
       this.name,

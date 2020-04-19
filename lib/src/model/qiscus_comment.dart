@@ -54,7 +54,7 @@ class QiscusComment extends Equatable {
   @JsonKey(ignore: true)
   bool dummy;
 
-  bool get isDummy => dummy;
+  bool get isDummy => dummy || state == STATE_FAILED;
 
   String get caption => payload != null ? payload['caption'] : null;
 

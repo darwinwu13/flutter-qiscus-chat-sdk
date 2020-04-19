@@ -151,7 +151,8 @@ class ChatSdk {
     return stream.toList();
   }
 
-  static Stream<QiscusComment> loadNextCommentsStream(QiscusComment comment, {
+  static Stream<QiscusComment> loadNextCommentsStream(
+    QiscusComment comment, {
     int limit: 20,
   }) async* {
     bool hasConnection = await DataConnectionChecker().hasConnection;
@@ -164,8 +165,8 @@ class ChatSdk {
         .mergeWith([Stream.fromIterable(localComments)])
         .distinct()
         .doOnData((QiscusComment comment) {
-      if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
-    });
+          if (hasConnection && comments.isNotEmpty) addOrUpdateLocalComment(comment);
+        });
   }
 
   static Future<List<QiscusComment>> loadNextComments(QiscusComment comment, {int limit: 20}) {
