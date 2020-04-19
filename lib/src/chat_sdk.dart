@@ -60,7 +60,7 @@ class ChatSdk {
   static QiscusComment _lastSentComment;
 
   static Function(QiscusComment a, QiscusComment b) commentComparator =
-      (QiscusComment a, QiscusComment b) => a.time.compareTo(b.time);
+      (QiscusComment a, QiscusComment b) => b.time.compareTo(a.time);
 
   /// call this method to start listening to event channel, to
   /// distribute into each events stream
