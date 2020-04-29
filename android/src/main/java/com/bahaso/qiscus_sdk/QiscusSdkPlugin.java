@@ -362,8 +362,8 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
                 temp = call.argument("roomId");
                 roomId = temp;
                 limitInt = call.argument("limit");
-                uniqueId = call.argument("uniqueId");
-                getNextMessages(roomId, limitInt, uniqueId, result);
+                messageId = call.argument("messageId");
+                getNextMessages(roomId, limitInt, messageId, result);
                 break;
             case "getLocalNextMessages":
                 temp = call.argument("roomId");
@@ -1014,11 +1014,10 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
 
-    private void getNextMessages(long roomId, int limit, String uniqueId, Result result) {
-        QiscusComment qiscusComment = QiscusCore.getDataStore().getComment(uniqueId);
+    private void getNextMessages(long roomId, int limit, int messageId, Result result) {
 
-        QiscusApi.getInstance().getNextMessagesById(roomId, limit, qiscusComment.getId())
-                .filter(qiscusComment1 -> qiscusComment.getId() == -1 || qiscusComment1.getId() > qiscusComment.getId())
+        QiscusApi.getInstance().getNextMessagesById(roomId, limit, messageId)
+                .filter(qiscusComment1 -> qiscusComment1.getId() > messageId)
                 .toSortedList(commentComparator)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

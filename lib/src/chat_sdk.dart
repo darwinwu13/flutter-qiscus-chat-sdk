@@ -709,7 +709,7 @@ class ChatSdk {
     if (await hasLogin()) {
       var args = {
         'roomId': comment.roomId,
-        'uniqueId': comment.uniqueId,
+        'messageId': comment.id,
         'limit': limit,
       };
 
