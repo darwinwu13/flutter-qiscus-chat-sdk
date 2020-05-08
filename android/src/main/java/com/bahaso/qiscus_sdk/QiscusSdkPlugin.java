@@ -1017,7 +1017,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     private void getNextMessages(long roomId, int limit, int messageId, Result result) {
 
         QiscusApi.getInstance().getNextMessagesById(roomId, limit, messageId)
-                .filter(qiscusComment1 -> qiscusComment1.getId() > messageId)
+                .filter(qiscusComment1 -> qiscusComment1.getId() >= messageId)
                 .toSortedList(commentComparator)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
