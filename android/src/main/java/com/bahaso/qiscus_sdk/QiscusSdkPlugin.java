@@ -44,7 +44,8 @@ import rx.schedulers.Schedulers;
  */
 public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     private final String CHANNEL_NAME = "bahaso.com/qiscus_chat_sdk";
-    private Func2<QiscusComment, QiscusComment, Integer> commentComparator = (lhs, rhs) -> rhs.getTime().compareTo(lhs.getTime());
+    private Func2<QiscusComment, QiscusComment, Integer> commentComparator =
+            (lhs, rhs) -> rhs.getTime().compareTo(lhs.getTime());
 
     private Context applicationContext;
     private MethodChannel channel;

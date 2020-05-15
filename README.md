@@ -4,11 +4,13 @@ Qiscus Chat SDK plugin for iOS and Android
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+This a plugin for qiscus core chat sdk for android and iOS
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+##Android
+- Only support 1-on-1 chat room currently
+- support local databases
+- support fcm notification, see example folder for how to implement
+
+
+## iOS
+> On progresss
