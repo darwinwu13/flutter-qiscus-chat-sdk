@@ -13,4 +13,4 @@ This a plugin for qiscus core chat sdk for android and iOS
 
 
 ## iOS
-> On progresss
+> On progresss# chat-sdk
