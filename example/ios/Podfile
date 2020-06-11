@@ -63,6 +63,15 @@ target 'Runner' do
 
   # Keep pod path relative so it can be checked into Podfile.lock.
   pod 'Flutter', :path => 'Flutter'
+  pod 'QiscusCore', "1.2.8"
+
+    # 3rd party
+  pod 'SDWebImage', '~> 4.4.2'
+  pod 'SimpleImageViewer', :git => 'https://github.com/aFrogleap/SimpleImageViewer'
+  pod 'SwiftyJSON'
+  pod 'Alamofire'
+  pod 'AlamofireImage'
+  pod 'UICircularProgressRing'
 
   # Plugin Pods
 
