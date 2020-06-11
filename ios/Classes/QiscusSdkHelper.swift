@@ -6,7 +6,18 @@
 //
 
 import Foundation
+import QiscusCore
 
 class QiscusSdkHelper {
+    public func parseQiscusComment(withJson json: String) {
+        
+    }
     
+    private func parseQiscusComment(withJsonComment jsonComment: JSONEncoder) {
+        
+    }
+    
+    public func parseQiscusComment() {
+        
+    }
 }
