@@ -324,13 +324,207 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         )
     }
     
-    private func getQiscusAccount(withResult result: FlutterResult) {
-//        do {
-//            try result()
-//        } catch (e: Error) {
-            
-//        }
+    private func addOrUpdateLocalChatRoom(withChatRoom chatRoom: RoomModel, withResult result: FlutterResult) {
+        // todo
+        return QiscusCore.database.room.save(chatRoom)
     }
     
+    private func getChatRoomWithMessages(withRoomId roomId: int, withResult result: FlutterResult) {
+        QiscusCore.shared.getChatRoomWithMessages(
+            roomId: roomId,
+            onSuccess: {
+                (RoomModel, [CommentModel]) in
+                // todo
+            },
+            onError: {
+                (error: QError) in
+                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                
+                result(errorDictionary)
+            }
+        )
+    }
     
+    private func getLocalChatRoom(withRoomId roomId: int, withResult result: FlutterResult) {
+        let localChatRooms: [RoomModel] = QiscusCore.database.room.get()
+        // todo
+    }
+    
+    private func getChatRoomByRoomIds(
+        withRoomIds roomIds: [int],
+        withShowRemoved showRemoved: Bool,
+        withShowParticipant showParticipant: Bool,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func getLocalChatRoomByRoomIds(
+        withRoomIds roomIds: [int],
+        withResult result: FlutterResult
+    ) {
+       // todo
+    }
+    
+    private func getAllChatRooms(
+        withShowParticipant showParticipant: bool,
+        withShowRemoved showRemoved: bool,
+        withShowEmpty showEmpty: bool,
+        withPage page: int,
+        withLimit limit: int,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func getLocalChatRooms(withLimit limit: int, withOffset offset: int, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func getLocalChatRooms(withLimit limit: int, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func getTotalUnreadCount(result: FlutterResult) {
+        // todo
+    }
+    
+    private func sendCustomMessage(
+        withRoomId roomId: int,
+        withMessage message: String,
+        withType type: String,
+        withPayload payload: [String: Any]?,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func sendMessage(
+        withRoomId roomId: int,
+        withMessage message: String,
+        withPayload extras: [String: Any]?,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func sendFileMessage(
+        withRoomId roomId: int,
+        withCaption caption: String,
+        withFilePath filePath: String,
+        withExtras extras: [String: Any]?,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func sendCustomFileMessage(
+        withRoomId roomId: int,
+        withCaption caption: String,
+        withType type: String,
+        withFilePath filePath: String,
+        withExtras payload: [String: Any]?,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func getQiscusAccount(withResult result: FlutterResult) {
+        // todo
+    }
+
+    private func getLocalComments(withRoomId roomId: int, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func getLocalComments(withRoomId roomId: int, withLimit limit: int, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func registerEventHandler(withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func unregisterEventHandler(withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func markCommentAsRead(
+        withRoomId roomId: int,
+        withCommentId commentId: int,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func addOrUpdateLocalComment(
+        withComment comment: QiscusComment,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func subscribeToChatRoom(withChatRoom chatRoom: RoomModel, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func unsubscribeToChatRoom(withChatRoom chatRoom: RoomModel, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func deleteLocalCommentsByRoomId(withRoomId roomId: int, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func deleteLocalCommentByUniqueId(
+        withUniqueId uniqueId: String,
+        withCommentId commentId: int,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func deleteLocalComment(withComment comment: QiscusComment, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func deleteLocalChatRoom(withRoomId roomId: int, withResult result: FlutterResult) {
+        // todo
+    }
+    
+    private func getPrevMessages(
+        withRoomId roomId: int,
+        withLimit limit: int,
+        withMessageId messageId: int,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func getLocalPrevMessages(
+        withRoomId roomId: int,
+        withLimit limit: int,
+        withUniqueId uniqueId: String,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func getLocalNextMessages(
+        withRoomId roomId: int,
+        withLimit limit: int,
+        withUniqueId uniqueId: String,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
+    
+    private func getNextMessages(
+        withRoomId roomId: int,
+        withLimit limit: int,
+        withMessageId messageId: int,
+        withResult result: FlutterResult
+    ) {
+        // todo
+    }
 }

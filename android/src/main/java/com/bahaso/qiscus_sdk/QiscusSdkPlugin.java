@@ -612,7 +612,7 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
     private void getLocalChatRoomByRoomIds(List<Long> roomIds, Result result) {
-        List<QiscusChatRoom> chatRooms = QiscusCore.getDataStore().getChatRooms(roomIds, new ArrayList<>());
+        List<QiscusChatRoom> chatRooms = QiscusCore.getDataStore().R(roomIds, new ArrayList<>());
         Gson gson = AmininGsonBuilder.createGson();
         result.success(gson.toJson(chatRooms));
     }
@@ -954,7 +954,6 @@ public class QiscusSdkPlugin implements FlutterPlugin, MethodCallHandler {
 
         }
     }
-
 
     private void getPrevMessages(long roomId, int limit, int messageId, Result result) {
 
