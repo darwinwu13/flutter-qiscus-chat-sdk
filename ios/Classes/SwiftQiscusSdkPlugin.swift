@@ -2,10 +2,9 @@ import Flutter
 import UIKit
 import QiscusCore
 import CoreFoundation
-import GenerateToDictionary
 
 public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
-  let generatorToDictionary: GenerateToDictionary = generateToDictionary()
+  let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "qiscus_sdk", binaryMessenger: registrar.messenger())
@@ -27,7 +26,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
         let value: Bool = arguments["value"] as? Bool ?? false
             
-        enableDebugMode(withValue: value);
+        enableDebugMode(withValue: value)
         break
     case "setNotificationListener":
         break
@@ -35,22 +34,22 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
         let value: Bool = arguments["value"] as? Bool ?? false
             
-        setEnableFcmPushNotification(withValue: value);
+        setEnableFcmPushNotification(withValue: value)
         break
     case "registerDeviceToken":
         let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
         let token: String = arguments["value"] as? String ?? ""
         
-        registerDeviceToken(withToken: token)
+        registerDeviceToken(withToken: token, withResult: result)
         break
     case "removeDeviceToken":
         let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
         let token: String = arguments["value"] as? String ?? ""
         
-        removeDeviceToken(withToken: token)
+        removeDeviceToken(withToken: token, withResult: result)
         break
     case "clearUser":
-        clearUser()
+        clearUser(withResult: result)
         break
     case "login":
         let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
@@ -130,30 +129,34 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             result(isSuccess)
         }, onError: {
             (error: QError) in
-            let errorDictionary = self.generateToDictionary.qError(withError: error)
+            let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
             
             result(errorDictionary)
         })
     }
     
-    private func removeDeviceToken(withToken token: String) {
+    private func removeDeviceToken(withToken token: String, withResult result: FlutterResult) {
         QiscusCore.shared.removeDeviceToken(token: token, onSuccess: {
             (isSuccess: Bool) in
             
             result(isSuccess)
         }, onError: {
             (error: QError) in
-            let errorDictionary = self.generateToDictionary.qError(withError: error)
+            let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
             
             result(errorDictionary)
         })
     }
     
-    private func clearUser() {
+    private func clearUser(withResult result: FlutterResult) {
         QiscusCore.clearUser(completion: {
             (error: QError?) -> () in
-            let errorDictionary = self.generateToDictionary.qError(withError: error)
+            guard let qiscusError = error else {
+                result(FlutterMethodNotImplemented)
+                return
+            }
             
+            let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: qiscusError)
             result(errorDictionary)
         })
     }
@@ -174,13 +177,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             extras: extras,
             onSuccess: {
                 (user: UserModel) in
-                let userDictionary = self.generateToDictionary.userModel(withUserModel: user)
+                let userDictionary = self.qiscusSdkHelper.userModelToDic(withUser: user)
                 
                 result(userDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = self.generateToDictionary.qError(withError: error)
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 result(errorDictionary)
             }
@@ -191,13 +194,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         QiscusCore.getJWTNonce(
             onSuccess: {
                 (nonce: QNonce) in
-                let nonceDictionary = self.generateToDictionary.qNonce(withNonce: nonce)
+                let nonceDictionary = self.qiscusSdkHelper.qNonceToDic(withNonce: nonce)
                 
                 result(nonceDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = self.generateToDictionary.qError(withError: error)
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 result(errorDictionary)
             }
@@ -209,13 +212,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             token: token,
             onSuccess: {
                 (user: UserModel) in
-                let userDictionary = self.generateToDictionary.userModel(withUserModel: user)
+                let userDictionary = self.qiscusSdkHelper.userModelToDic(withUser: user)
                 
                 result(userDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = self.generateToDictionary.qError(withError: error)
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 result(errorDictionary)
             }
@@ -234,13 +237,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             extras: extras,
             onSuccess: {
                 (user: UserModel) in
-                let userDictionary = self.generateToDictionary.userModel(withUserModel: user)
+                let userDictionary = self.qiscusSdkHelper.userModelToDic(withUser: user)
                 
                 result(userDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = self.generateToDictionary.qError(withError: error)
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 result(errorDictionary)
             }
@@ -263,13 +266,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             limit: limit,
             onSuccess: {
                 (memberModel: [MemberModel], Meta) in
-                let memberDictionary = self.generateToDictionary.memberModel(withMemberModel: memberModel)
+                let memberDictionary = self.qiscusSdkHelper.memberModelToDic(withMemberModel: memberModel)
                 
                 result(memberDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = self.generateToDictionary.qError(withError: error)
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 result(errorDictionary)
             }
@@ -281,18 +284,24 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withExtras extras: [String: Any]?,
         withResult result: FlutterResult
     ) {
+        var extrasString: String?
+        
+        if let _extras = extras {
+            extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
+        }
+        
         QiscusCore.shared.chatUser(
             userId: userId,
-            extras: extras,
+            extras: extrasString,
             onSuccess: {
-                (RoomModel, [CommentModel]) in
-                let roomModelDictionary = self.generateToDictionary.roomModel()
+                (room: RoomModel, comments: [CommentModel]) in
+                let roomModelDictionary = self.qiscusSdkHelper.roomModelToDic(withRoomModel: room)
                 
                 result(roomModelDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = self.generateToDictionary.qError(withError: error)
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 result(errorDictionary)
             }
@@ -306,126 +315,174 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withExtras extras: [String: Any]?,
         WithResult result: FlutterResult
     ) {
+        var extrasString: String?
+        
+        if let _extras = extras {
+            extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
+        }
+        
         QiscusCore.shared.updateChatRoom(
             roomId: roomId,
             name: name,
             avatarURL: avatarUrl,
-            extras: extras,
+            extras: extrasString,
             onSuccess: {
-                (RoomModel) in
-                let roomModelDictionary = self.generateToDictionary.roomModel()
+                (room: RoomModel) in
+                let roomModelDictionary = self.qiscusSdkHelper.roomModelToDic(withRoomModel: room)
                 
                 result(roomModelDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = self.generateToDictionary.qError(withError: error)
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 result(errorDictionary)
             }
         )
     }
     
-    private func addOrUpdateLocalChatRoom(withChatRoom chatRoom: RoomModel, withResult result: FlutterResult) {
-        // todo
-        return QiscusCore.database.room.save(chatRoom)
+    private func addOrUpdateLocalChatRoom(withChatRoom chatRoom: [RoomModel], withResult result: FlutterResult) {
+        do {
+            try QiscusCore.database.room.save(chatRoom)
+            
+            result(true)
+        } catch let error {
+            result("ERR_FAILED_ADD_OR_UPDATE_LOCAL_CHAT_ROOM \(error.localizedDescription)")
+        }
     }
     
-    private func getChatRoomWithMessages(withRoomId roomId: int, withResult result: FlutterResult) {
+    private func getChatRoomWithMessages(withRoomId roomId: String, withResult result: FlutterResult) {
         QiscusCore.shared.getChatRoomWithMessages(
             roomId: roomId,
             onSuccess: {
-                (RoomModel, [CommentModel]) in
-                // todo
+                (room: RoomModel, comments: [CommentModel]) in
+                print(room)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = self.generateToDictionary.qError(withError: error)
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 result(errorDictionary)
             }
         )
     }
     
-    private func getLocalChatRoom(withRoomId roomId: int, withResult result: FlutterResult) {
-        let localChatRooms: [RoomModel] = QiscusCore.database.room.get()
-        // todo
+    private func getLocalChatRoom(withRoomId roomId: String, withResult result: FlutterResult) {
+        let localChatRooms: [RoomModel] = QiscusCore.database.room.all()
+        let localChatRoomsJson: String = self.qiscusSdkHelper.toJson(withData: localChatRooms)
+        
+        result(localChatRoomsJson)
     }
     
     private func getChatRoomByRoomIds(
-        withRoomIds roomIds: [int],
+        withRoomIds roomIds: [String],
         withShowRemoved showRemoved: Bool,
         withShowParticipant showParticipant: Bool,
         withResult result: FlutterResult
     ) {
-        // todo
+        QiscusCore.shared.getChatRooms(
+            roomIds: roomIds,
+            showRemoved: showRemoved,
+            showParticipant: showParticipant,
+            onSuccess: {
+                (rooms: [RoomModel]) in
+                let roomsJson: String = self.qiscusSdkHelper.toJson(withData: rooms)
+                result(roomsJson)
+            },
+            onError: {
+                (error: QError) in
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
+                
+                result(errorDictionary)
+            }
+        )
     }
     
     private func getLocalChatRoomByRoomIds(
-        withRoomIds roomIds: [int],
+        withRoomIds roomIds: [Int],
         withResult result: FlutterResult
     ) {
        // todo
     }
     
     private func getAllChatRooms(
-        withShowParticipant showParticipant: bool,
-        withShowRemoved showRemoved: bool,
-        withShowEmpty showEmpty: bool,
-        withPage page: int,
-        withLimit limit: int,
+        withShowParticipant showParticipant: Bool,
+        withShowRemoved showRemoved: Bool,
+        withShowEmpty showEmpty: Bool,
+        withPage page: Int,
+        withLimit limit: Int,
         withResult result: FlutterResult
     ) {
-        // todo
+        QiscusCore.shared.getAllChatRooms(
+            showParticipant: showParticipant,
+            showRemoved: showRemoved,
+            showEmpty: showEmpty,
+            page: page,
+            limit: limit,
+            onSuccess: {
+                (rooms: [RoomModel], meta: Meta?) -> () in
+                let roomsJson: String = self.qiscusSdkHelper.toJson(withData: rooms)
+                result(roomsJson)
+            },
+            onError: {
+                (error: QError) in
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
+                
+                result(errorDictionary)
+            }
+        )
     }
     
-    private func getLocalChatRooms(withLimit limit: int, withOffset offset: int, withResult result: FlutterResult) {
-        // todo
+    private func getLocalChatRooms(withLimit limit: Int, withOffset offset: Int, withResult result: FlutterResult) {
+        let predicate: NSPredicate = NSPredicate(format: "LIMIT \(limit) OFFSET \(offset)")
+        let localChatRooms: [RoomModel]? = QiscusCore.database.room.find(predicate: predicate)
+        if let _localChatRooms = localChatRooms {
+            result(_localChatRooms)
+        }else {
+            result(FlutterMethodNotImplemented)
+        }
     }
     
-    private func getLocalChatRooms(withLimit limit: int, withResult result: FlutterResult) {
+    private func getLocalChatRooms(withLimit limit: Int, withResult result: FlutterResult) {
         // todo
     }
     
     private func getTotalUnreadCount(result: FlutterResult) {
         // todo
-    }
-    
-    private func sendCustomMessage(
-        withRoomId roomId: int,
-        withMessage message: String,
-        withType type: String,
-        withPayload payload: [String: Any]?,
-        withResult result: FlutterResult
-    ) {
-        // todo
+        QiscusCore.shared.getTotalUnreadCount {
+            (totalUnreadCount: Int, error: QError?) in
+            if let _error = error {
+                let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: _error)
+                
+                result(errorDictionary)
+                return
+            }
+            
+            result(totalUnreadCount)
+        }
     }
     
     private func sendMessage(
-        withRoomId roomId: int,
+        withRoomId roomId: Int,
         withMessage message: String,
         withPayload extras: [String: Any]?,
         withResult result: FlutterResult
     ) {
-        // todo
+        
+//        QiscusCore.shared.sendMessage(
+//            message: CommentModel,
+//            onSuccess: {
+//                (<#CommentModel#>) in
+//            <#code#>
+//            },
+//
     }
     
     private func sendFileMessage(
-        withRoomId roomId: int,
+        withRoomId roomId: Int,
         withCaption caption: String,
         withFilePath filePath: String,
         withExtras extras: [String: Any]?,
-        withResult result: FlutterResult
-    ) {
-        // todo
-    }
-    
-    private func sendCustomFileMessage(
-        withRoomId roomId: int,
-        withCaption caption: String,
-        withType type: String,
-        withFilePath filePath: String,
-        withExtras payload: [String: Any]?,
         withResult result: FlutterResult
     ) {
         // todo
@@ -435,11 +492,11 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         // todo
     }
 
-    private func getLocalComments(withRoomId roomId: int, withResult result: FlutterResult) {
+    private func getLocalComments(withRoomId roomId: Int, withResult result: FlutterResult) {
         // todo
     }
     
-    private func getLocalComments(withRoomId roomId: int, withLimit limit: int, withResult result: FlutterResult) {
+    private func getLocalComments(withRoomId roomId: Int, withLimit limit: Int, withResult result: FlutterResult) {
         // todo
     }
     
@@ -452,8 +509,8 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func markCommentAsRead(
-        withRoomId roomId: int,
-        withCommentId commentId: int,
+        withRoomId roomId: Int,
+        withCommentId commentId: Int,
         withResult result: FlutterResult
     ) {
         // todo
@@ -474,13 +531,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         // todo
     }
     
-    private func deleteLocalCommentsByRoomId(withRoomId roomId: int, withResult result: FlutterResult) {
+    private func deleteLocalCommentsByRoomId(withRoomId roomId: Int, withResult result: FlutterResult) {
         // todo
     }
     
     private func deleteLocalCommentByUniqueId(
         withUniqueId uniqueId: String,
-        withCommentId commentId: int,
+        withCommentId commentId: Int,
         withResult result: FlutterResult
     ) {
         // todo
@@ -490,22 +547,22 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         // todo
     }
     
-    private func deleteLocalChatRoom(withRoomId roomId: int, withResult result: FlutterResult) {
+    private func deleteLocalChatRoom(withRoomId roomId: Int, withResult result: FlutterResult) {
         // todo
     }
     
     private func getPrevMessages(
-        withRoomId roomId: int,
-        withLimit limit: int,
-        withMessageId messageId: int,
+        withRoomId roomId: Int,
+        withLimit limit: Int,
+        withMessageId messageId: Int,
         withResult result: FlutterResult
     ) {
         // todo
     }
     
     private func getLocalPrevMessages(
-        withRoomId roomId: int,
-        withLimit limit: int,
+        withRoomId roomId: Int,
+        withLimit limit: Int,
         withUniqueId uniqueId: String,
         withResult result: FlutterResult
     ) {
@@ -513,8 +570,8 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func getLocalNextMessages(
-        withRoomId roomId: int,
-        withLimit limit: int,
+        withRoomId roomId: Int,
+        withLimit limit: Int,
         withUniqueId uniqueId: String,
         withResult result: FlutterResult
     ) {
@@ -522,9 +579,9 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func getNextMessages(
-        withRoomId roomId: int,
-        withLimit limit: int,
-        withMessageId messageId: int,
+        withRoomId roomId: Int,
+        withLimit limit: Int,
+        withMessageId messageId: Int,
         withResult result: FlutterResult
     ) {
         // todo

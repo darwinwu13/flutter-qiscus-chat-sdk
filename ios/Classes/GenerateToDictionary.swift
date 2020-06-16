@@ -23,7 +23,7 @@ public class GenerateToDictionary {
     
     public func qError(withError qError: QError) -> [String: Any] {
         var qErrorDictionary: [String: Any] = [:]
-        qErrorDictionary["message"] = QError.message
+        qErrorDictionary["message"] = qError.message
         
         return qErrorDictionary
     }
