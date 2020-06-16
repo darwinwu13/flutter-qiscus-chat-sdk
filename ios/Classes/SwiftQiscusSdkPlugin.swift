@@ -5,6 +5,8 @@ import CoreFoundation
 import GenerateToDictionary
 
 public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
+  let generatorToDictionary: GenerateToDictionary = generateToDictionary()
+
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "qiscus_sdk", binaryMessenger: registrar.messenger())
     let instance = SwiftQiscusSdkPlugin()
@@ -92,8 +94,8 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     case "getAllUsers":
         let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
         let searchUsername: String = arguments["searchUsername"] as? String ?? ""
-        let page: Int = arguments["page"] as? Int ?? ""
-        let limit: Int = arguments["limit"] as? Int ?? ""
+        let page: Int = arguments["page"] as? Int ?? 0
+        let limit: Int = arguments["limit"] as? Int ?? 0
         
         getAllUsers(withSearchUsername: searchUsername, withPage: page, withLimit: limit, withResult: result)
         break
@@ -121,14 +123,14 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         
     }
     
-    private func registerDeviceToken(withToken token: String) {
+    private func registerDeviceToken(withToken token: String, withResult result: FlutterResult) {
         QiscusCore.shared.registerDeviceToken(token: token, onSuccess: {
             (isSuccess: Bool) in
             
             result(isSuccess)
         }, onError: {
             (error: QError) in
-            let errorDictionary = GenerateToDictionary.qError(withError: error)
+            let errorDictionary = self.generateToDictionary.qError(withError: error)
             
             result(errorDictionary)
         })
@@ -141,7 +143,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             result(isSuccess)
         }, onError: {
             (error: QError) in
-            let errorDictionary = GenerateToDictionary.qError(withError: error)
+            let errorDictionary = self.generateToDictionary.qError(withError: error)
             
             result(errorDictionary)
         })
@@ -150,7 +152,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     private func clearUser() {
         QiscusCore.clearUser(completion: {
             (error: QError?) -> () in
-            let errorDictionary = GenerateToDictionary.qError(withError: error)
+            let errorDictionary = self.generateToDictionary.qError(withError: error)
             
             result(errorDictionary)
         })
@@ -172,13 +174,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             extras: extras,
             onSuccess: {
                 (user: UserModel) in
-                let userDictionary = GenerateToDictionary.userModel(withUserModel: user)
+                let userDictionary = self.generateToDictionary.userModel(withUserModel: user)
                 
                 result(userDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                let errorDictionary = self.generateToDictionary.qError(withError: error)
                 
                 result(errorDictionary)
             }
@@ -189,13 +191,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         QiscusCore.getJWTNonce(
             onSuccess: {
                 (nonce: QNonce) in
-                let nonceDictionary = GenerateToDictionary.qNonce(withNonce: nonce)
+                let nonceDictionary = self.generateToDictionary.qNonce(withNonce: nonce)
                 
                 result(nonceDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                let errorDictionary = self.generateToDictionary.qError(withError: error)
                 
                 result(errorDictionary)
             }
@@ -207,13 +209,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             token: token,
             onSuccess: {
                 (user: UserModel) in
-                let userDictionary = GenerateToDictionary.userModel(withUserModel: user)
+                let userDictionary = self.generateToDictionary.userModel(withUserModel: user)
                 
                 result(userDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                let errorDictionary = self.generateToDictionary.qError(withError: error)
                 
                 result(errorDictionary)
             }
@@ -232,13 +234,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             extras: extras,
             onSuccess: {
                 (user: UserModel) in
-                let userDictionary = GenerateToDictionary.userModel(withUserModel: user)
+                let userDictionary = self.generateToDictionary.userModel(withUserModel: user)
                 
                 result(userDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                let errorDictionary = self.generateToDictionary.qError(withError: error)
                 
                 result(errorDictionary)
             }
@@ -261,13 +263,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             limit: limit,
             onSuccess: {
                 (memberModel: [MemberModel], Meta) in
-                let memberDictionary = GenerateToDictionary.memberModel(withMemberModel: memberModel)
+                let memberDictionary = self.generateToDictionary.memberModel(withMemberModel: memberModel)
                 
                 result(memberDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                let errorDictionary = self.generateToDictionary.qError(withError: error)
                 
                 result(errorDictionary)
             }
@@ -284,13 +286,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             extras: extras,
             onSuccess: {
                 (RoomModel, [CommentModel]) in
-                let roomModelDictionary = GenerateToDictionary.roomModel()
+                let roomModelDictionary = self.generateToDictionary.roomModel()
                 
                 result(roomModelDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                let errorDictionary = self.generateToDictionary.qError(withError: error)
                 
                 result(errorDictionary)
             }
@@ -311,13 +313,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             extras: extras,
             onSuccess: {
                 (RoomModel) in
-                let roomModelDictionary = GenerateToDictionary.roomModel()
+                let roomModelDictionary = self.generateToDictionary.roomModel()
                 
                 result(roomModelDictionary)
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                let errorDictionary = self.generateToDictionary.qError(withError: error)
                 
                 result(errorDictionary)
             }
@@ -338,7 +340,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             },
             onError: {
                 (error: QError) in
-                let errorDictionary = GenerateToDictionary.qError(withError: error)
+                let errorDictionary = self.generateToDictionary.qError(withError: error)
                 
                 result(errorDictionary)
             }
