@@ -36,6 +36,27 @@ class QiscusSdkHelper {
         return qNonceDictionary
     }
     
+    public func roomModelsToDic(withRoomModels roomModels: [RoomModel]) -> [[String: Any]] {
+        var chatRooms: [[String: Any]] = [[:]]
+        
+        for roomModel in roomModels {
+            var tmpRoomModel: [String: Any] = [:]
+            tmpRoomModel["id"] = roomModel.id
+            tmpRoomModel["name"] = roomModel.name
+            tmpRoomModel["uniqueId"] = roomModel.uniqueId
+            tmpRoomModel["avatarUrl"] = roomModel.avatarUrl
+            tmpRoomModel["type"] = roomModel.type
+            tmpRoomModel["options"] = roomModel.options
+            tmpRoomModel["lastComment"] = roomModel.lastComment?.extras
+            tmpRoomModel["participants"] = roomModel.participants
+            tmpRoomModel["unreadCount"] = roomModel.unreadCount
+            
+            chatRooms.append(tmpRoomModel)
+        }
+        
+        return chatRooms
+    }
+    
     public func memberModelToDic(withMemberModel memberModel: [MemberModel]) -> [[String: Any]] {
         return [[:]]
     }
@@ -122,6 +143,7 @@ class QiscusSdkHelper {
             
         return String(data: theJSONData, encoding: String.Encoding.utf8)!
     }
+    
     
     public func encodeQiscusChatRoom(withChatRoom chatRoom: RoomModel) {
         
