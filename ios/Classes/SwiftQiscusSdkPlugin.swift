@@ -5,12 +5,19 @@ import CoreFoundation
 
 public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
   let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
+    var eventHandler: QiscusEventHandler!
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "qiscus_sdk", binaryMessenger: registrar.messenger())
     let instance = SwiftQiscusSdkPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
+    
   }
+    
+    public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
+        eventHandler.unRegisterEventBus()
+        
+    }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     result("iOS " + UIDevice.current.systemVersion)

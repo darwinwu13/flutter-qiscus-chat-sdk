@@ -15,16 +15,15 @@ class QiscusEventHandler {
     private let EVENT_CHANNEL_NAME: String = "bahaso.com/qiscus_chat_sdk/events"
     private let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
     
-    public func QiscusEventHandler(binary messanger: FlutterBinaryMessenger){
+    init(binary messenger: FlutterBinaryMessenger) {
         let eventStreamHandler: QiscusEventStreamHandler = QiscusEventStreamHandler()
-        eventChannel = FlutterEventChannel(name: EVENT_CHANNEL_NAME, binaryMessenger: messanger)
+        eventChannel = FlutterEventChannel(name: EVENT_CHANNEL_NAME, binaryMessenger: messenger)
         eventChannel.setStreamHandler(eventStreamHandler)
         eventSink = eventStreamHandler.eventSink ?? nil
         
         if QiscusCore.hasSetupUser() {
-            QiscusCore.connect(delegate: self)
+           let _ = QiscusCore.connect(delegate: self)
         }
-        QiscusCore.connect()
     }
 
     public func registerEventBus(){
@@ -67,10 +66,12 @@ extension QiscusEventHandler: QiscusCoreDelegate {
     
     func onRoomMessageDelivered(message: CommentModel) {
         // ROOM meessage deliverd
+        handleMessageState(messageComment: message)
     }
     
     func onRoomMessageRead(message: CommentModel) {
         // message has been read
+        handleMessageState(messageComment: message)
     }
     
     func onChatRoomCleared(roomId: String) {
@@ -78,7 +79,6 @@ extension QiscusEventHandler: QiscusCoreDelegate {
     }
     
     func onRoomDidChangeComment(comment: CommentModel, changeStatus status: CommentStatus) {
-        print("receive new message: \(comment.message)")
         // TODO make to json
         var args: [String: Any] = [String: Any]()
         args["type"] = "comment_received"
@@ -86,8 +86,6 @@ extension QiscusEventHandler: QiscusCoreDelegate {
         if self.eventSink != nil {
             eventSink(args)
         }
-        
-        
     }
     
     func onRoom(update room: RoomModel) {
@@ -128,10 +126,14 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
     
     func onUserTyping(userId: String, roomId: String, typing: Bool) {
         // TODO handle user typing
+        if let user = QiscusCore.database.member.find(byUserId: userId) {
+            QiscusCore.shared.publishTyping(roomID: roomId, isTyping: typing)
+        }
     }
     
     func onUserOnlinePresence(userId: String, isOnline: Bool, lastSeen: Date) {
         // TODO handle state on Qiscus
+        let user = QiscusCore.database.member.find(byUserId: userId)
         
     }
     
