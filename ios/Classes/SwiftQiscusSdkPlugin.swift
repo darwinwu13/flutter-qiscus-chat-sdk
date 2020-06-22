@@ -5,13 +5,24 @@ import CoreFoundation
 
 public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
   let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
-  var flutterResult: FlutterResult
+    
+    private var eventHandler: QiscusEventHandler!
+  var flutterResult: FlutterResult!
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "qiscus_sdk", binaryMessenger: registrar.messenger())
     let instance = SwiftQiscusSdkPlugin()
+    instance.setupEventHandler(binary: registrar.messenger())
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
+    
+    public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
+        eventHandler.unRegisterEventBus()
+    }
+    
+    private func setupEventHandler(binary messenger: FlutterBinaryMessenger){
+        self.eventHandler = QiscusEventHandler(binary: messenger)
+    }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     result("iOS " + UIDevice.current.systemVersion)
@@ -249,7 +260,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         
         getNextMessages(withRoomId: roomId, withLimit: limit, withMessageId: messageId)
         break
-    case "getLocalNextMessages"
+    case "getLocalNextMessages":
         let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
         let roomId: String = arguments["roomId"] as? String ?? String()
         let limit: Int = arguments["limit"] as? Int ?? Int()
@@ -288,7 +299,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     private func removeDeviceToken(withToken token: String) {
         QiscusCore.shared.removeDeviceToken(token: token, onSuccess: {
             (isSuccess: Bool) in
-            
+
             self.flutterResult(isSuccess)
         }, onError: {
             (error: QError) in
@@ -305,7 +316,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 self.flutterResult(FlutterMethodNotImplemented)
                 return
             }
-            
+
             let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: qiscusError)
             self.flutterResult(errorDictionary)
         })
@@ -327,13 +338,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             onSuccess: {
                 (user: UserModel) in
                 let userDictionary = self.qiscusSdkHelper.userModelToDic(withUser: user)
-                
+
                 self.flutterResult(userDictionary)
             },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
-                
+
                 self.flutterResult(errorDictionary)
             }
         )
@@ -344,7 +355,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             onSuccess: {
                 (nonce: QNonce) in
                 let nonceDictionary = self.qiscusSdkHelper.qNonceToDic(withNonce: nonce)
-                
+
                 self.flutterResult(nonceDictionary)
             },
             onError: {
@@ -431,11 +442,11 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withExtras extras: [String: Any]?
     ) {
         var extrasString: String?
-        
+
         if let _extras = extras {
             extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
         }
-        
+
         QiscusCore.shared.chatUser(
             userId: userId,
             extras: extrasString,
@@ -461,11 +472,11 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withExtras extras: [String: Any]?
     ) {
         var extrasString: String?
-        
+
         if let _extras = extras {
             extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
         }
-        
+
         QiscusCore.shared.updateChatRoom(
             roomId: roomId,
             name: name,
@@ -690,10 +701,12 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     
     private func registerEventHandler() {
         // todo
+        self.eventHandler.registerEventBus()
     }
     
     private func unregisterEventHandler() {
         // todo
+        self.eventHandler.unRegisterEventBus()
     }
     
     private func markCommentAsRead(
@@ -707,7 +720,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     
     private func addOrUpdateLocalComment(withComment comment: [String: Any]) {
         // todo
-        var commentModel: CommentModel
+        var commentModel: CommentModel = CommentModel()
 //        commentModel.id = comment["id"] as? String ?? ""
         commentModel.message = comment["message"] as? String ?? ""
     }
