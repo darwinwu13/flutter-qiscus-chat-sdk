@@ -316,7 +316,7 @@ class ChatSdk {
     dev.log("chat sdk loginWithJWT", name: "Qiscus Chat SDK");
     String nonce = await _channel.invokeMethod('getNonce');
 
-    dev.log("sdk before jwt", name: 'Qiscus chat sdk');
+    dev.log("sdk before jwt", name: 'Qiscus chat sdk $nonce');
 
     String jwt = await getJWTToken(nonce);
 

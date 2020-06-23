@@ -11,7 +11,7 @@ import QiscusCore
 
 class QiscusEventHandler {
     private var eventChannel: FlutterEventChannel!
-    fileprivate var eventSink: FlutterEventSink!
+    private var eventSink: FlutterEventSink!
     private let EVENT_CHANNEL_NAME: String = "bahaso.com/qiscus_chat_sdk/events"
     private let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
     

@@ -4,17 +4,17 @@ import QiscusCore
 import CoreFoundation
 
 public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
-  let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
-    
+    let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
     private var eventHandler: QiscusEventHandler!
-  var flutterResult: FlutterResult!
-
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "qiscus_sdk", binaryMessenger: registrar.messenger())
-    let instance = SwiftQiscusSdkPlugin()
-    instance.setupEventHandler(binary: registrar.messenger())
-    registrar.addMethodCallDelegate(instance, channel: channel)
-  }
+    var flutterResult: FlutterResult!
+    
+    static let CHANNEL_NAME: String = "bahaso.com/qiscus_chat_sdk"
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: registrar.messenger())
+        let instance = SwiftQiscusSdkPlugin()
+        instance.setupEventHandler(binary: registrar.messenger())
+        registrar.addMethodCallDelegate(instance, channel: channel)
+    }
     
     public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
         eventHandler.unRegisterEventBus()
@@ -23,255 +23,255 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     private func setupEventHandler(binary messenger: FlutterBinaryMessenger){
         self.eventHandler = QiscusEventHandler(binary: messenger)
     }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
-    self.flutterResult = result
     
-    switch call.method {
-    case "setup":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let appId: String = arguments["appId"] as? String ?? ""
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        result("iOS " + UIDevice.current.systemVersion)
+        self.flutterResult = result
         
-        setup(withAppId: appId)
-        break
-    case "enableDebugMode":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let value: Bool = arguments["value"] as? Bool ?? false
+        switch call.method {
+        case "setup":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let appId: String = arguments["appId"] as? String ?? ""
             
-        enableDebugMode(withValue: value)
-        break
-    case "setNotificationListener":
-        break
-    case "setEnableFcmPushNotification":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let value: Bool = arguments["value"] as? Bool ?? false
+            setup(withAppId: appId)
+            break
+        case "enableDebugMode":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let value: Bool = arguments["value"] as? Bool ?? false
             
-        setEnableFcmPushNotification(withValue: value)
-        break
-    case "registerDeviceToken":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let token: String = arguments["value"] as? String ?? ""
-        
-        registerDeviceToken(withToken: token)
-        break
-    case "removeDeviceToken":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let token: String = arguments["value"] as? String ?? ""
-        
-        removeDeviceToken(withToken: token)
-        break
-    case "clearUser":
-        clearUser()
-        break
-    case "login":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        
-        let userId: String = arguments["userId"] as? String ?? ""
-        let userKey: String = arguments["userKey"] as? String ?? ""
-        let username: String = arguments["username"] as? String ?? ""
-        
-        let avatar: String = arguments["avatarUrl"] as? String ?? ""
-        let avatarUrl: URL? = avatar != "" ? URL(string: avatar) : nil
-        
-        let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
-        
-        login(withUserId: userId, withUserKey: userKey, withUsername: username, withAvatarUrl: avatarUrl, withExtras: extras)
-        break
-    case "getNonce":
-        getNonce()
-        break
-    case "setUserWithIdentityToken":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let token: String = arguments["token"] as? String ?? ""
-    
-        setUserWithIdentityToken(withToken: token)
-        break
-    case "updateUser":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let username: String = arguments["username"] as? String ?? ""
-    
-        let avatar: String = arguments["avatarUrl"] as? String ?? ""
-        let avatarUrl: URL? = avatar != "" ? URL(string: avatar) : nil
-    
-        let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
-        updateUser(withUsername: username, withAvatarUrl: avatarUrl, withExtras: extras)
-        break
-    case "hasLogin":
-        hasLogin()
-        break
-    case "getAllUsers":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let searchUsername: String = arguments["searchUsername"] as? String ?? ""
-        let page: Int = arguments["page"] as? Int ?? 0
-        let limit: Int = arguments["limit"] as? Int ?? 0
-        
-        getAllUsers(withSearchUsername: searchUsername, withPage: page, withLimit: limit)
-        break
-    case "chatUser":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let userId: String = arguments["userId"] as? String ?? ""
-        let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
-        
-        chatUser(withUserId: userId, withExtras: extras)
-        break
-    case "updateChatRoom":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? ""
-        let name: String? = arguments["name"] as? String ?? ""
-        let avatar: String = arguments["avatarUrl"] as? String ?? ""
-        let avatarUrl: URL? = avatar != "" ? URL(string: avatar) : nil
-        let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
-        
-        updateChatRoom(withRoomId: roomId, withName: name, withAvatarUrl: avatarUrl, withExtras: extras)
-        break
-    case "addOrUpdateLocalChatRoom":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let room: [RoomModel]? = arguments["chatRoom"] as? [RoomModel] ?? nil
-        
-        addOrUpdateLocalChatRoom(withChatRoom: room)
-        break
-    case "getChatRoomWithMessages":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? ""
-        
-        getChatRoomWithMessages(withRoomId: roomId)
-        break
-    case "getLocalChatRoom":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? ""
-        
-        getLocalChatRoom(withRoomId: roomId)
-        break
-    case "getChatRoomByRoomIds":
-        // todo
-        break
-    case "getLocalChatRoomByRoomIds":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomIds: [String]? = arguments["roomIds"] as? [String] ?? nil
-        
-        getLocalChatRoomByRoomIds(withRoomIds: roomIds)
-        break
-    case "getAllChatRooms":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let showParticipant: Bool = arguments["showParticipant"] as? Bool ?? Bool()
-        let showEmpty: Bool = arguments["showEmpty"] as? Bool ?? Bool()
-        let showRemoved: Bool = arguments["showRemoved"] as? Bool ?? Bool()
-        let page: Int = arguments["page"] as? Int ?? Int()
-        let limit: Int = arguments["limit"] as? Int ?? Int()
-        
-        getAllChatRooms(
-            withShowParticipant: showParticipant,
-            withShowRemoved: showRemoved,
-            withShowEmpty: showEmpty,
-            withPage: page,
-            withLimit: limit
-        )
-        break
-    case "getLocalChatRooms":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let limit: Int = arguments["limit"] as? Int ?? Int()
-        let offset = arguments["offset"] as? Int ?? nil
-        
-        getLocalChatRooms(withLimit: limit, withOffset: offset);
-        break
-    case "getTotalUnreadCount":
-        getTotalUnreadCount()
-        break
-    case "sendMessage":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        let message: String = arguments["message"] as? String ?? String()
-        let payload: [String: Any]? = arguments["payload"] as? [String: Any] ?? nil
-        
-        sendMessage(withRoomId: roomId, withMessage: message, withPayload: payload)
-        break
-    case "sendFileMessage":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        let caption: String = arguments["caption"] as? String ?? String()
-        let filePath: String = arguments["filePath"] as? String ?? String()
-        let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
-        
-        sendFileMessage(withRoomId: roomId, withCaption: caption, withFilePath: filePath, withExtras: extras)
-        break
-    case "getQiscusAccount":
-        getQiscusAccount()
-        break
-    case "getLocalComments":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        let limit: Int? = arguments["limit"] as? Int ?? Int()
-        
-        getLocalComments(withRoomId: roomId, withLimit: limit)
-        break
-    case "registerEventHandler":
-        registerEventHandler()
-        break
-    case "unregisterEventHandler":
-        unregisterEventHandler()
-        break
-    case "markCommentAsRead":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        let commentId: String = arguments["commentId"] as? String ?? String()
-        
-        markCommentAsRead(withRoomId: roomId, withCommentId: commentId)
-        break
-    case "addOrUpdateLocalComment":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let comment: [String: Any] = arguments["comment"] as? [String: Any] ?? [:]
-        
-        addOrUpdateLocalComment(withComment: comment)
-        break
-    case "subscribeToChatRoom":
-//        subscribeToChatRoom(withChatRoom: <#T##RoomModel#>)
-        break
-    case "unsubscribeToChatRoom":
-//        unsubscribeToChatRoom(withChatRoom: <#T##RoomModel#>)
-        break
-    case "deleteLocalCommentsByRoomId":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        
-        deleteLocalCommentsByRoomId(withRoomId: roomId)
-        break
-    case "getPrevMessages":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        let limit: Int = arguments["limit"] as? Int ?? Int()
-        let messageId: String? = arguments["messageId"] as? String ?? nil
-        
-        getPrevMessages(withRoomId: roomId, withLimit: limit, withMessageId: messageId)
-        break
-    case "getLocalPrevMessages":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        let limit: Int = arguments["limit"] as? Int ?? Int()
-        let uniqueId: String = arguments["uniqueId"] as? String ?? String()
-        
-        getLocalPrevMessages(withRoomId: roomId, withLimit: limit, withUniqueId: uniqueId)
-        break
-    case "getNextMessages":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        let limit: Int = arguments["limit"] as? Int ?? Int()
-        let messageId: String = arguments["messageId"] as? String ?? String()
-        
-        getNextMessages(withRoomId: roomId, withLimit: limit, withMessageId: messageId)
-        break
-    case "getLocalNextMessages":
-        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        let roomId: String = arguments["roomId"] as? String ?? String()
-        let limit: Int = arguments["limit"] as? Int ?? Int()
-        let uniqueId: String = arguments["uniqueId"] as? String ?? String()
-        
-        getLocalNextMessages(withRoomId: roomId, withLimit: limit, withUniqueId: uniqueId)
-        break
-    default:
-        return
+            enableDebugMode(withValue: value)
+            break
+        case "setNotificationListener":
+            break
+        case "setEnableFcmPushNotification":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let value: Bool = arguments["value"] as? Bool ?? false
+            
+            setEnableFcmPushNotification(withValue: value)
+            break
+        case "registerDeviceToken":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let token: String = arguments["value"] as? String ?? ""
+            
+            registerDeviceToken(withToken: token)
+            break
+        case "removeDeviceToken":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let token: String = arguments["value"] as? String ?? ""
+            
+            removeDeviceToken(withToken: token)
+            break
+        case "clearUser":
+            clearUser()
+            break
+        case "login":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            
+            let userId: String = arguments["userId"] as? String ?? ""
+            let userKey: String = arguments["userKey"] as? String ?? ""
+            let username: String = arguments["username"] as? String ?? ""
+            
+            let avatar: String = arguments["avatarUrl"] as? String ?? ""
+            let avatarUrl: URL? = avatar != "" ? URL(string: avatar) : nil
+            
+            let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
+            
+            login(withUserId: userId, withUserKey: userKey, withUsername: username, withAvatarUrl: avatarUrl, withExtras: extras)
+            break
+        case "getNonce":
+            getNonce()
+            break
+        case "setUserWithIdentityToken":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let token: String = arguments["token"] as? String ?? ""
+            
+            setUserWithIdentityToken(withToken: token)
+            break
+        case "updateUser":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let username: String = arguments["username"] as? String ?? ""
+            
+            let avatar: String = arguments["avatarUrl"] as? String ?? ""
+            let avatarUrl: URL? = avatar != "" ? URL(string: avatar) : nil
+            
+            let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
+            updateUser(withUsername: username, withAvatarUrl: avatarUrl, withExtras: extras)
+            break
+        case "hasLogin":
+            hasLogin()
+            break
+        case "getAllUsers":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let searchUsername: String = arguments["searchUsername"] as? String ?? ""
+            let page: Int = arguments["page"] as? Int ?? 0
+            let limit: Int = arguments["limit"] as? Int ?? 0
+            
+            getAllUsers(withSearchUsername: searchUsername, withPage: page, withLimit: limit)
+            break
+        case "chatUser":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let userId: String = arguments["userId"] as? String ?? ""
+            let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
+            
+            chatUser(withUserId: userId, withExtras: extras)
+            break
+        case "updateChatRoom":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? ""
+            let name: String? = arguments["name"] as? String ?? ""
+            let avatar: String = arguments["avatarUrl"] as? String ?? ""
+            let avatarUrl: URL? = avatar != "" ? URL(string: avatar) : nil
+            let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
+            
+            updateChatRoom(withRoomId: roomId, withName: name, withAvatarUrl: avatarUrl, withExtras: extras)
+            break
+        case "addOrUpdateLocalChatRoom":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let room: [RoomModel]? = arguments["chatRoom"] as? [RoomModel] ?? nil
+            
+            addOrUpdateLocalChatRoom(withChatRoom: room)
+            break
+        case "getChatRoomWithMessages":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? ""
+            
+            getChatRoomWithMessages(withRoomId: roomId)
+            break
+        case "getLocalChatRoom":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? ""
+            
+            getLocalChatRoom(withRoomId: roomId)
+            break
+        case "getChatRoomByRoomIds":
+            // todo
+            break
+        case "getLocalChatRoomByRoomIds":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomIds: [String]? = arguments["roomIds"] as? [String] ?? nil
+            
+            getLocalChatRoomByRoomIds(withRoomIds: roomIds)
+            break
+        case "getAllChatRooms":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let showParticipant: Bool = arguments["showParticipant"] as? Bool ?? Bool()
+            let showEmpty: Bool = arguments["showEmpty"] as? Bool ?? Bool()
+            let showRemoved: Bool = arguments["showRemoved"] as? Bool ?? Bool()
+            let page: Int = arguments["page"] as? Int ?? Int()
+            let limit: Int = arguments["limit"] as? Int ?? Int()
+            
+            getAllChatRooms(
+                withShowParticipant: showParticipant,
+                withShowRemoved: showRemoved,
+                withShowEmpty: showEmpty,
+                withPage: page,
+                withLimit: limit
+            )
+            break
+        case "getLocalChatRooms":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let limit: Int = arguments["limit"] as? Int ?? Int()
+            let offset = arguments["offset"] as? Int ?? nil
+            
+            getLocalChatRooms(withLimit: limit, withOffset: offset);
+            break
+        case "getTotalUnreadCount":
+            getTotalUnreadCount()
+            break
+        case "sendMessage":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            let message: String = arguments["message"] as? String ?? String()
+            let payload: [String: Any]? = arguments["payload"] as? [String: Any] ?? nil
+            
+            sendMessage(withRoomId: roomId, withMessage: message, withPayload: payload)
+            break
+        case "sendFileMessage":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            let caption: String = arguments["caption"] as? String ?? String()
+            let filePath: String = arguments["filePath"] as? String ?? String()
+            let extras: [String: Any]? = arguments["extras"] as? [String: Any] ?? nil
+            
+            sendFileMessage(withRoomId: roomId, withCaption: caption, withFilePath: filePath, withExtras: extras)
+            break
+        case "getQiscusAccount":
+            getQiscusAccount()
+            break
+        case "getLocalComments":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            let limit: Int? = arguments["limit"] as? Int ?? Int()
+            
+            getLocalComments(withRoomId: roomId, withLimit: limit)
+            break
+        case "registerEventHandler":
+            registerEventHandler()
+            break
+        case "unregisterEventHandler":
+            unregisterEventHandler()
+            break
+        case "markCommentAsRead":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            let commentId: String = arguments["commentId"] as? String ?? String()
+            
+            markCommentAsRead(withRoomId: roomId, withCommentId: commentId)
+            break
+        case "addOrUpdateLocalComment":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let comment: [String: Any] = arguments["comment"] as? [String: Any] ?? [:]
+            
+            addOrUpdateLocalComment(withComment: comment)
+            break
+        case "subscribeToChatRoom":
+            //        subscribeToChatRoom(withChatRoom: <#T##RoomModel#>)
+            break
+        case "unsubscribeToChatRoom":
+            //        unsubscribeToChatRoom(withChatRoom: <#T##RoomModel#>)
+            break
+        case "deleteLocalCommentsByRoomId":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            
+            deleteLocalCommentsByRoomId(withRoomId: roomId)
+            break
+        case "getPrevMessages":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            let limit: Int = arguments["limit"] as? Int ?? Int()
+            let messageId: String? = arguments["messageId"] as? String ?? nil
+            
+            getPrevMessages(withRoomId: roomId, withLimit: limit, withMessageId: messageId)
+            break
+        case "getLocalPrevMessages":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            let limit: Int = arguments["limit"] as? Int ?? Int()
+            let uniqueId: String = arguments["uniqueId"] as? String ?? String()
+            
+            getLocalPrevMessages(withRoomId: roomId, withLimit: limit, withUniqueId: uniqueId)
+            break
+        case "getNextMessages":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            let limit: Int = arguments["limit"] as? Int ?? Int()
+            let messageId: String = arguments["messageId"] as? String ?? String()
+            
+            getNextMessages(withRoomId: roomId, withLimit: limit, withMessageId: messageId)
+            break
+        case "getLocalNextMessages":
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let roomId: String = arguments["roomId"] as? String ?? String()
+            let limit: Int = arguments["limit"] as? Int ?? Int()
+            let uniqueId: String = arguments["uniqueId"] as? String ?? String()
+            
+            getLocalNextMessages(withRoomId: roomId, withLimit: limit, withUniqueId: uniqueId)
+            break
+        default:
+            return
+        }
     }
-  }
     
     private func setup(withAppId appId: String) {
         QiscusCore.setup(AppID: appId)
@@ -299,7 +299,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     private func removeDeviceToken(withToken token: String) {
         QiscusCore.shared.removeDeviceToken(token: token, onSuccess: {
             (isSuccess: Bool) in
-
+            
             self.flutterResult(isSuccess)
         }, onError: {
             (error: QError) in
@@ -316,7 +316,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 self.flutterResult(FlutterMethodNotImplemented)
                 return
             }
-
+            
             let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: qiscusError)
             self.flutterResult(errorDictionary)
         })
@@ -338,15 +338,15 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             onSuccess: {
                 (user: UserModel) in
                 let userDictionary = self.qiscusSdkHelper.userModelToDic(withUser: user)
-
+                
                 self.flutterResult(userDictionary)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
-
+                
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -355,15 +355,15 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             onSuccess: {
                 (nonce: QNonce) in
                 let nonceDictionary = self.qiscusSdkHelper.qNonceToDic(withNonce: nonce)
-
+                print("nonce data \(nonceDictionary)")
                 self.flutterResult(nonceDictionary)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -375,13 +375,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let userDictionary = self.qiscusSdkHelper.userModelToDic(withUser: user)
                 
                 self.flutterResult(userDictionary)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -399,13 +399,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let userDictionary = self.qiscusSdkHelper.userModelToDic(withUser: user)
                 
                 self.flutterResult(userDictionary)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -427,13 +427,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let memberDictionary = self.qiscusSdkHelper.memberModelToDic(withMemberModel: memberModel)
                 
                 self.flutterResult(memberDictionary)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -442,11 +442,11 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withExtras extras: [String: Any]?
     ) {
         var extrasString: String?
-
+        
         if let _extras = extras {
             extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
         }
-
+        
         QiscusCore.shared.chatUser(
             userId: userId,
             extras: extrasString,
@@ -455,13 +455,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let roomModelDictionary = self.qiscusSdkHelper.roomModelToDic(withRoomModel: room)
                 
                 self.flutterResult(roomModelDictionary)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -472,11 +472,11 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withExtras extras: [String: Any]?
     ) {
         var extrasString: String?
-
+        
         if let _extras = extras {
             extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
         }
-
+        
         QiscusCore.shared.updateChatRoom(
             roomId: roomId,
             name: name,
@@ -487,13 +487,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let roomModelDictionary = self.qiscusSdkHelper.roomModelToDic(withRoomModel: room)
                 
                 self.flutterResult(roomModelDictionary)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -511,13 +511,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             onSuccess: {
                 (room: RoomModel, comments: [CommentModel]) in
                 // todo
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -541,18 +541,18 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 (rooms: [RoomModel]) in
                 let roomsJson: String = self.qiscusSdkHelper.toJson(withData: rooms)
                 self.flutterResult(roomsJson)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
     private func getLocalChatRoomByRoomIds(withRoomIds roomIds: [String]?) {
-       // todo
+        // todo
     }
     
     private func getAllChatRooms(
@@ -572,13 +572,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 (rooms: [RoomModel], meta: Meta?) -> () in
                 let roomsJson: String = self.qiscusSdkHelper.toJson(withData: rooms)
                 self.flutterResult(roomsJson)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -622,7 +622,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         messageModel.message = message
         messageModel.type = "text"
         messageModel.roomId = roomId
-    
+        
         if let _extras = extras {
             messageModel.extras = _extras
         }
@@ -632,13 +632,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             onSuccess: {
                 (commentModel: CommentModel) in
                 self.flutterResult(commentModel)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -655,17 +655,17 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                     onSuccess: {
                         (file: FileModel) in
                         self.flutterResult(file)
-                    },
+                },
                     onError: {
                         (error: QError) in
                         let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
-
+                        
                         self.flutterResult(errorDictionary)
-                    },
+                },
                     progressListener: {
                         (progress: Double) in
                         print(progress)
-                    }
+                }
                 )
             }catch let error {
                 print(error)
@@ -685,7 +685,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     private func getQiscusAccount() {
         // todo
     }
-
+    
     private func getLocalComments(withRoomId roomId: String, withLimit limit: Int?) {
         var room: [CommentModel]?
         if let _limit = limit {
@@ -721,7 +721,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     private func addOrUpdateLocalComment(withComment comment: [String: Any]) {
         // todo
         var commentModel: CommentModel = CommentModel()
-//        commentModel.id = comment["id"] as? String ?? ""
+        //        commentModel.id = comment["id"] as? String ?? ""
         commentModel.message = comment["message"] as? String ?? ""
     }
     
@@ -779,13 +779,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             onSuccess: {
                 (comments: [CommentModel]) in
                 self.flutterResult(comments)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
     
@@ -817,13 +817,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             onSuccess: {
                 (comments: [CommentModel]) in
                 self.flutterResult(comments)
-            },
+        },
             onError: {
                 (error: QError) in
                 let errorDictionary = self.qiscusSdkHelper.qErrorToDic(withError: error)
                 
                 self.flutterResult(errorDictionary)
-            }
+        }
         )
     }
 }
