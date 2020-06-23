@@ -7,7 +7,7 @@ import 'package:qiscus_sdk/qiscus_sdk.dart';
 GetIt locator = GetIt.instance;
 
 Future<bool> setupLocator() async {
-  await ChatSdk.setup(appId: "testappdu-dktm3ffo7mg");
+  await ChatSdk.setup(appId: "aminin-5nxnotkgv9fvrk");
   await ChatSdk.enableDebugMode(true);
   await ChatSdk.enableFcmPushNotification(true);
 
