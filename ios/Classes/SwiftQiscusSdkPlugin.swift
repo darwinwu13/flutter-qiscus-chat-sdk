@@ -213,11 +213,30 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         
         addOrUpdateLocalComment(withComment: comment)
         break
+    case "deleteLocalComment":
+        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+        let comment: [String: Any] = arguments["comment"] as? [String: Any] ?? [:]
+        
+        deleteLocalComment(withComment: comment)
+        break
+    case "deleteLocalCommentByUniqueId":
+        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+        let uniqueId: String = arguments["uniqueId"] as? String ?? String()
+        let commentId: Int = arguments["commentId"] as? Int ?? Int()
+        
+        deleteLocalCommentByUniqueId(withUniqueId: uniqueId, withCommentId: commentId)
+        break
     case "subscribeToChatRoom":
-//        subscribeToChatRoom(withChatRoom: <#T##RoomModel#>)
+        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+        let room: [String: Any] = arguments["room"] as? [String: Any] ?? [:]
+        
+        subscribeToChatRoom(withChatRoom: room)
         break
     case "unsubscribeToChatRoom":
-//        unsubscribeToChatRoom(withChatRoom: <#T##RoomModel#>)
+        let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+        let room: [String: Any] = arguments["room"] as? [String: Any] ?? [:]
+        
+        unsubscribeToChatRoom(withChatRoom: room)
         break
     case "deleteLocalCommentsByRoomId":
         let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
@@ -706,18 +725,15 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func addOrUpdateLocalComment(withComment comment: [String: Any]) {
-        // todo
-        var commentModel: CommentModel
-//        commentModel.id = comment["id"] as? String ?? ""
-        commentModel.message = comment["message"] as? String ?? ""
+        self.flutterResult(QiscusCore.database.comment.save([qiscusSdkHelper.dicToCommentModel(withDic: comment)]))
     }
     
-    private func subscribeToChatRoom(withChatRoom chatRoom: RoomModel) {
-        self.flutterResult(QiscusCore.shared.subscribeChatRoom(chatRoom))
+    private func subscribeToChatRoom(withChatRoom chatRoom: [String: Any]) {
+        self.flutterResult(QiscusCore.shared.subscribeChatRoom(qiscusSdkHelper.dicToRoomModel(withDic: chatRoom)))
     }
     
-    private func unsubscribeToChatRoom(withChatRoom chatRoom: RoomModel) {
-        self.flutterResult(QiscusCore.shared.unSubcribeChatRoom(chatRoom))
+    private func unsubscribeToChatRoom(withChatRoom chatRoom: [String: Any]) {
+        self.flutterResult(QiscusCore.shared.unSubcribeChatRoom(self.qiscusSdkHelper.dicToRoomModel(withDic: chatRoom)))
     }
     
     private func deleteLocalCommentsByRoomId(withRoomId roomId: String) {
@@ -741,8 +757,8 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    private func deleteLocalComment(withComments comments: [String: Any]) {
-        
+    private func deleteLocalComment(withComment comment: [String: Any]) {
+        self.flutterResult(QiscusCore.database.comment.delete(qiscusSdkHelper.dicToCommentModel(withDic: comment)))
     }
     
     private func deleteLocalChatRoom(withRoomId roomId: String) {

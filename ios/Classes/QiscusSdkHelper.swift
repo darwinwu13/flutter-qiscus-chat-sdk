@@ -73,8 +73,19 @@ class QiscusSdkHelper {
         return String(data: theJSONData, encoding: String.Encoding.utf8)!
     }
     
-    
     public func encodeQiscusChatRoom(withChatRoom chatRoom: RoomModel) {
         
+    }
+    
+    public func dicToCommentModel(withDic dic: [String: Any]) -> CommentModel {
+        let comment: CommentModel
+        
+        return comment
+    }
+    
+    public func dicToRoomModel(withDic dic: [String: Any]) -> RoomModel {
+        let room: RoomModel
+        
+        return room
     }
 }
