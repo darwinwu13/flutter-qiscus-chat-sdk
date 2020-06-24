@@ -244,7 +244,7 @@ class ChatSdk {
 
   static Future<void> registerDeviceToken(String token) {
     checkSetup();
-
+    print("registerDeviceToken $token");
     dev.log("chat sdk register device token", name: "Qiscus Chat SDK");
     return _channel.invokeMethod("registerDeviceToken", {"token": token});
   }
@@ -345,9 +345,10 @@ class ChatSdk {
     return QiscusAccount.fromJson(jsonDecode(jsonStr));
   }
 
-  static Future<bool> hasLogin() {
+  static Future<bool> hasLogin() async {
     checkSetup();
-
+    bool hasLogin = await _channel.invokeMethod('hasLogin');
+    print("Flutter : has login $hasLogin");
     return _channel.invokeMethod('hasLogin');
   }
 
@@ -590,6 +591,7 @@ class ChatSdk {
   /// get Qiscus account that has been log in
   static Future<QiscusAccount> getQiscusAccount() async {
     checkSetup();
+    print("check user has login ${await hasLogin()}");
     if (await hasLogin()) {
       String json = await _channel.invokeMethod('getQiscusAccount');
 
