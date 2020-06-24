@@ -65,6 +65,77 @@ class QiscusSdkHelper {
         return [:]
     }
     
+    public func commentModelToDic(withComment commentModel: CommentModel) -> [String: Any]{
+        var comment: [String: Any] = [String: Any]()
+        comment["id"] = commentModel.id
+        comment["roomId"] = commentModel.roomId
+        comment["uniqueId"] = commentModel.uniqId
+        comment["commentBeforeId"] = commentModel.commentBeforeId
+        comment["message"] = commentModel.message
+        comment["sender"] =  commentModel.username
+        comment["senderEmail"] = commentModel.userEmail // sender email
+        comment["senderAvatar"] = commentModel.userAvatarUrl?.absoluteString
+        comment["time"] = commentModel.date
+        comment["state"] = mappingCommentState(commentStatus: commentModel.status)
+        comment["deleted"] = commentModel.isDeleted
+        comment["hardDeleted"] = commentModel.isDeleted // TODO is hard deleted
+//        comment["roomName"] = roomModel.name
+//        comment["roomAvatar"] = roomModel.avatarUrl?.absoluteString
+//        comment["groupMessage"] = roomModel.type.rawValue // TODO group type check return boolean
+        comment["selected"] = commentModel.payload?["selected"] as? Bool ?? false // TODO selected return boolean
+        comment["highlighted"] = commentModel.payload?["highligted"] as? Bool ?? false // TODO Raw type return string
+        comment["extras"] = commentModel.extras // TODO dictionary type
+        comment["replyTo"] = commentModel.payload?["replyTo"] as? [String: Any] ?? [:]// TODO return QiscusComment
+        comment["attachmentName"] = commentModel.payload?["attachmentName"] as? String ?? "" // TODO return String
+        
+        return comment
+    }
+    
+    public func commentModelToDic(withComment commentModel: CommentModel, _ roomModel: RoomModel) -> [String: Any]{
+        var comment: [String: Any] = [String: Any]()
+        comment["id"] = commentModel.id
+        comment["roomId"] = commentModel.roomId
+        comment["uniqueId"] = commentModel.uniqId
+        comment["commentBeforeId"] = commentModel.commentBeforeId
+        comment["message"] = commentModel.message
+        comment["sender"] =  commentModel.payload?["sender"] as? String ?? "" // sender
+        comment["senderEmail"] = commentModel.userEmail // sender email
+        comment["senderAvatar"] = commentModel.userAvatarUrl?.absoluteString
+        comment["time"] = commentModel.date
+        comment["state"] = mappingCommentState(commentStatus: commentModel.status)
+        comment["deleted"] = commentModel.isDeleted
+        comment["hardDeleted"] = commentModel.isDeleted // TODO is hard deleted
+        comment["roomName"] = roomModel.name
+        comment["roomAvatar"] = roomModel.avatarUrl?.absoluteString
+        comment["groupMessage"] = roomModel.type.rawValue // TODO group type check return boolean
+        comment["selected"] = commentModel.payload?["selected"] as? Bool ?? false // TODO selected return boolean
+        comment["highlighted"] = commentModel.payload?["highligted"] as? Bool ?? false // TODO Raw type return string
+        comment["extras"] = commentModel.extras // TODO dictionary type
+        comment["replyTo"] = commentModel.payload?["replyTo"] as? [String: Any] ?? [:]// TODO return QiscusComment
+        comment["attachmentName"] = commentModel.payload?["attachmentName"] as? String ?? "" // TODO return String
+        
+        return comment
+    }
+    
+    private func mappingCommentState(commentStatus status: CommentStatus) -> Int {
+        switch status {
+        case .failed:
+            return -1
+        case .pending:
+            return 0
+        case .sending:
+            return 1
+        case .sent:
+            return 2
+        case .delivered:
+            return 3
+        case .read:
+            return 4
+        default:
+            return -2 // TODO i don't know what deleted and deleting
+        }
+    }
+    
     public func toJson(withData data: Any) -> String {
         guard let theJSONData = try? JSONSerialization.data(withJSONObject: data, options: [.prettyPrinted]) else {
             return ""
@@ -78,13 +149,13 @@ class QiscusSdkHelper {
     }
     
     public func dicToCommentModel(withDic dic: [String: Any]) -> CommentModel {
-        let comment: CommentModel
+        let comment: CommentModel = CommentModel()
         
         return comment
     }
     
     public func dicToRoomModel(withDic dic: [String: Any]) -> RoomModel {
-        let room: RoomModel
+        let room: RoomModel = RoomModel()
         
         return room
     }
