@@ -9,12 +9,13 @@ import Foundation
 import QiscusCore
 
 class QiscusSdkHelper {
+
     public func userModelToDic(withUser user: UserModel) -> [String: Any] {
         var userDictionary: [String: Any] = [:]
         userDictionary["id"] = user.id
         userDictionary["username"] = user.username
         userDictionary["email"] = user.email
-        userDictionary["avatar_url"] = user.avatarUrl
+        userDictionary["avatar_url"] = user.avatarUrl.absoluteString
         userDictionary["token"] = user.token
         userDictionary["extras"] = user.extras
         
@@ -44,7 +45,7 @@ class QiscusSdkHelper {
             tmpRoomModel["id"] = roomModel.id
             tmpRoomModel["name"] = roomModel.name
             tmpRoomModel["uniqueId"] = roomModel.uniqueId
-            tmpRoomModel["avatarUrl"] = roomModel.avatarUrl
+            tmpRoomModel["avatarUrl"] = roomModel.avatarUrl?.absoluteString
             tmpRoomModel["type"] = roomModel.type
             tmpRoomModel["options"] = roomModel.options
             tmpRoomModel["lastComment"] = roomModel.lastComment?.extras
@@ -158,5 +159,17 @@ class QiscusSdkHelper {
         let room: RoomModel = RoomModel()
         
         return room
+    }
+    
+    public func convertToDictionary(string: String) -> [String: Any]? {
+        if let data = string.data(using: .utf8) {
+            do {
+                return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        
+        return nil
     }
 }
