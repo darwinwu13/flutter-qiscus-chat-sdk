@@ -12,21 +12,14 @@ class QiscusSdkHelper {
 
     public func userModelToDic(withUser user: UserModel) -> [String: Any] {
         var userDictionary: [String: Any] = [:]
-        userDictionary["id"] = user.id
+        userDictionary["id"] = Int(user.id)
         userDictionary["username"] = user.username
         userDictionary["email"] = user.email
         userDictionary["avatar_url"] = user.avatarUrl.absoluteString
         userDictionary["token"] = user.token
-        userDictionary["extras"] = user.extras
+        userDictionary["extras"] = convertToDictionary(string: self.removeNewLineAndWhiteSpace(string: user.extras))
         
         return userDictionary
-    }
-    
-    public func qErrorToDic(withError qError: QError) -> [String: Any] {
-        var qErrorDictionary: [String: Any] = [:]
-        qErrorDictionary["message"] = qError.message
-        
-        return qErrorDictionary
     }
     
     public func qNonceToDic(withNonce qNonce: QNonce) -> [String: Any] {
@@ -37,46 +30,101 @@ class QiscusSdkHelper {
         return qNonceDictionary
     }
     
-    public func roomModelsToDic(withRoomModels roomModels: [RoomModel]) -> [[String: Any]] {
-        var chatRooms: [[String: Any]] = [[:]]
+    public func roomModelsToDic(withRoomModels roomModels: [RoomModel]) -> [String] {
+        var chatRooms: [String] = [String]()
         
         for roomModel in roomModels {
-            var tmpRoomModel: [String: Any] = [:]
-            tmpRoomModel["id"] = roomModel.id
-            tmpRoomModel["name"] = roomModel.name
-            tmpRoomModel["uniqueId"] = roomModel.uniqueId
-            tmpRoomModel["avatarUrl"] = roomModel.avatarUrl?.absoluteString
-            tmpRoomModel["type"] = roomModel.type
-            tmpRoomModel["options"] = roomModel.options
-            tmpRoomModel["lastComment"] = roomModel.lastComment?.extras
-            tmpRoomModel["participants"] = roomModel.participants
-            tmpRoomModel["unreadCount"] = roomModel.unreadCount
+            let tmpRoomModel: [String: Any] = self.roomModelToDic(withRoomModel: roomModel)
+            let tmpRoomModelEncode = self.toJson(withData: tmpRoomModel)
             
-            chatRooms.append(tmpRoomModel)
+            chatRooms.append(tmpRoomModelEncode)
         }
         
         return chatRooms
     }
     
-    public func memberModelToDic(withMemberModel memberModel: [MemberModel]) -> [[String: Any]] {
-        return [[:]]
+    public func memberModelsToDic(withMemberModel memberModels: [MemberModel]) -> [String] {
+        var members: [String] = [String]()
+        
+        for memberModel in memberModels {
+            let tmpMemberModel: [String: Any] = self.memberModelToDic(withMemberModel: memberModel)
+            let tmpMemberModelDecode = self.toJson(withData: tmpMemberModel)
+            
+            members.append(tmpMemberModelDecode)
+        }
+        
+        return members
+    }
+    
+    public func commentModelsToDic(withCommentModels commentModels: [CommentModel]) -> [String] {
+        var comments: [String] = [String]()
+        
+        for commentModel in commentModels {
+            let tmpCommentModel: [String: Any] = self.commentModelToDic(withComment: commentModel)
+            
+            let tmpCommentModelEncode = self.toJson(withData: tmpCommentModel)
+            comments.append(tmpCommentModelEncode)
+        }
+        
+        return comments
+    }
+    
+    public func memberModelToDic(withMemberModel memberModel: MemberModel) -> [String: Any] {
+        var tmpMemberModel: [String: Any] = [:]
+        tmpMemberModel["id"] = Int(memberModel.id)
+        tmpMemberModel["avatarUrl"] = memberModel.avatarUrl?.absoluteString
+        tmpMemberModel["email"] = memberModel.email
+        tmpMemberModel["lastCommentReadId"] = memberModel.lastCommentReadId
+        tmpMemberModel["lastCommentReceivedId"] = memberModel.lastCommentReceivedId
+        tmpMemberModel["username"] = memberModel.username
+        
+        return tmpMemberModel
     }
     
     public func roomModelToDic(withRoomModel roomModel: RoomModel) -> [String: Any] {
-        return [:]
+        var tmpRoomModel: [String: Any] = [:]
+        tmpRoomModel["id"] = Int(roomModel.id)
+        tmpRoomModel["name"] = roomModel.name
+        tmpRoomModel["uniqueId"] = roomModel.uniqueId
+        tmpRoomModel["avatarUrl"] = roomModel.avatarUrl?.absoluteString
+        tmpRoomModel["type"] = roomModel.type.rawValue
+        tmpRoomModel["unreadCount"] = roomModel.unreadCount
+        
+        if let participants = roomModel.participants {
+            tmpRoomModel["participants"] = self.memberModelsToDic(withMemberModel: participants)
+        }else {
+            tmpRoomModel["participants"] = []
+        }
+        
+        if let lastComment = roomModel.lastComment {
+            tmpRoomModel["lastComment"] = self.commentModelToDic(withComment: lastComment)
+        }else {
+            tmpRoomModel["lastComment"] = [:]
+        }
+        
+        if let options = roomModel.options {
+            tmpRoomModel["options"] = convertToDictionary(string: self.removeNewLineAndWhiteSpace(string: options))
+        }else {
+            tmpRoomModel["options"] = [:]
+        }
+        
+        return tmpRoomModel
     }
     
-    public func commentModelToDic(withComment commentModel: CommentModel) -> [String: Any]{
+    public func commentModelToDic(withComment commentModel: CommentModel) -> [String: Any] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        
         var comment: [String: Any] = [String: Any]()
-        comment["id"] = commentModel.id
-        comment["roomId"] = commentModel.roomId
+        comment["id"] = Int(commentModel.id)
+        comment["roomId"] = Int(commentModel.roomId)
         comment["uniqueId"] = commentModel.uniqId
-        comment["commentBeforeId"] = commentModel.commentBeforeId
+        comment["commentBeforeId"] = Int(commentModel.commentBeforeId)
         comment["message"] = commentModel.message
         comment["sender"] =  commentModel.username
         comment["senderEmail"] = commentModel.userEmail // sender email
         comment["senderAvatar"] = commentModel.userAvatarUrl?.absoluteString
-        comment["time"] = commentModel.date
+        comment["time"] = formatter.string(from: commentModel.date)
         comment["state"] = mappingCommentState(commentStatus: commentModel.status)
         comment["deleted"] = commentModel.isDeleted
         comment["hardDeleted"] = commentModel.isDeleted // TODO is hard deleted
@@ -93,16 +141,19 @@ class QiscusSdkHelper {
     }
     
     public func commentModelToDic(withComment commentModel: CommentModel, _ roomModel: RoomModel) -> [String: Any]{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        
         var comment: [String: Any] = [String: Any]()
-        comment["id"] = commentModel.id
-        comment["roomId"] = commentModel.roomId
+        comment["id"] = Int(commentModel.id)
+        comment["roomId"] = Int(commentModel.roomId)
         comment["uniqueId"] = commentModel.uniqId
-        comment["commentBeforeId"] = commentModel.commentBeforeId
+        comment["commentBeforeId"] = Int(commentModel.commentBeforeId)
         comment["message"] = commentModel.message
         comment["sender"] =  commentModel.payload?["sender"] as? String ?? "" // sender
         comment["senderEmail"] = commentModel.userEmail // sender email
         comment["senderAvatar"] = commentModel.userAvatarUrl?.absoluteString
-        comment["time"] = commentModel.date
+        comment["time"] = formatter.string(from: commentModel.date)
         comment["state"] = mappingCommentState(commentStatus: commentModel.status)
         comment["deleted"] = commentModel.isDeleted
         comment["hardDeleted"] = commentModel.isDeleted // TODO is hard deleted
@@ -116,6 +167,17 @@ class QiscusSdkHelper {
         comment["attachmentName"] = commentModel.payload?["attachmentName"] as? String ?? "" // TODO return String
         
         return comment
+    }
+    
+    public func mergeRoomModelAndCommentModelDic(withRoomModel roomModel: RoomModel, withCommentModel commentModel: [CommentModel]) -> [String: String] {
+        let roomModelDic = self.roomModelToDic(withRoomModel: roomModel)
+        let commentModelDic = self.commentModelsToDic(withCommentModels: commentModel)
+        
+        var roomAndComment: [String: String] = [String: String]()
+        roomAndComment["chatRoom"] = self.toJson(withData: roomModelDic)
+        roomAndComment["messages"] = self.toJson(withData: commentModelDic)
+        
+        return roomAndComment
     }
     
     private func mappingCommentState(commentStatus status: CommentStatus) -> Int {
@@ -141,24 +203,8 @@ class QiscusSdkHelper {
         guard let theJSONData = try? JSONSerialization.data(withJSONObject: data, options: [.prettyPrinted]) else {
             return ""
         }
-            
+        
         return String(data: theJSONData, encoding: String.Encoding.utf8)!
-    }
-    
-    public func encodeQiscusChatRoom(withChatRoom chatRoom: RoomModel) {
-        
-    }
-    
-    public func dicToCommentModel(withDic dic: [String: Any]) -> CommentModel {
-        let comment: CommentModel = CommentModel()
-        
-        return comment
-    }
-    
-    public func dicToRoomModel(withDic dic: [String: Any]) -> RoomModel {
-        let room: RoomModel = RoomModel()
-        
-        return room
     }
     
     public func convertToDictionary(string: String) -> [String: Any]? {
@@ -171,5 +217,9 @@ class QiscusSdkHelper {
         }
         
         return nil
+    }
+    
+    public func removeNewLineAndWhiteSpace(string: String) -> String {
+        return String(string.filter { !" \n\t\r".contains($0) })
     }
 }

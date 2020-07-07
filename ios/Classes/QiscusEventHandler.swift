@@ -34,6 +34,15 @@ class QiscusEventHandler {
         QiscusCore.delegate = nil
     }
     
+    public func onFileUploadProgress(withProgress progress: Double) {
+        if eventSink != nil {
+            var result: [String: Any] = [:]
+            result["type"] = "file_upload_progress"
+            result["progress"] = progress
+            
+            eventSink(qiscusSdkHelper.toJson(withData: result))
+        }
+    }
 }
 
 // MARK: Core Delegate List of Chat Rooms

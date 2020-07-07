@@ -290,6 +290,7 @@ class ChatSdk {
       extras: extras,
     );
     String jsonStr = await _channel.invokeMethod("login", arguments);
+    dev.log(jsonStr, name: "HANSEN");
     return QiscusAccount.fromJson(jsonDecode(jsonStr));
   }
 
@@ -358,10 +359,13 @@ class ChatSdk {
     List<String> list = await _channel.invokeMethod(
         'getAllUsers', {'searchUsername': searchUsername, 'page': page, 'limit': limit});
 
+    print("value list get all users $list");
+
     return list.map((jsonStr) {
       return QiscusAccount.fromJson(jsonDecode(jsonStr));
     });
   }
+
 
   static Future<QiscusChatRoom> chatUser({
     @required String userId,
@@ -423,6 +427,7 @@ class ChatSdk {
     }).toList();
 
     _lastSentComment = qiscusChatRoom.lastComment;
+
 
     return Tuple2(qiscusChatRoom, messages);
   }
