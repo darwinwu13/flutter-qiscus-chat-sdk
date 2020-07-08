@@ -157,12 +157,13 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             break
         case "getChatRoomByRoomIds":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomIds: [String] = arguments["roomIds"] as? [String] ?? [String]()
+            let roomIds: [Int] = arguments["roomIds"] as? [Int] ?? [Int]()
+            let stringRoomIds: [String] = self.qiscusSdkHelper.covertToListOfString(data: roomIds)
             let showRemoved: Bool = arguments["showRemoved"] as? Bool ?? Bool()
             let showParticipant: Bool = arguments["showParticipant"] as? Bool ?? Bool()
             
             getChatRoomByRoomIds(
-                withRoomIds: roomIds,
+                withRoomIds: stringRoomIds,
                 withShowRemoved: showRemoved,
                 withShowParticipant: showParticipant,
                 withResult: result
@@ -170,9 +171,10 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             break
         case "getLocalChatRoomByRoomIds":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomIds: [String]? = arguments["roomIds"] as? [String] ?? nil
+            let roomIds: [Int] = arguments["roomIds"] as? [Int] ?? [Int]()
+            let stringRoomIds: [String] = self.qiscusSdkHelper.covertToListOfString(data: roomIds)
             
-            getLocalChatRoomByRoomIds(withRoomIds: roomIds)
+            getLocalChatRoomByRoomIds(withRoomIds: stringRoomIds, withResult: result)
             break
         case "getAllChatRooms":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
@@ -569,10 +571,16 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func getLocalChatRoom(withRoomId roomId: String, withResult result: @escaping FlutterResult) {
-        let localChatRooms: [RoomModel] = QiscusCore.database.room.all()
-        let localChatRoomsEncode: String = self.qiscusSdkHelper.toJson(withData: localChatRooms)
+        let localChatRoom: RoomModel? = QiscusCore.database.room.find(id: roomId)
         
-        result(localChatRoomsEncode)
+        if let _localChatRoom = localChatRoom {
+            let localChatRoomDic = self.qiscusSdkHelper.roomModelToDic(withRoomModel: _localChatRoom)
+            let localChatRoomDicEncode: String = self.qiscusSdkHelper.toJson(withData: localChatRoomDic)
+            
+            result(localChatRoomDicEncode)
+        }else {
+            result(FlutterError(code: "ERR_GET_LOCAL_CHAT_ROOM", message: "Local chat room not found", details: ""))
+        }
     }
     
     private func getChatRoomByRoomIds(
@@ -598,8 +606,20 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         )
     }
     
-    private func getLocalChatRoomByRoomIds(withRoomIds roomIds: [String]?) {
-        // todo
+    private func getLocalChatRoomByRoomIds(withRoomIds roomIds: [String], withResult result: @escaping FlutterResult) {
+        QiscusCore.shared.getChatRooms(
+            roomIds: roomIds,
+            onSuccess: {
+                (rooms: [RoomModel]) in
+                let roomModelsDic: [[String: Any]] = self.qiscusSdkHelper.roomModelsToDic(withRoomModels: rooms)
+                let roomModelsDicEncode: String = self.qiscusSdkHelper.toJson(withData: roomModelsDic)
+                result(roomModelsDicEncode)
+            },
+            onError: {
+                (error: QError) in
+                result(FlutterError(code: "ERR_GET_CHATROOM_BY_IDS", message: error.message, details: ""))
+            }
+        )
     }
     
     private func getAllChatRooms(
@@ -618,8 +638,10 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             limit: limit,
             onSuccess: {
                 (rooms: [RoomModel], meta: Meta?) -> () in
-                let roomsEncode: String = self.qiscusSdkHelper.toJson(withData: rooms)
-                result(roomsEncode)
+                let roomModelsDic: [[String: Any]] = self.qiscusSdkHelper.roomModelsToDic(withRoomModels: rooms)
+                let roomModelsDicEncode: String = self.qiscusSdkHelper.toJson(withData: roomModelsDic)
+                
+                result(roomModelsDicEncode)
             },
             onError: {
                 (error: QError) in

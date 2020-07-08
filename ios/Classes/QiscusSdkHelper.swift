@@ -11,7 +11,7 @@ import QiscusCore
 class QiscusSdkHelper {
 
     public func userModelToDic(withUser user: UserModel) -> [String: Any] {
-        var userDictionary: [String: Any] = [:]
+        var userDictionary: [String: Any] = [String: Any]()
         userDictionary["id"] = Int(user.id)
         userDictionary["username"] = user.username
         userDictionary["email"] = user.email
@@ -23,7 +23,7 @@ class QiscusSdkHelper {
     }
     
     public func qNonceToDic(withNonce qNonce: QNonce) -> [String: Any] {
-        var qNonceDictionary: [String: Any] = [:]
+        var qNonceDictionary: [String: Any] = [String: Any]()
         qNonceDictionary["expired_at"] = qNonce.expiredAt
         qNonceDictionary["nonce"] = qNonce.nonce
         
@@ -38,6 +38,18 @@ class QiscusSdkHelper {
             let tmpRoomModelEncode = self.toJson(withData: tmpRoomModel)
             
             chatRooms.append(tmpRoomModelEncode)
+        }
+        
+        return chatRooms
+    }
+    
+    public func roomModelsToDic(withRoomModels roomModels: [RoomModel]) -> [[String: Any]] {
+        var chatRooms: [[String: Any]] = [[String: Any]]()
+        
+        for roomModel in roomModels {
+            let tmpRoomModel: [String: Any] = self.roomModelToDic(withRoomModel: roomModel)
+            
+            chatRooms.append(tmpRoomModel)
         }
         
         return chatRooms
@@ -70,8 +82,8 @@ class QiscusSdkHelper {
     }
     
     public func commentModelsToListDic(withCommentModels commentModels: [CommentModel]) -> [[String: Any]] {
-        var comments: [[String: Any]] = [[:]]
-        
+        var comments: [[String: Any]] = [[String: Any]]()
+    
         for commentModel in commentModels {
             let tmpCommentModel: [String: Any] = self.commentModelToDic(withComment: commentModel)
             
@@ -94,7 +106,7 @@ class QiscusSdkHelper {
     }
     
     public func roomModelToDic(withRoomModel roomModel: RoomModel) -> [String: Any] {
-        var tmpRoomModel: [String: Any] = [:]
+        var tmpRoomModel: [String: Any] = [String: Any]()
         tmpRoomModel["id"] = Int(roomModel.id)
         tmpRoomModel["name"] = roomModel.name
         tmpRoomModel["uniqueId"] = roomModel.uniqueId
@@ -233,5 +245,15 @@ class QiscusSdkHelper {
     
     public func removeNewLineAndWhiteSpace(string: String) -> String {
         return String(string.filter { !" \n\t\r".contains($0) })
+    }
+    
+    public func covertToListOfString(data: [Int]) -> [String] {
+        var listOfString: [String] = [String]()
+        
+        for datum in data {
+            listOfString.append(String(datum))
+        }
+        
+        return listOfString
     }
 }

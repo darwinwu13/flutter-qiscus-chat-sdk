@@ -192,14 +192,14 @@ class _MyAppState extends State<MyApp> {
                   RaisedButton(
                     child: Text('get local chat room'),
                     onPressed: () async {
-                      final chatRoom = await ChatSdk.getLocalChatRoom(11315282);
+                      final chatRoom = await ChatSdk.getLocalChatRoom(18853572);
                       print("local chat room : $chatRoom");
                     },
                   ),
                   RaisedButton(
                     child: Text('get local chat room by RoomIds'),
                     onPressed: () async {
-                      final chatRoom = await ChatSdk.getLocalChatRoomByIds([11315282]);
+                      final chatRoom = await ChatSdk.getLocalChatRoomByIds([18853572]);
                       print("local chat room ids : $chatRoom");
                     },
                   ),
