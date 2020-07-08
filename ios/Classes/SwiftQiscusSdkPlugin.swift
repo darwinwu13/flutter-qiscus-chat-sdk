@@ -151,9 +151,9 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             break
         case "getLocalChatRoom":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? ""
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             
-            getLocalChatRoom(withRoomId: roomId, withResult: result)
+            getLocalChatRoom(withRoomId: String(roomId), withResult: result)
             break
         case "getChatRoomByRoomIds":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
@@ -203,7 +203,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             break
         case "sendMessage":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             let message: String = arguments["message"] as? String ?? String()
             let stringPayload: String = arguments["payload"] as? String ?? String()
             var payload: [String: Any]? = [:]
@@ -212,7 +212,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             }
             
             sendMessage(
-                withRoomId: roomId,
+                withRoomId: String(roomId),
                 withMessage: message,
                 withPayload: payload,
                 withResult: result
@@ -220,7 +220,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             break
         case "sendFileMessage":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             let caption: String = arguments["caption"] as? String ?? String()
             let filePath: String = arguments["filePath"] as? String ?? String()
             let stringExtras: String = arguments["extras"] as? String ?? String()
@@ -230,7 +230,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             }
             
             sendFileMessage(
-                withRoomId: roomId,
+                withRoomId: String(roomId),
                 withCaption: caption,
                 withFilePath: filePath,
                 withExtras: extras,
@@ -242,10 +242,10 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             break
         case "getLocalComments":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             let limit: Int? = arguments["limit"] as? Int ?? Int()
             
-            getLocalComments(withRoomId: roomId, withLimit: limit, withResult: result)
+            getLocalComments(withRoomId: String(roomId), withLimit: limit, withResult: result)
             break
         case "registerEventHandler":
             registerEventHandler(withResult: result)
@@ -255,10 +255,10 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             break
         case "markCommentAsRead":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             let commentId: String = arguments["commentId"] as? String ?? String()
             
-            markCommentAsRead(withRoomId: roomId, withCommentId: commentId, withResult: result)
+            markCommentAsRead(withRoomId: String(roomId), withCommentId: commentId, withResult: result)
             break
         case "addOrUpdateLocalComment":
 //            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
@@ -269,53 +269,55 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             break
         case "subscribeToChatRoom":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let chatRoom: [String: Any] = arguments["chatRoom"] as? [String: Any] ?? [:]
+            let chatRoom: String = arguments["chatRoom"] as? String ?? String()
+            let chatRoomDic: [String: Any]! = self.qiscusSdkHelper.convertToDictionary(string: chatRoom)
             
-            subscribeToChatRoom(withChatRoom: chatRoom, withResult: result)
+            subscribeToChatRoom(withChatRoom: chatRoomDic, withResult: result)
             break
         case "unsubscribeToChatRoom":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let chatRoom: [String: Any] = arguments["chatRoom"] as? [String: Any] ?? [:]
+            let chatRoom: String = arguments["chatRoom"] as? String ?? String()
+            let chatRoomDic: [String: Any]! = self.qiscusSdkHelper.convertToDictionary(string: chatRoom)
             
-            unsubscribeToChatRoom(withChatRoom: chatRoom, withResult: result)
+            unsubscribeToChatRoom(withChatRoom: chatRoomDic, withResult: result)
             break
         case "deleteLocalCommentsByRoomId":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             
-            deleteLocalCommentsByRoomId(withRoomId: roomId, withResult: result)
+            deleteLocalCommentsByRoomId(withRoomId: String(roomId), withResult: result)
             break
         case "getPrevMessages":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             let limit: Int = arguments["limit"] as? Int ?? Int()
             let messageId: String? = arguments["messageId"] as? String ?? nil
             
-            getPrevMessages(withRoomId: roomId, withLimit: limit, withMessageId: messageId, withResult: result)
+            getPrevMessages(withRoomId: String(roomId), withLimit: limit, withMessageId: messageId, withResult: result)
             break
         case "getLocalPrevMessages":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             let limit: Int = arguments["limit"] as? Int ?? Int()
             let uniqueId: String = arguments["uniqueId"] as? String ?? String()
             
-            getLocalPrevMessages(withRoomId: roomId, withLimit: limit, withUniqueId: uniqueId, withResult: result)
+            getLocalPrevMessages(withRoomId: String(roomId), withLimit: limit, withUniqueId: uniqueId, withResult: result)
             break
         case "getNextMessages":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             let limit: Int = arguments["limit"] as? Int ?? Int()
             let messageId: String = arguments["messageId"] as? String ?? String()
             
-            getNextMessages(withRoomId: roomId, withLimit: limit, withMessageId: messageId, withResult: result)
+            getNextMessages(withRoomId: String(roomId), withLimit: limit, withMessageId: messageId, withResult: result)
             break
         case "getLocalNextMessages":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-            let roomId: String = arguments["roomId"] as? String ?? String()
+            let roomId: Int = arguments["roomId"] as? Int ?? Int()
             let limit: Int = arguments["limit"] as? Int ?? Int()
             let uniqueId: String = arguments["uniqueId"] as? String ?? String()
             
-            getLocalNextMessages(withRoomId: roomId, withLimit: limit, withUniqueId: uniqueId, withResult: result)
+            getLocalNextMessages(withRoomId: String(roomId), withLimit: limit, withUniqueId: uniqueId, withResult: result)
             break
         default:
             return
@@ -472,7 +474,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             limit: limit,
             onSuccess: {
                 (memberModel: [MemberModel], Meta) in
-                let memberDic: [String] = self.qiscusSdkHelper.memberModelsToDic(withMemberModel: memberModel)
+                let memberDic: [String] = self.qiscusSdkHelper.memberModelsToListJson(withMemberModel: memberModel)
                 
                 result(memberDic)
             },
@@ -585,7 +587,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             showParticipant: showParticipant,
             onSuccess: {
                 (rooms: [RoomModel]) in
-                let roomModelsDic: [String] = self.qiscusSdkHelper.roomModelsToDic(withRoomModels: rooms)
+                let roomModelsDic: [String] = self.qiscusSdkHelper.roomModelsToListJson(withRoomModels: rooms)
                 let roomModelsDicEncode: String = self.qiscusSdkHelper.toJson(withData: roomModelsDic)
                 result(roomModelsDicEncode)
             },
@@ -634,7 +636,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         
         let localChatRooms: [RoomModel]? = QiscusCore.database.room.find(predicate: predicate)
         if let _localChatRooms = localChatRooms {
-            let chatRoomsDic: [String] = self.qiscusSdkHelper.roomModelsToDic(withRoomModels: _localChatRooms)
+            let chatRoomsDic: [String] = self.qiscusSdkHelper.roomModelsToListJson(withRoomModels: _localChatRooms)
             let chatRoomsDicEncode: String = self.qiscusSdkHelper.toJson(withData: chatRoomsDic)
             
             result(chatRoomsDicEncode)
@@ -778,16 +780,19 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     ) {
         var comments: [CommentModel]?
         if let _limit = limit {
-            // todo add room id
-            let predicate: NSPredicate = NSPredicate(format: "LIMIT = %@", _limit)
+            //add limit
+            let predicate: NSPredicate = NSPredicate(format: "roomId == %ld", roomId)
+            
             comments = QiscusCore.database.comment.find(predicate: predicate)
+            
+            print("dapat cooments \(comments)")
         }else {
             comments = QiscusCore.database.comment.find(roomId: roomId)
         }
         
         var commentModelsDic = [String]()
         if let _comments = comments {
-            commentModelsDic = self.qiscusSdkHelper.commentModelsToDic(withCommentModels: _comments)
+            commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
         }
         let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
         
@@ -821,10 +826,10 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func subscribeToChatRoom(withChatRoom chatRoom: [String: Any], withResult result: @escaping FlutterResult) {
-        let chatRoomId: String = chatRoom["id"] as? String ?? ""
+        let chatRoomId: Int = chatRoom["id"] as? Int ?? Int()
         
         QiscusCore.shared.getChatRoomWithMessages(
-            roomId: chatRoomId,
+            roomId: String(chatRoomId),
             onSuccess: {
                 (room: RoomModel, comments: [CommentModel]) in
                 QiscusCore.shared.subscribeChatRoom(room)
@@ -839,10 +844,10 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func unsubscribeToChatRoom(withChatRoom chatRoom: [String: Any], withResult result: @escaping FlutterResult) {
-        let chatRoomId: String = chatRoom["id"] as? String ?? ""
+        let chatRoomId: Int = chatRoom["id"] as? Int ?? Int()
         
         QiscusCore.shared.getChatRoomWithMessages(
-            roomId: chatRoomId,
+            roomId: String(chatRoomId),
             onSuccess: {
                 (room: RoomModel, comments: [CommentModel]) in
                 QiscusCore.shared.unSubcribeChatRoom(room)
@@ -916,7 +921,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             messageId: messageId,
             onSuccess: {
                 (comments: [CommentModel]) in
-                let commentModelsDic = self.qiscusSdkHelper.commentModelsToDic(withCommentModels: comments)
+                let commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: comments)
                 let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
                 
                 result(commentModelsDicEncode)
@@ -938,7 +943,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         let comments: [CommentModel]? = QiscusCore.database.comment.find(predicate: predicate)
         var commentModelsDic = [String]()
         if let _comments = comments {
-            commentModelsDic = self.qiscusSdkHelper.commentModelsToDic(withCommentModels: _comments)
+            commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
         }
         let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
         
@@ -955,7 +960,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         let comments: [CommentModel]? = QiscusCore.database.comment.find(predicate: predicate)
         var commentModelsDic = [String]()
         if let _comments = comments {
-            commentModelsDic = self.qiscusSdkHelper.commentModelsToDic(withCommentModels: _comments)
+            commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
         }
         let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
         
@@ -974,7 +979,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             messageId: messageId,
             onSuccess: {
                 (comments: [CommentModel]) in
-                let commentModelsDic = self.qiscusSdkHelper.commentModelsToDic(withCommentModels: comments)
+                let commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: comments)
                 let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
                 
                 result(commentModelsDicEncode)

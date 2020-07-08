@@ -262,7 +262,7 @@ class _ChatPageState extends State<ChatPage> {
     } else {
       // type text
       return Text(
-        comment.message.trim(),
+        comment.message != null ? comment.message.trim() : "",
         style: TextStyle(),
       );
     }

@@ -136,7 +136,7 @@ class _MyAppState extends State<MyApp> {
                         MaterialPageRoute(
                           builder: (context) => ChatPage(
                             roomId: roomId,
-                            roomName: 'Chandra',
+                            roomName: 'Peter',
                             senderAccount: qiscusAccount,
                           ),
                         ),

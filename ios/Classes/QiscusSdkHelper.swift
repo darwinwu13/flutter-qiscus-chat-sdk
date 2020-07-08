@@ -30,7 +30,7 @@ class QiscusSdkHelper {
         return qNonceDictionary
     }
     
-    public func roomModelsToDic(withRoomModels roomModels: [RoomModel]) -> [String] {
+    public func roomModelsToListJson(withRoomModels roomModels: [RoomModel]) -> [String] {
         var chatRooms: [String] = [String]()
         
         for roomModel in roomModels {
@@ -43,7 +43,7 @@ class QiscusSdkHelper {
         return chatRooms
     }
     
-    public func memberModelsToDic(withMemberModel memberModels: [MemberModel]) -> [String] {
+    public func memberModelsToListJson(withMemberModel memberModels: [MemberModel]) -> [String] {
         var members: [String] = [String]()
         
         for memberModel in memberModels {
@@ -56,7 +56,7 @@ class QiscusSdkHelper {
         return members
     }
     
-    public func commentModelsToDic(withCommentModels commentModels: [CommentModel]) -> [String] {
+    public func commentModelsToListJson(withCommentModels commentModels: [CommentModel]) -> [String] {
         var comments: [String] = [String]()
         
         for commentModel in commentModels {
@@ -64,6 +64,18 @@ class QiscusSdkHelper {
             
             let tmpCommentModelEncode = self.toJson(withData: tmpCommentModel)
             comments.append(tmpCommentModelEncode)
+        }
+        
+        return comments
+    }
+    
+    public func commentModelsToListDic(withCommentModels commentModels: [CommentModel]) -> [[String: Any]] {
+        var comments: [[String: Any]] = [[:]]
+        
+        for commentModel in commentModels {
+            let tmpCommentModel: [String: Any] = self.commentModelToDic(withComment: commentModel)
+            
+            comments.append(tmpCommentModel)
         }
         
         return comments
@@ -91,7 +103,7 @@ class QiscusSdkHelper {
         tmpRoomModel["unreadCount"] = roomModel.unreadCount
         
         if let participants = roomModel.participants {
-            tmpRoomModel["participants"] = self.memberModelsToDic(withMemberModel: participants)
+            tmpRoomModel["participants"] = self.memberModelsToListJson(withMemberModel: participants)
         }else {
             tmpRoomModel["participants"] = []
         }
@@ -140,7 +152,7 @@ class QiscusSdkHelper {
         return comment
     }
     
-    public func commentModelToDic(withComment commentModel: CommentModel, _ roomModel: RoomModel) -> [String: Any]{
+    public func commentModelToDic(withComment commentModel: CommentModel, _ roomModel: RoomModel) -> [String: Any] {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         
@@ -171,7 +183,7 @@ class QiscusSdkHelper {
     
     public func mergeRoomModelAndCommentModelDic(withRoomModel roomModel: RoomModel, withCommentModel commentModel: [CommentModel]) -> [String: String] {
         let roomModelDic = self.roomModelToDic(withRoomModel: roomModel)
-        let commentModelDic = self.commentModelsToDic(withCommentModels: commentModel)
+        let commentModelDic = self.commentModelsToListDic(withCommentModels: commentModel)
         
         var roomAndComment: [String: String] = [String: String]()
         roomAndComment["chatRoom"] = self.toJson(withData: roomModelDic)
