@@ -376,7 +376,15 @@ class ChatSdk {
       Map<String, dynamic> arguments = {
         'userId': userId,
       };
-      if (extras != null) arguments['extras'] = extras;
+
+      const String environment = "dev2";
+
+      if (extras != null) {
+        extras['environment'] = environment;
+        arguments['extras'] = extras;
+      } else {
+        arguments['extras']['environment'] = environment;
+      }
 
       String json = await _channel.invokeMethod('chatUser', arguments);
 
