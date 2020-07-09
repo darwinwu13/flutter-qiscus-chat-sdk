@@ -710,35 +710,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         )
     }
     
-    private func uploadFile(withFilePath filePath: String) {
-        if let _url = URL(string: filePath) {
-            do {
-                let imageData = try Data(contentsOf: _url)
-                let file = FileUploadModel()
-                file.data = imageData
-                file.name = _url.lastPathComponent
-                
-                QiscusCore.shared.upload(
-                    file: file,
-                    onSuccess: {
-                        (file: FileModel) in
-                        //
-                    },
-                    onError: {
-                        (error: QError) in
-                        //
-                    },
-                    progressListener: {
-                        (progress: Double) in
-                        //
-                    }
-                )
-            }catch {
-                //
-            }
-        }
-    }
-    
     private func sendFileMessage(
         withRoomId roomId: String,
         withCaption caption: String,
@@ -966,10 +937,12 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         var commentModelsDic = [String]()
         if let _comments = comments {
             commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
+            let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
+            
+            result(commentModelsDicEncode)
+        }else {
+            result(FlutterError(code: "ERR_GET_LOCAL_PREV_MESSAGE", message: "", details: ""))
         }
-        let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
-        
-        result(commentModelsDicEncode)
     }
     
     private func getLocalNextMessages(
@@ -983,10 +956,12 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         var commentModelsDic = [String]()
         if let _comments = comments {
             commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
+            let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
+            
+            result(commentModelsDicEncode)
+        }else {
+            result(FlutterError(code: "ERR_GET_LOCAL_NEXT_MESSAGE", message: "", details: ""))
         }
-        let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
-        
-        result(commentModelsDicEncode)
     }
     
     private func getNextMessages(
