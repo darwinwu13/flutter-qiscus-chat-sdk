@@ -522,7 +522,8 @@ class ChatSdk {
         };
         if (extras != null) args['extras'] = extras;
         String json = await _channel.invokeMethod('sendMessage', args);
-
+        print("Flutter || comment model $json");
+        dev.log("Comment Model $json",name: "Flutter Chat");
         return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));
       } else {
         return sendCustomMessage(

@@ -167,7 +167,7 @@ class _MyAppState extends State<MyApp> {
                   RaisedButton(
                     child: Text('Chat User Darwin'),
                     onPressed: () async {
-                      final chatRoom = await ChatSdk.chatUser(userId: '5d9ed0b8f48c3d0ab85a94b9');
+                      final chatRoom = await ChatSdk.chatUser(userId: 'darwinwu134');
                       print("chatRoom Id : ${chatRoom.id}");
                       roomId = chatRoom.id;
 
