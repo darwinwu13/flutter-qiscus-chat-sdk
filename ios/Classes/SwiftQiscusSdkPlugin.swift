@@ -12,6 +12,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: registrar.messenger())
         let instance = SwiftQiscusSdkPlugin()
         instance.setupEventHandler(binary: registrar.messenger())
+        instance.registerEventHandler()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
     
@@ -19,7 +20,9 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         eventHandler.unRegisterEventBus()
     }
     
+    
     private func setupEventHandler(binary messenger: FlutterBinaryMessenger){
+        print("setup event handler")
         self.eventHandler = QiscusEventHandler(binary: messenger)
     }
     
@@ -77,7 +80,8 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             if stringExtras != String() {
                 extras = self.qiscusSdkHelper.convertToDictionary(string: stringExtras)
             }
-            
+            let mainPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+            print("main path \(mainPath)")
             login(withUserId: userId, withUserKey: userKey, withUsername: username, withAvatarUrl: avatarUrl, withExtras: extras, withResult: result)
             break
         case "getNonce":
@@ -250,10 +254,12 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             getLocalComments(withRoomId: String(roomId), withLimit: limit, withResult: result)
             break
         case "registerEventHandler":
-            registerEventHandler(withResult: result)
+            //registerEventHandler(withResult: result)
+            result(true)
             break
         case "unregisterEventHandler":
-            unregisterEventHandler(withResult: result)
+            //unregisterEventHandler(withResult: result)
+            result(true)
             break
         case "markCommentAsRead":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
@@ -498,6 +504,8 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
         }
         
+        
+        
         QiscusCore.shared.chatUser(
             userId: userId,
             extras: extrasString,
@@ -705,6 +713,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let commentModelDictonary = self.qiscusSdkHelper.commentModelToDic(withComment: commentModel)
                 let commentModelDictionaryEncode = self.qiscusSdkHelper.toJson(withData: commentModelDictonary)
                 
+                print("comment model \(commentModelDictionaryEncode)")
                 result(commentModelDictionaryEncode)
             },
             onError: {
@@ -798,19 +807,18 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             return
         }
         
-        result(nil)
+        result(self.qiscusSdkHelper.toJson(withData: []))
     }
     
-    private func registerEventHandler(withResult result: @escaping FlutterResult) {
+    private func registerEventHandler() {
         self.eventHandler.registerEventBus()
-        print("register event bus")
-        result(true)
+
+        print("register event handler")
     }
     
-    private func unregisterEventHandler(withResult result: @escaping FlutterResult) {
+    private func unregisterEventHandler() {
         self.eventHandler.unRegisterEventBus()
-        
-        result(true)
+        print("unregister event handler")
     }
     
     private func markCommentAsRead(
