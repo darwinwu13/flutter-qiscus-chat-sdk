@@ -506,7 +506,7 @@ class ChatSdk {
 
       if (type == CommentType.FILE_ATTACHMENT) {
         caption = message;
-        extras['extras']['environment'] = environment;
+        extras['environment'] = environment;
 
         return sendFileMessage(
           roomId: roomId,
@@ -521,7 +521,7 @@ class ChatSdk {
           'type': CommentType.TEXT,
         };
         if (extras != null) {
-          extras['extras']['environment'] = environment;
+          extras['environment'] = environment;
           args['extras'] = extras;
         }else {
           args['extras'] = {

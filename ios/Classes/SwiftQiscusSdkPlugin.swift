@@ -818,6 +818,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     
     private func unregisterEventHandler() {
         self.eventHandler.unRegisterEventBus()
+        
         print("unregister event handler")
     }
     
