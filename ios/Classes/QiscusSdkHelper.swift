@@ -256,4 +256,8 @@ class QiscusSdkHelper {
         
         return listOfString
     }
+    
+    public func getLastQiscusComment(withRoomModel roomModel: RoomModel) -> CommentModel? {
+        return roomModel.lastComment
+    }
 }

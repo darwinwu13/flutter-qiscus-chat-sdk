@@ -377,13 +377,8 @@ class ChatSdk {
         'userId': userId,
       };
 
-      const String environment = "dev2";
-
       if (extras != null) {
-        extras['environment'] = environment;
         arguments['extras'] = extras;
-      } else {
-        arguments['extras']['environment'] = environment;
       }
 
       String json = await _channel.invokeMethod('chatUser', arguments);
@@ -506,8 +501,13 @@ class ChatSdk {
     checkSetup();
     if (await hasLogin()) {
       String caption = "";
+
+      const String environment = "dev2";
+
       if (type == CommentType.FILE_ATTACHMENT) {
         caption = message;
+        extras['extras']['environment'] = environment;
+
         return sendFileMessage(
           roomId: roomId,
           caption: caption,
@@ -520,7 +520,15 @@ class ChatSdk {
           'message': message,
           'type': CommentType.TEXT,
         };
-        if (extras != null) args['extras'] = extras;
+        if (extras != null) {
+          extras['extras']['environment'] = environment;
+          args['extras'] = extras;
+        }else {
+          args['extras'] = {
+            "environment": environment
+          };
+        }
+
         String json = await _channel.invokeMethod('sendMessage', args);
 
         return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));

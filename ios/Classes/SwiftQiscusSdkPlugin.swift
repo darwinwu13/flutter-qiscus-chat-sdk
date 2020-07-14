@@ -597,6 +597,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 (rooms: [RoomModel]) in
                 let roomModelsDic: [String] = self.qiscusSdkHelper.roomModelsToListJson(withRoomModels: rooms)
                 let roomModelsDicEncode: String = self.qiscusSdkHelper.toJson(withData: roomModelsDic)
+                
                 result(roomModelsDicEncode)
             },
             onError: {
@@ -613,6 +614,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 (rooms: [RoomModel]) in
                 let roomModelsDic: [[String: Any]] = self.qiscusSdkHelper.roomModelsToDic(withRoomModels: rooms)
                 let roomModelsDicEncode: String = self.qiscusSdkHelper.toJson(withData: roomModelsDic)
+                
                 result(roomModelsDicEncode)
             },
             onError: {
@@ -651,6 +653,8 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func getLocalChatRooms(withLimit limit: Int, withOffset offset: Int?, withResult result: @escaping FlutterResult) {
+        //todooooo check database
+        
         var predicate: NSPredicate = NSPredicate(format: "LIMIT \(limit)")
         if let _offset = offset {
             predicate = NSPredicate(format: "LIMIT \(limit) OFFSET \(_offset)")
@@ -773,28 +777,33 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     ) {
         var comments: [CommentModel]?
         if let _limit = limit {
-            //add limit
-            let predicate: NSPredicate = NSPredicate(format: "roomId == %ld", roomId)
-            
-            comments = QiscusCore.database.comment.find(predicate: predicate)
-            
-            print("dapat cooments \(comments)")
+            let localChatRoom: RoomModel? = QiscusCore.database.room.find(id: roomId)
+                
+            if let _localChatRoom = localChatRoom {
+                let qiscusComment: CommentModel? = self.qiscusSdkHelper.getLastQiscusComment(withRoomModel: _localChatRoom)
+                
+                if let _qiscusComment = qiscusComment {
+                    comments = QiscusCore.database.comment.findOlderCommentsThan(roomId: roomId, message: _qiscusComment, limit: _limit)
+                }
+            }
         }else {
             comments = QiscusCore.database.comment.find(roomId: roomId)
         }
         
-        var commentModelsDic = [String]()
         if let _comments = comments {
-            commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
+            let commentModelsDic = self.qiscusSdkHelper.commentModelsToListDic(withCommentModels: _comments)
+            let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
+            
+            result(commentModelsDicEncode)
+            return
         }
-        let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
         
-        result(commentModelsDicEncode)
+        result(nil)
     }
     
     private func registerEventHandler(withResult result: @escaping FlutterResult) {
         self.eventHandler.registerEventBus()
-        
+        print("register event bus")
         result(true)
     }
     
@@ -932,17 +941,24 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withUniqueId uniqueId: String,
         withResult result: @escaping FlutterResult
     ) {
-        let predicate = NSPredicate(format: " uniqueId == \(uniqueId) LIMIT \(limit)")
-        let comments: [CommentModel]? = QiscusCore.database.comment.find(predicate: predicate)
-        var commentModelsDic = [String]()
-        if let _comments = comments {
-            commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
-            let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
+        let localChatRoom: RoomModel? = QiscusCore.database.room.find(id: roomId)
+        if let _localChatRoom = localChatRoom {
+            let qiscusComment: CommentModel? = self.qiscusSdkHelper.getLastQiscusComment(withRoomModel: _localChatRoom)
             
-            result(commentModelsDicEncode)
-        }else {
-            result(FlutterError(code: "ERR_GET_LOCAL_PREV_MESSAGE", message: "", details: ""))
+            if let _qiscusComment = qiscusComment {
+                let comments = QiscusCore.database.comment.findOlderCommentsThan(roomId: roomId, message: _qiscusComment, limit: limit)
+                
+                if let _comments = comments {
+                    let commentsModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
+                    let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentsModelsDic)
+                    
+                    result(commentModelsDicEncode)
+                    return
+                }
+            }
         }
+        
+        result(nil)
     }
     
     private func getLocalNextMessages(
@@ -951,17 +967,19 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withUniqueId uniqueId: String,
         withResult result: @escaping FlutterResult
     ) {
+        // todo get next message from database
         let predicate = NSPredicate(format: " uniqueId == \(uniqueId) LIMIT \(limit)")
         let comments: [CommentModel]? = QiscusCore.database.comment.find(predicate: predicate)
-        var commentModelsDic = [String]()
+        
         if let _comments = comments {
-            commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
-            let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
+            let commentsModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
+            let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentsModelsDic)
             
             result(commentModelsDicEncode)
-        }else {
-            result(FlutterError(code: "ERR_GET_LOCAL_NEXT_MESSAGE", message: "", details: ""))
+            return
         }
+        
+        result(nil)
     }
     
     private func getNextMessages(

@@ -6,3 +6,11 @@
 //
 
 import Foundation
+import CoreData
+
+class QiscusRepository {
+    func test() {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "ZROOM")
+    }
+
+}
