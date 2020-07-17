@@ -5,6 +5,7 @@ import CoreFoundation
 
 public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
+    let qiscusRepository: QiscusRepository = QiscusRepository()
     private var eventHandler: QiscusEventHandler!
     
     static let CHANNEL_NAME: String = "bahaso.com/qiscus_chat_sdk"
@@ -504,8 +505,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
         }
         
-        
-        
         QiscusCore.shared.chatUser(
             userId: userId,
             extras: extrasString,
@@ -662,21 +661,22 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     
     private func getLocalChatRooms(withLimit limit: Int, withOffset offset: Int?, withResult result: @escaping FlutterResult) {
         //todooooo check database
-        
-        var predicate: NSPredicate = NSPredicate(format: "LIMIT \(limit)")
-        if let _offset = offset {
-            predicate = NSPredicate(format: "LIMIT \(limit) OFFSET \(_offset)")
-        }
-        
-        let localChatRooms: [RoomModel]? = QiscusCore.database.room.find(predicate: predicate)
-        if let _localChatRooms = localChatRooms {
-            let chatRoomsDic: [String] = self.qiscusSdkHelper.roomModelsToListJson(withRoomModels: _localChatRooms)
-            let chatRoomsDicEncode: String = self.qiscusSdkHelper.toJson(withData: chatRoomsDic)
-            
-            result(chatRoomsDicEncode)
-        }else {
-            result(FlutterError(code: "ERR_GET_LOCAL_CHAT_ROOMS", message: "", details: ""))
-        }
+        print("masuk getLocalChatRooms")
+        qiscusRepository.getLocalChatRooms(withLimit: 10);
+//        var predicate: NSPredicate = NSPredicate(format: "LIMIT \(limit)")
+//        if let _offset = offset {
+//            predicate = NSPredicate(format: "LIMIT \(limit) OFFSET \(_offset)")
+//        }
+//
+//        let localChatRooms: [RoomModel]? = QiscusCore.database.room.find(predicate: predicate)
+//        if let _localChatRooms = localChatRooms {
+//            let chatRoomsDic: [String] = self.qiscusSdkHelper.roomModelsToListJson(withRoomModels: _localChatRooms)
+//            let chatRoomsDicEncode: String = self.qiscusSdkHelper.toJson(withData: chatRoomsDic)
+//
+//            result(chatRoomsDicEncode)
+//        }else {
+//            result(FlutterError(code: "ERR_GET_LOCAL_CHAT_ROOMS", message: "", details: ""))
+//        }
     }
     
     private func getTotalUnreadCount(withResult result: @escaping FlutterResult) {
@@ -818,7 +818,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     
     private func unregisterEventHandler() {
         self.eventHandler.unRegisterEventBus()
-        
         print("unregister event handler")
     }
     
@@ -843,6 +842,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             roomId: String(chatRoomId),
             onSuccess: {
                 (room: RoomModel, comments: [CommentModel]) in
+                room.delegate = self.eventHandler
                 QiscusCore.shared.subscribeChatRoom(room)
                 
                 result(true)
@@ -861,6 +861,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             roomId: String(chatRoomId),
             onSuccess: {
                 (room: RoomModel, comments: [CommentModel]) in
+                room.delegate = nil
                 QiscusCore.shared.unSubcribeChatRoom(room)
                 
                 result(true)

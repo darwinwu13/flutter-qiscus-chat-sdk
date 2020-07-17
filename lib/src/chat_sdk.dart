@@ -69,6 +69,7 @@ class ChatSdk {
       _eventStream = _eventChannelCommentReceive.receiveBroadcastStream();
       _eventSubscription = _eventStream.listen((data) {
         Map<String, dynamic> result = jsonDecode(data);
+        print('event channel data received ${result.toString()}');
         dev.log('event channel data received ${result.toString()}',
             name: 'chat sdk stream listener');
 

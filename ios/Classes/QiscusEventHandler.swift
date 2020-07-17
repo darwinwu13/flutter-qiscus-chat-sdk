@@ -9,20 +9,29 @@ import Foundation
 import Flutter
 import QiscusCore
 
+
+
 class QiscusEventHandler {
     private var eventChannel: FlutterEventChannel!
-    private var eventSink: FlutterEventSink!
     private let EVENT_CHANNEL_NAME: String = "bahaso.com/qiscus_chat_sdk/events"
     private let qiscusSdkHelper: QiscusSdkHelper = QiscusSdkHelper()
+    private var eventStreamHandler: QiscusEventStreamHandler
+    
+    private func getEventSink() -> FlutterEventSink? {
+        return eventStreamHandler.eventSink
+    }
     
     init(binary messenger: FlutterBinaryMessenger) {
-        let eventStreamHandler: QiscusEventStreamHandler = QiscusEventStreamHandler()
+        eventStreamHandler = QiscusEventStreamHandler()
         eventChannel = FlutterEventChannel(name: EVENT_CHANNEL_NAME, binaryMessenger: messenger)
         eventChannel.setStreamHandler(eventStreamHandler)
-        eventSink = eventStreamHandler.eventSink ?? nil
         
+        self.connect()
+    }
+    
+    private func connect() {
         if QiscusCore.hasSetupUser() {
-           let _ = QiscusCore.connect(delegate: self)
+            let _ = QiscusCore.connect(delegate: self)
         }
     }
 
@@ -35,7 +44,7 @@ class QiscusEventHandler {
     }
     
     public func onFileUploadProgress(withProgress progress: Double) {
-        if eventSink != nil {
+        if let eventSink = getEventSink() {
             var result: [String: Any] = [:]
             result["type"] = "file_upload_progress"
             result["progress"] = progress
@@ -49,26 +58,19 @@ class QiscusEventHandler {
 extension QiscusEventHandler: QiscusCoreDelegate {
     
     func onRoomMessageReceived(_ room: RoomModel, message: CommentModel) {
-        var args: [String: Any] = [String: Any]()
-        args["type"] = "chat_room_event_received"
-        args["chatRoomEvent"] = qiscusSdkHelper.commentModelToDic(withComment: message, room)
-        
-        if eventSink != nil {
-            DispatchQueue.main.async {
-                self.eventSink(args)
-            }
-        }
+        self.handleMessageRecieved(messageComment: message)
     }
     
     func onRoomMessageDeleted(room: RoomModel, message: CommentModel) {
+        let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message, room)
         
         var args: [String: Any] = [String: Any]()
         args["type"] = "chat_room_event_received"
-        args["chatRoomEvent"] = qiscusSdkHelper.commentModelToDic(withComment: message, room)
+        args["chatRoomEvent"] = self.qiscusSdkHelper.toJson(withData: commentDic)
         
-        if eventSink != nil {
+        if let eventSink = getEventSink() {
             DispatchQueue.main.async {
-                self.eventSink(args)
+                eventSink(self.qiscusSdkHelper.toJson(withData: args))
             }
         }
     }
@@ -88,12 +90,14 @@ extension QiscusEventHandler: QiscusCoreDelegate {
     }
     
     func onRoomDidChangeComment(comment: CommentModel, changeStatus status: CommentStatus) {
-        // TODO make to json
         var args: [String: Any] = [String: Any]()
+        let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: comment)
+        
         args["type"] = "comment_received"
-        args["comment"] = comment // TODO maping to json
-        if self.eventSink != nil {
-            eventSink(args)
+        args["comment"] = self.qiscusSdkHelper.toJson(withData: commentDic)
+        
+        if let eventSink = getEventSink() {
+            eventSink(self.qiscusSdkHelper.toJson(withData: args))
         }
     }
     
@@ -114,7 +118,7 @@ extension QiscusEventHandler: QiscusCoreDelegate {
 // MARK: Core Delegate of Chat Room
 extension QiscusEventHandler: QiscusCoreRoomDelegate{
     func onMessageReceived(message: CommentModel) {
-        handleMessageState(messageComment: message)
+        handleMessageRecieved(messageComment: message)
     }
     
     func didComment(comment: CommentModel, changeStatus status: CommentStatus) {
@@ -148,12 +152,28 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
     
     private func handleMessageState(messageComment message: CommentModel){
         var args: [String: Any] = [String: Any]()
-        args["type"] = "chat_room_event_received"
-        args["chatRoomEvent"] = qiscusSdkHelper.commentModelToDic(withComment: message)
+        let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message)
         
-        if eventSink != nil {
+        args["type"] = "chat_room_event_received"
+        args["chatRoomEvent"] = self.qiscusSdkHelper.toJson(withData: commentDic)
+        
+        if let eventSink = getEventSink() {
             DispatchQueue.main.async {
-                self.eventSink(args)
+                eventSink(self.qiscusSdkHelper.toJson(withData: args))
+            }
+        }
+    }
+    
+    private func handleMessageRecieved(messageComment message: CommentModel){
+        var args: [String: Any] = [String: Any]()
+        let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message)
+        
+        args["type"] = "comment_received"
+        args["comment"] = commentDic
+        
+        if let eventSink = getEventSink() {
+            DispatchQueue.main.async {
+                eventSink(self.qiscusSdkHelper.toJson(withData: args))
             }
         }
     }
@@ -192,8 +212,9 @@ extension QiscusEventHandler: QiscusConnectionDelegate {
         }
         var args: [String: Any] = [String: Any]()
         args["status"] = connectionState
-        if eventSink != nil {
-            eventSink(args)
+        
+        if let eventSink = getEventSink() {
+            eventSink(self.qiscusSdkHelper.toJson(withData: args))
         }
     }
     
@@ -209,6 +230,7 @@ class QiscusEventStreamHandler: NSObject, FlutterStreamHandler {
     
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
         self.eventSink = nil
+        
         return nil
     }
 }

@@ -72,6 +72,7 @@ target 'Runner' do
   pod 'Alamofire'
   pod 'AlamofireImage'
   pod 'UICircularProgressRing'
+  pod 'SQLite.swift', '~> 0.12.0'
 
   # Plugin Pods
 

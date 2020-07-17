@@ -109,6 +109,7 @@ PODS:
   - qiscus_sdk (0.0.1):
     - Flutter
     - QiscusCore (= 1.2.8)
+    - SQLite.swift (~> 0.12.0)
   - QiscusCore (1.2.8):
     - QiscusRealtime (= 1.1.1)
     - SwiftyJSON
@@ -121,6 +122,9 @@ PODS:
   - sqflite (0.0.1):
     - Flutter
     - FMDB (~> 2.7.2)
+  - SQLite.swift (0.12.2):
+    - SQLite.swift/standard (= 0.12.2)
+  - SQLite.swift/standard (0.12.2)
   - SwiftyJSON (5.0.0)
   - UICircularProgressRing (6.5.0)
 
@@ -138,6 +142,7 @@ DEPENDENCIES:
   - SDWebImage (~> 4.4.2)
   - SimpleImageViewer (from `https://github.com/aFrogleap/SimpleImageViewer`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - SQLite.swift (~> 0.12.0)
   - SwiftyJSON
   - UICircularProgressRing
 
@@ -167,6 +172,7 @@ SPEC REPOS:
     - QiscusCore
     - QiscusRealtime
     - SDWebImage
+    - SQLite.swift
     - SwiftyJSON
     - UICircularProgressRing
 
@@ -223,15 +229,16 @@ SPEC CHECKSUMS:
   path_provider_macos: f760a3c5b04357c380e2fddb6f9db6f3015897e0
   PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   Protobuf: 2793fcd0622a00b546c60e7cbbcc493e043e9bb9
-  qiscus_sdk: c0b6f3611a61b1e1bf823b09a7f7a59793ac3dcc
+  qiscus_sdk: e0336f1c258ed6b37e98e2e8db9ef78c6803233c
   QiscusCore: ccd33a839e2e1402a27f31791a27e117e3b5a997
   QiscusRealtime: 111c646cf8640239c2845671c852ca6d7935ccd6
   SDWebImage: 783af2c3fa36291a250030c4752ee370a9a51d13
   SimpleImageViewer: 290c2f126b63c136da3a63ae9de70a0fd838c0a3
   sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
+  SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
   UICircularProgressRing: e6852e8f88e296cbbbe2720cccb55241acda6708
 
-PODFILE CHECKSUM: b6462c5d04ea0e3ce55cff7862f165a3fe8976b4
+PODFILE CHECKSUM: bc3be1ebf4a519b035046b06a4bb83c9b048a67f
 
 COCOAPODS: 1.8.4
