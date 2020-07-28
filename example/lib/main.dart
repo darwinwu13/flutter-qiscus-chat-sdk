@@ -101,6 +101,9 @@ class _MyAppState extends State<MyApp> {
                     child: Text('Login  Edwin'),
                     onPressed: () async {
                       qiscusAccount = await loginWithJwt();
+//                      qiscusAccount = await ChatSdk.login(
+//                          userId: "5d9ed0b8f48c3d0ab85a94b9",
+//                          userKey: "nadi", username: "nadiaanggia");
                       print("acc:${qiscusAccount.toJson()}");
                       setState(() {
                         username = qiscusAccount.username;
