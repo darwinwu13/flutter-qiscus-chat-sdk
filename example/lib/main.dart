@@ -37,8 +37,7 @@ class _MyAppState extends State<MyApp> {
 
   /// darwin wu test
   String ACCESS_TOKEN =
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjdlZmMwMmU2YmE2NjVlY2YzY2ZlZTNhYTBlNzIzYWIyMmE3MWM0NDVjZWZjNTBiOWI0NWQzYWU2ZWQyOWQwMjZjZDM4NTQwYTgzNzQyZTQ1In0.eyJhdWQiOiI1ZDgyMThmMmY0OGMzZDZiOTQ2NDUxNDIiLCJqdGkiOiI3ZWZjMDJlNmJhNjY1ZWNmM2NmZWUzYWEwZTcyM2FiMjJhNzFjNDQ1Y2VmYzUwYjliNDVkM2FlNmVkMjlkMDI2Y2QzODU0MGE4Mzc0MmU0NSIsImlhdCI6MTU4NzM1Njc5MCwibmJmIjoxNTg3MzU2NzkwLCJleHAiOjE2MTg4OTI3OTAsInN1YiI6IjVlMmZjYjM2ZjQ4YzNkMzQzNTdhODI0ZCIsInNjb3BlcyI6WyJmcmVlIl19.DT_SafqSDeHh2K-mryliREgMQZvydCA0J8pASbu9aE3YBpfROpTTWa1LBgw5GnaZctbXXhrW79TUqHBD0TiH2ORneFinaVRNS0rJ_qk9425cLSu9hxvUXZSh7sH_vC0JWHDcnEsYiyvwJPnUsDc7Ju0xK8ByeDmXTLwWP9nRbqO2_-XlBEZOqYMRmerVWXcCxtO8Kg-LGZmZ5JnUYPaNgatdr_PVJVS5txwR8r77zjErZq1609LqjP6Szb4X56WZMbo_hQvzUI_sTWh_Eh4MLbQTDZO_L5SUU_1K2M4_lMUUqPOtqYw9Rm7xXsnv0Sk6ChcjhD4zXdBZ7wSJFcVVvlxmynSqBJl1YQgbdCytV94iTHU9eLCfW-T_UqILAj6BNNfxL3EuDZtJJnbbfU9XT0abnyqg8ncPzFeH0ecOzhIpg0ovsvRSLJxgTa00v2EpvvSE0l7rjmjdpYmP1ZzocrSQr17rMIajI8p0jYGNIX5ajjhDDZY92gvHZ5hm18u1u8D6meLeorK843d808ez_V5Z8hFlkkC0mB_0YKpts1tMoDh9g-Ngs0qTvIEFZVHYt4kUmc_jTZWNX32ikayHmWejRhoa8KkfyYu-B66A2pq_pegR5E89kajJmyifPnCL_BIsFHDT79BCDYbT79n23OA-y9EpyrHfzo4uMQCSmlw";
-
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjM4Zjk4NTQyYWEzMDc5Y2NjY2M3ZDk0MTZiZDIxOWYwNDY2ZDVmMWYyOWI4Mjc0MzcyMGUwN2MzMDVkOTRkZTY3M2FhNDMxMGI4ZTZiN2VmIn0.eyJhdWQiOiI1ZDgyMThjY2Y0OGMzZDZiOGY1Y2M5MTQiLCJqdGkiOiIzOGY5ODU0MmFhMzA3OWNjY2NjN2Q5NDE2YmQyMTlmMDQ2NmQ1ZjFmMjliODI3NDM3MjBlMDdjMzA1ZDk0ZGU2NzNhYTQzMTBiOGU2YjdlZiIsImlhdCI6MTU5Mzc1MjAwMiwibmJmIjoxNTkzNzUyMDAyLCJleHAiOjE2MjUyODgwMDIsInN1YiI6IjVkOWVkMGI4ZjQ4YzNkMGFiODVhOTRiOSIsInNjb3BlcyI6WyJmcmVlIl19.VktejoTD1xiRgoLFfRZugot49meoWKYb93x5CWexhqCQ6EeWq2BubFMe9CtylGjoi65goPY5YwM96CrorqleAU9UsMlO_O854IhVPiW-WL6PzchN6QngTGO8846ul6cVgV09p65hY9kzWabNGXU-Re196wILQybUNpMHmIcVjvY7JIodpwkQP5aMqgrUz0hQ51_dlVSZRNE5kBnOFRateY24pJraj1jKRtaONwlHi8GAPtiA2uN9VfSEtAeEHGxK1WaxQomHNSauXNc9fDnbwpi61nsOeQXjAAwS6VaY0paqX29fg6HO2xD96civl_WGYD2XE9PFbMCCpLE6K0heqDtAJbkna-ftLcucwikdUpXmmPNBv-wax4JbMjk9oWP4Xy7aT0No0FGz5J5jlcqLNhx1Ynyl1QNM6H_hdI0f6EO-psbf-LUVXPjGis3QVeAZmqo9rzy7Kdo0WZCs3J5SN498k1p84iYMVbDvUN0LJpfTiDNm6vOSFU182HU5iDguHU_vn6jFTX0fGWftCj0hRWe5PY58tu4wFyWjX3qcj1dXxxkqGshJ-QATmbeb3GZ5XX00uS3MzP5JKDhP60eq6onHyNeB_k1JG4eM1_E1KK222BI4H5t7bScpY54lqQtBxStdQrj0NpOb8Aq4eUPQz6PT2NFA5xI9U0WiARRpeVI";
   @override
   void initState() {
     super.initState();
@@ -125,9 +124,9 @@ class _MyAppState extends State<MyApp> {
                     },
                   ),
                   RaisedButton(
-                    child: Text('Chat User Chandra'),
+                    child: Text('Chat User Nadia'),
                     onPressed: () async {
-                      final chatRoom = await ChatSdk.chatUser(userId: '5dba91daf48c3d33bb41a6f5');
+                      final chatRoom = await ChatSdk.chatUser(userId: '5d9ed0b8f48c3d0ab85a94b9');
                       print("chatRoom Id : ${chatRoom.id}");
                       roomId = chatRoom.id;
                       // if wanna test offline mode remove the comment below
@@ -137,7 +136,7 @@ class _MyAppState extends State<MyApp> {
                         MaterialPageRoute(
                           builder: (context) => ChatPage(
                             roomId: roomId,
-                            roomName: 'Chandra',
+                            roomName: 'Peter',
                             senderAccount: qiscusAccount,
                           ),
                         ),
@@ -148,7 +147,7 @@ class _MyAppState extends State<MyApp> {
                     child: Text('Chat User Edwin'),
                     onPressed: () async {
                       final chatRoom = await ChatSdk.chatUser(
-                          userId: '5da3f7e6f48c3d175649388b', extras: {'esss': "assad"});
+                          userId: '5e9afe293204c952bb1ee8e2', extras: {'esss': "assad"});
                       print("chatRoom Id : ${chatRoom.id}");
                       roomId = chatRoom.id;
                       // if wanna test offline mode remove the comment below
@@ -193,14 +192,14 @@ class _MyAppState extends State<MyApp> {
                   RaisedButton(
                     child: Text('get local chat room'),
                     onPressed: () async {
-                      final chatRoom = await ChatSdk.getLocalChatRoom(11315282);
+                      final chatRoom = await ChatSdk.getLocalChatRoom(18853572);
                       print("local chat room : $chatRoom");
                     },
                   ),
                   RaisedButton(
                     child: Text('get local chat room by RoomIds'),
                     onPressed: () async {
-                      final chatRoom = await ChatSdk.getLocalChatRoomByIds([11315282]);
+                      final chatRoom = await ChatSdk.getLocalChatRoomByIds([18853572]);
                       print("local chat room ids : $chatRoom");
                     },
                   ),
@@ -263,10 +262,13 @@ class _MyAppState extends State<MyApp> {
       baseOptions.headers = headerJson;
       dio.options = baseOptions;
       print("before dio");
+
       var response = await dio.get(
         "https://dev2.myislami.com/api/v1/consultation/chats/jwt",
         queryParameters: {'nonce': nonce},
       );
+      print("response dioo value ${response.data}");
+
       String jwt = response.data['result']['jwt'];
 
       print("nonce: $nonce, jwt: $jwt");

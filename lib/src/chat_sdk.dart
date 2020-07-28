@@ -69,6 +69,7 @@ class ChatSdk {
       _eventStream = _eventChannelCommentReceive.receiveBroadcastStream();
       _eventSubscription = _eventStream.listen((data) {
         Map<String, dynamic> result = jsonDecode(data);
+        print('event channel data received ${result.toString()}');
         dev.log('event channel data received ${result.toString()}',
             name: 'chat sdk stream listener');
 
@@ -290,6 +291,7 @@ class ChatSdk {
       extras: extras,
     );
     String jsonStr = await _channel.invokeMethod("login", arguments);
+    dev.log(jsonStr, name: "HANSEN");
     return QiscusAccount.fromJson(jsonDecode(jsonStr));
   }
 
@@ -316,7 +318,7 @@ class ChatSdk {
     dev.log("chat sdk loginWithJWT", name: "Qiscus Chat SDK");
     String nonce = await _channel.invokeMethod('getNonce');
 
-    dev.log("sdk before jwt", name: 'Qiscus chat sdk');
+    dev.log("sdk before jwt", name: 'Qiscus chat sdk $nonce');
 
     String jwt = await getJWTToken(nonce);
 
@@ -358,10 +360,13 @@ class ChatSdk {
     List<String> list = await _channel.invokeMethod(
         'getAllUsers', {'searchUsername': searchUsername, 'page': page, 'limit': limit});
 
+    print("value list get all users $list");
+
     return list.map((jsonStr) {
       return QiscusAccount.fromJson(jsonDecode(jsonStr));
     });
   }
+
 
   static Future<QiscusChatRoom> chatUser({
     @required String userId,
@@ -372,7 +377,10 @@ class ChatSdk {
       Map<String, dynamic> arguments = {
         'userId': userId,
       };
-      if (extras != null) arguments['extras'] = extras;
+
+      if (extras != null) {
+        arguments['extras'] = extras;
+      }
 
       String json = await _channel.invokeMethod('chatUser', arguments);
 
@@ -423,6 +431,7 @@ class ChatSdk {
     }).toList();
 
     _lastSentComment = qiscusChatRoom.lastComment;
+
 
     return Tuple2(qiscusChatRoom, messages);
   }
@@ -493,8 +502,13 @@ class ChatSdk {
     checkSetup();
     if (await hasLogin()) {
       String caption = "";
+
+      const String environment = "dev2";
+
       if (type == CommentType.FILE_ATTACHMENT) {
         caption = message;
+        extras['environment'] = environment;
+
         return sendFileMessage(
           roomId: roomId,
           caption: caption,
@@ -507,9 +521,18 @@ class ChatSdk {
           'message': message,
           'type': CommentType.TEXT,
         };
-        if (extras != null) args['extras'] = extras;
-        String json = await _channel.invokeMethod('sendMessage', args);
+        if (extras != null) {
+          extras['environment'] = environment;
+          args['extras'] = extras;
+        }else {
+          args['extras'] = {
+            "environment": environment
+          };
+        }
 
+        String json = await _channel.invokeMethod('sendMessage', args);
+        print("Flutter || comment model $json");
+        dev.log("Comment Model $json",name: "Flutter Chat");
         return _lastSentComment = QiscusComment.fromJson(jsonDecode(json));
       } else {
         return sendCustomMessage(
