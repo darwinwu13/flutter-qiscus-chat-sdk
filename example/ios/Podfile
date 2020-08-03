@@ -63,7 +63,7 @@ target 'Runner' do
 
   # Keep pod path relative so it can be checked into Podfile.lock.
   pod 'Flutter', :path => 'Flutter'
-  pod 'QiscusCore', "1.4.2"
+  pod 'QiscusCore', "1.5.1"
 
     # 3rd party
   pod 'SDWebImage', '~> 4.4.2'
