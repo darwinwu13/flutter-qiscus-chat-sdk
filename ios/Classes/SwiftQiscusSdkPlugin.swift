@@ -730,40 +730,44 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withExtras extras: [String: Any]?,
         withResult result: @escaping FlutterResult
     ) {
-        if let _url = URL(string: filePath) {
-            do {
-                let imageData = try Data(contentsOf: _url)
-                let file = FileUploadModel()
-                file.data = imageData
-                file.name = _url.lastPathComponent
-                
-                let messageModel = CommentModel()
-                messageModel.message = caption
-                messageModel.type = "file"
-                messageModel.roomId = roomId
-                
-                QiscusCore.shared.sendFileMessage(
-                    message: messageModel,
-                    file: file,
-                    progressUploadListener: {
-                        (progress: Double) in
-                        self.eventHandler.onFileUploadProgress(withProgress: progress)
-                    },
-                    onSuccess: {
-                        (commentModel: CommentModel) in
-                        let commentModelDictonary = self.qiscusSdkHelper.commentModelToDic(withComment: commentModel)
-                        let commentModelDictionaryEncode = self.qiscusSdkHelper.toJson(withData: commentModelDictonary)
-                        
-                        result(commentModelDictionaryEncode)
-                    },
-                    onError: {
-                        (error: QError) in
-                        result(FlutterError(code: "ERR_SEND_FILE_MESSAGE", message: error.message, details: ""))
-                    }
-                )
-            }catch {
-                result(FlutterError(code: "ERR_SEND_FILE_MESSAGE", message: "", details: ""))
+        let filePathURL = URL(fileURLWithPath: filePath)
+        print("SWIFT || url path component \(filePathURL.absoluteString)")
+        do {
+            print("SWIFT || url last path component \(filePathURL.lastPathComponent)")
+            let fileData = try Data(contentsOf: filePathURL)
+            let file = FileUploadModel()
+            file.data = fileData
+            file.name = filePathURL.lastPathComponent
+            
+            let messageModel = CommentModel()
+            messageModel.message = caption
+//            messageModel.type = "file" // TODO sementara dicomment
+            messageModel.type = "file_attachment"
+            messageModel.roomId = roomId
+            
+            QiscusCore.shared.sendFileMessage(
+                message: messageModel,
+                file: file,
+                progressUploadListener: {
+                    (progress: Double) in
+                    print("progress listener \(progress)")
+                    self.eventHandler.onFileUploadProgress(withProgress: progress)
+            },
+                onSuccess: {
+                    (commentModel: CommentModel) in
+                    let commentModelDictonary = self.qiscusSdkHelper.commentModelToDic(withComment: commentModel)
+                    let commentModelDictionaryEncode = self.qiscusSdkHelper.toJson(withData: commentModelDictonary)
+                    print("print encode dictionary \(commentModelDictionaryEncode)")
+                    result(commentModelDictionaryEncode)
+            },
+                onError: {
+                    (error: QError) in
+                    result(FlutterError(code: "ERR_SEND_FILE_MESSAGE QError", message: error.message, details: ""))
             }
+            )
+            
+        } catch {
+            result(FlutterError(code: "ERR_SEND_FILE_MESSAGE CATCH", message: error.localizedDescription, details: ""))
         }
     }
     

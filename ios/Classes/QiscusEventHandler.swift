@@ -47,9 +47,12 @@ class QiscusEventHandler {
         if let eventSink = getEventSink() {
             var result: [String: Any] = [:]
             result["type"] = "file_upload_progress"
-            result["progress"] = progress
+            result["progress"] = Int(progress)
+            print("file upload progress \(result)")
+            DispatchQueue.main.async {
+                eventSink(self.qiscusSdkHelper.toJson(withData: result))
+            }
             
-            eventSink(qiscusSdkHelper.toJson(withData: result))
         }
     }
 }
@@ -62,7 +65,7 @@ extension QiscusEventHandler: QiscusCoreDelegate {
     }
     
     func onRoomMessageDeleted(room: RoomModel, message: CommentModel) {
-        let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message, room)
+        let commentDic = self.qiscusSdkHelper.commentModelToDicWithRomm(withComment: message, room)
         
         var args: [String: Any] = [String: Any]()
         args["type"] = "chat_room_event_received"
@@ -173,6 +176,7 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
         
         if let eventSink = getEventSink() {
             DispatchQueue.main.async {
+                print("send comment received \(args)")
                 eventSink(self.qiscusSdkHelper.toJson(withData: args))
             }
         }

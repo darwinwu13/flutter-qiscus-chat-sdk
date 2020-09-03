@@ -205,6 +205,8 @@ class _ChatPageState extends State<ChatPage> {
       aligment = Alignment.centerLeft;
       color = Colors.white;
     }
+    print("file attachment url path ${comment.attachmentUrl} || ${comment.extraPayload} || ${comment.extras}");
+    print("get commented data ${comment.toString()}");
     return Bubble(alignment: aligment, color: color, child: _buildBubbleContent(comment, aligment));
   }
 
@@ -219,6 +221,7 @@ class _ChatPageState extends State<ChatPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
+                    print("check chached network ${comment.attachmentUrl}");
                     if (comment.isDummy) {
                       return ImagePreview(image: FileImage(File(comment.attachmentUrl)));
                     } else {

@@ -138,7 +138,6 @@ class QiscusSdkHelper {
     public func commentModelToDic(withComment commentModel: CommentModel) -> [String: Any] {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        
         var comment: [String: Any] = [String: Any]()
         comment["id"] = Int(commentModel.id)
         comment["roomId"] = Int(commentModel.roomId)
@@ -152,19 +151,21 @@ class QiscusSdkHelper {
         comment["state"] = mappingCommentState(commentStatus: commentModel.status)
         comment["deleted"] = commentModel.isDeleted
         comment["hardDeleted"] = commentModel.isDeleted // TODO is hard deleted
+        comment["rawType"] = "file_attachment" // TODO nanti diganti cari dari comment model
 //        comment["roomName"] = roomModel.name
 //        comment["roomAvatar"] = roomModel.avatarUrl?.absoluteString
 //        comment["groupMessage"] = roomModel.type.rawValue // TODO group type check return boolean
         comment["selected"] = commentModel.payload?["selected"] as? Bool ?? false // TODO selected return boolean
         comment["highlighted"] = commentModel.payload?["highligted"] as? Bool ?? false // TODO Raw type return string
-        comment["extras"] = commentModel.extras // TODO dictionary type
+//        comment["extras"] = commentModel.payload ?? [:]// TODO dictionary type
+        comment["extraPayload"] = self.toJson(withData: commentModel.payload ?? [:])
         comment["replyTo"] = commentModel.payload?["replyTo"] as? [String: Any] ?? [:]// TODO return QiscusComment
         comment["attachmentName"] = commentModel.payload?["attachmentName"] as? String ?? "" // TODO return String
-        
+        print("check comment model \(comment)")
         return comment
     }
     
-    public func commentModelToDic(withComment commentModel: CommentModel, _ roomModel: RoomModel) -> [String: Any] {
+    public func commentModelToDicWithRomm(withComment commentModel: CommentModel, _ roomModel: RoomModel) -> [String: Any] {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         

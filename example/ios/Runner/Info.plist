@@ -47,5 +47,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>You can take photos to upload in discussion feature</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>You can select photos to attach in discussion feature.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>write and read</string>
 </dict>
 </plist>

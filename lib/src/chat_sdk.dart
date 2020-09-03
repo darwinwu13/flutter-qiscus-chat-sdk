@@ -90,7 +90,7 @@ class ChatSdk {
             if (result['status'] == "connected") {
               statusEvent = QiscusMqttStatusEvent.CONNECTED;
               _loadNewComment();
-              dev.log("MQTT CONNECTED", name: "mqtt status event");
+              dev.log("MQTT CONNECTErm -rf D", name: "mqtt status event");
             } else if (result['status'] == "disconnected") {
               statusEvent = QiscusMqttStatusEvent.DISCONNECTED;
               dev.log("MQTT DISCONNECTED", name: "mqtt status event");
@@ -576,7 +576,9 @@ class ChatSdk {
   }) async {
     checkSetup();
     if (await hasLogin()) {
+//      var args = {'roomId': roomId, 'caption': caption, 'filePath': imageFile.absolute.path};
       var args = {'roomId': roomId, 'caption': caption, 'filePath': imageFile.absolute.path};
+      print("Flutter || send file args $args");
       if (extras != null) args['extras'] = extras;
       String json = await _channel.invokeMethod('sendFileMessage', args);
 

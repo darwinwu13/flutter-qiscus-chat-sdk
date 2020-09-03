@@ -34,10 +34,11 @@ class _MyAppState extends State<MyApp> {
   ///nadia
   //  String ACCESS_TOKEN =
   //      "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6Ijc1ZmY1YTRhNjg4NzA0YTZmMWQxM2NhOTIyMmM0OTc2YTA1YzhmYzJhYWNhNTY3ZWM3Nzc5MzgxYzJhNzZjNzk4ODMwNzA3MGVmODRmZmJhIn0.eyJhdWQiOiI1ZDgyMThmMmY0OGMzZDZiOTQ2NDUxNDIiLCJqdGkiOiI3NWZmNWE0YTY4ODcwNGE2ZjFkMTNjYTkyMjJjNDk3NmEwNWM4ZmMyYWFjYTU2N2VjNzc3OTM4MWMyYTc2Yzc5ODgzMDcwNzBlZjg0ZmZiYSIsImlhdCI6MTU4NzMwNjQyNiwibmJmIjoxNTg3MzA2NDI2LCJleHAiOjE2MTg4NDI0MjYsInN1YiI6IjVlMjZhODQwZjQ4YzNkMWZmODM2ZmMwNCIsInNjb3BlcyI6WyJmcmVlIl19.zPHOT24-8Qe9jDKX1a__FFLgylSng_v9hxzBV6NfXNxVotNQdWTUjzKvHtvH-WCwZGDGNXAwdl-Ryya_0ab-ObOr7dmABs6Rcc-tJhht1rE_4X7pHzMnfc2KgJCEPCA4XGJlbZNCcF4ukxbohOuUmsGcvliHUWqy2mFTMHODqmvZdzUqHoHlPcBNmA4P5yMFeJTuEHI6ttu5o2zgRTlrFSuz9ofRbbnF0OhC6DRmB91raGn4eKAP5a916ELnWR_Bux7NYqUKmar86bTUcU7wj4lqKmgy5ZRLAiul3jDKx5wooiENyXJ5LwZKWzUzi9PlUu0L1-cX5pVQxcYPS0wcXLqd8TxEvSXgbhMA8aAJkWc93ZVt4OyS9b0XoCzDOcxg-5zUCa5HoB5AYGPvQDxRDBdGtqFfjrn2GFKcbWfwOzaDwiAKOapYIxF2eqSAXmwk_yF5gPxsW6MeHcVKJMytvGENw99XMf6kyb1cW94UWrAY-U9FmkJs1hzyH-96KfJT_8KQ9mC4kq45eaUHJnf5dHqaSQXkO1EuaOX305Rxwh2pZeiHU4p5MSzMptsg-knMWFLM--aea2YmydOMxxpWptVpKSnno6m4KS1Lk5j1_XrX7GWDig0_U_8GuigqOt7-sYAy0akFCwhfmmboyHyyHnmtbyv0d-fdxqtQL_XMfz0";
-
+  /// wemfrits
+  String ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjQ0MDE0OTcxOTFkMDI3ZDViNTYwMTYwZDRiYjU4MWQ1YzFmNmQwNDI1YWEzZTFiOTIyNmY3MTM1NmU5YTBkYTRhNzE2YjYzYjVkNjZjYjliIn0.eyJhdWQiOiI1ZDgyMThmMmY0OGMzZDZiOTQ2NDUxNDIiLCJqdGkiOiI0NDAxNDk3MTkxZDAyN2Q1YjU2MDE2MGQ0YmI1ODFkNWMxZjZkMDQyNWFhM2UxYjkyMjZmNzEzNTZlOWEwZGE0YTcxNmI2M2I1ZDY2Y2I5YiIsImlhdCI6MTU5NTk5MDkzNywibmJmIjoxNTk1OTkwOTM3LCJleHAiOjE2Mjc1MjY5MzcsInN1YiI6IjVmMjBlMzVmYmM1YzY2MTI3NDQ1YzlhNiIsInNjb3BlcyI6WyJmcmVlIl19.mu7_xyTZE5RhuNR3o7cPdNrpzd0C1VptKVzCXHHjUKYcykeScIrmOOQt9DS_HJqvdjYbvZ-yCk-KAhW8uMoCr-6Za0R6s7h7o199Z9Ik_415uvCjoTvl3LQ9O6Yk8fo6kZ1BQbmTcA5p6EH_DYCgeh3-Zo5tgeuEgTzX9P5ZlSCV2znjTE1rDexvU7zHXwq-ApqqZRAVw9LFeP0XWhybpGNJ0AqoDxR3-578bxtGkESyrOfzUXtriLVC5RT0dFdUFxipBILgoBStim--72Ti-eKJ1oDd9OlW5wbvA7gClNtfXU3INOh9J3THpm77T66c9sG6twRPou_R-a8fO1O96pVyUadQa4WHhQEh2SsokRnZTcojtpEEVjxLc3DtC5Lez9miZzUSFqs9mDKQwaqN3j081EpLoiCA1RZNEKOssboB2xsXshKRlOhN8KbrQqV4dPGhiWBKPUPIapKEQmB6XDcDzU7UpHAJqM3IeV5h9newns-btpbz34s2eYKn4vMfwpxx0wDIsjwERbvYAH_MlNNcQYa8oJCsqwnIEfd-7JBcaAzhoo2gjL5rvL3XYI7T1Fw8fOxX_8e2SzsLxqwNjc1220l6nrsmqTij6KKssJ0YpgHd7ZgIlxALUqmV57b7cBYzPiDhatZ05l6fMT4G038BvRKWQTw81HK3qPV0EUA";
   /// darwin wu test
-  String ACCESS_TOKEN =
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjM4Zjk4NTQyYWEzMDc5Y2NjY2M3ZDk0MTZiZDIxOWYwNDY2ZDVmMWYyOWI4Mjc0MzcyMGUwN2MzMDVkOTRkZTY3M2FhNDMxMGI4ZTZiN2VmIn0.eyJhdWQiOiI1ZDgyMThjY2Y0OGMzZDZiOGY1Y2M5MTQiLCJqdGkiOiIzOGY5ODU0MmFhMzA3OWNjY2NjN2Q5NDE2YmQyMTlmMDQ2NmQ1ZjFmMjliODI3NDM3MjBlMDdjMzA1ZDk0ZGU2NzNhYTQzMTBiOGU2YjdlZiIsImlhdCI6MTU5Mzc1MjAwMiwibmJmIjoxNTkzNzUyMDAyLCJleHAiOjE2MjUyODgwMDIsInN1YiI6IjVkOWVkMGI4ZjQ4YzNkMGFiODVhOTRiOSIsInNjb3BlcyI6WyJmcmVlIl19.VktejoTD1xiRgoLFfRZugot49meoWKYb93x5CWexhqCQ6EeWq2BubFMe9CtylGjoi65goPY5YwM96CrorqleAU9UsMlO_O854IhVPiW-WL6PzchN6QngTGO8846ul6cVgV09p65hY9kzWabNGXU-Re196wILQybUNpMHmIcVjvY7JIodpwkQP5aMqgrUz0hQ51_dlVSZRNE5kBnOFRateY24pJraj1jKRtaONwlHi8GAPtiA2uN9VfSEtAeEHGxK1WaxQomHNSauXNc9fDnbwpi61nsOeQXjAAwS6VaY0paqX29fg6HO2xD96civl_WGYD2XE9PFbMCCpLE6K0heqDtAJbkna-ftLcucwikdUpXmmPNBv-wax4JbMjk9oWP4Xy7aT0No0FGz5J5jlcqLNhx1Ynyl1QNM6H_hdI0f6EO-psbf-LUVXPjGis3QVeAZmqo9rzy7Kdo0WZCs3J5SN498k1p84iYMVbDvUN0LJpfTiDNm6vOSFU182HU5iDguHU_vn6jFTX0fGWftCj0hRWe5PY58tu4wFyWjX3qcj1dXxxkqGshJ-QATmbeb3GZ5XX00uS3MzP5JKDhP60eq6onHyNeB_k1JG4eM1_E1KK222BI4H5t7bScpY54lqQtBxStdQrj0NpOb8Aq4eUPQz6PT2NFA5xI9U0WiARRpeVI";
+//  String ACCESS_TOKEN =
+//      "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjM4Zjk4NTQyYWEzMDc5Y2NjY2M3ZDk0MTZiZDIxOWYwNDY2ZDVmMWYyOWI4Mjc0MzcyMGUwN2MzMDVkOTRkZTY3M2FhNDMxMGI4ZTZiN2VmIn0.eyJhdWQiOiI1ZDgyMThjY2Y0OGMzZDZiOGY1Y2M5MTQiLCJqdGkiOiIzOGY5ODU0MmFhMzA3OWNjY2NjN2Q5NDE2YmQyMTlmMDQ2NmQ1ZjFmMjliODI3NDM3MjBlMDdjMzA1ZDk0ZGU2NzNhYTQzMTBiOGU2YjdlZiIsImlhdCI6MTU5Mzc1MjAwMiwibmJmIjoxNTkzNzUyMDAyLCJleHAiOjE2MjUyODgwMDIsInN1YiI6IjVkOWVkMGI4ZjQ4YzNkMGFiODVhOTRiOSIsInNjb3BlcyI6WyJmcmVlIl19.VktejoTD1xiRgoLFfRZugot49meoWKYb93x5CWexhqCQ6EeWq2BubFMe9CtylGjoi65goPY5YwM96CrorqleAU9UsMlO_O854IhVPiW-WL6PzchN6QngTGO8846ul6cVgV09p65hY9kzWabNGXU-Re196wILQybUNpMHmIcVjvY7JIodpwkQP5aMqgrUz0hQ51_dlVSZRNE5kBnOFRateY24pJraj1jKRtaONwlHi8GAPtiA2uN9VfSEtAeEHGxK1WaxQomHNSauXNc9fDnbwpi61nsOeQXjAAwS6VaY0paqX29fg6HO2xD96civl_WGYD2XE9PFbMCCpLE6K0heqDtAJbkna-ftLcucwikdUpXmmPNBv-wax4JbMjk9oWP4Xy7aT0No0FGz5J5jlcqLNhx1Ynyl1QNM6H_hdI0f6EO-psbf-LUVXPjGis3QVeAZmqo9rzy7Kdo0WZCs3J5SN498k1p84iYMVbDvUN0LJpfTiDNm6vOSFU182HU5iDguHU_vn6jFTX0fGWftCj0hRWe5PY58tu4wFyWjX3qcj1dXxxkqGshJ-QATmbeb3GZ5XX00uS3MzP5JKDhP60eq6onHyNeB_k1JG4eM1_E1KK222BI4H5t7bScpY54lqQtBxStdQrj0NpOb8Aq4eUPQz6PT2NFA5xI9U0WiARRpeVI";
   @override
   void initState() {
     super.initState();
@@ -98,12 +99,9 @@ class _MyAppState extends State<MyApp> {
                     },
                   ),
                   RaisedButton(
-                    child: Text('Login  Edwin'),
+                    child: Text('Login  Wemfrits'),
                     onPressed: () async {
                       qiscusAccount = await loginWithJwt();
-//                      qiscusAccount = await ChatSdk.login(
-//                          userId: "5d9ed0b8f48c3d0ab85a94b9",
-//                          userKey: "nadi", username: "nadiaanggia");
                       print("acc:${qiscusAccount.toJson()}");
                       setState(() {
                         username = qiscusAccount.username;
@@ -127,9 +125,9 @@ class _MyAppState extends State<MyApp> {
                     },
                   ),
                   RaisedButton(
-                    child: Text('Chat User Nadia'),
+                    child: Text('Chat User Wemfrits'),
                     onPressed: () async {
-                      final chatRoom = await ChatSdk.chatUser(userId: '5d9ed0b8f48c3d0ab85a94b9');
+                      final chatRoom = await ChatSdk.chatUser(userId: '5f20e35fbc5c66127445c9a6');
                       print("chatRoom Id : ${chatRoom.id}");
                       roomId = chatRoom.id;
                       // if wanna test offline mode remove the comment below
@@ -139,7 +137,7 @@ class _MyAppState extends State<MyApp> {
                         MaterialPageRoute(
                           builder: (context) => ChatPage(
                             roomId: roomId,
-                            roomName: 'Peter',
+                            roomName: 'Wemfrits',
                             senderAccount: qiscusAccount,
                           ),
                         ),
