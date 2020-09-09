@@ -517,7 +517,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             },
             onError: {
                 (error: QError) in
-                result(FlutterError(code: "ERR_CHAT_USER", message: error.message, details: ""))
+                result(FlutterError(code: "ERR_CHAT_USER", message: error.message.description, details: ""))
             }
         )
     }
@@ -660,23 +660,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func getLocalChatRooms(withLimit limit: Int, withOffset offset: Int?, withResult result: @escaping FlutterResult) {
-        //todooooo check database
-        print("masuk getLocalChatRooms")
         qiscusRepository.getLocalChatRooms(withLimit: 10);
-//        var predicate: NSPredicate = NSPredicate(format: "LIMIT \(limit)")
-//        if let _offset = offset {
-//            predicate = NSPredicate(format: "LIMIT \(limit) OFFSET \(_offset)")
-//        }
-//
-//        let localChatRooms: [RoomModel]? = QiscusCore.database.room.find(predicate: predicate)
-//        if let _localChatRooms = localChatRooms {
-//            let chatRoomsDic: [String] = self.qiscusSdkHelper.roomModelsToListJson(withRoomModels: _localChatRooms)
-//            let chatRoomsDicEncode: String = self.qiscusSdkHelper.toJson(withData: chatRoomsDic)
-//
-//            result(chatRoomsDicEncode)
-//        }else {
-//            result(FlutterError(code: "ERR_GET_LOCAL_CHAT_ROOMS", message: "", details: ""))
-//        }
     }
     
     private func getTotalUnreadCount(withResult result: @escaping FlutterResult) {
@@ -713,7 +697,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let commentModelDictonary = self.qiscusSdkHelper.commentModelToDic(withComment: commentModel)
                 let commentModelDictionaryEncode = self.qiscusSdkHelper.toJson(withData: commentModelDictonary)
                 
-                print("comment model \(commentModelDictionaryEncode)")
                 result(commentModelDictionaryEncode)
             },
             onError: {
@@ -731,9 +714,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         withResult result: @escaping FlutterResult
     ) {
         let filePathURL = URL(fileURLWithPath: filePath)
-        print("SWIFT || url path component \(filePathURL.absoluteString)")
         do {
-            print("SWIFT || url last path component \(filePathURL.lastPathComponent)")
             let fileData = try Data(contentsOf: filePathURL)
             let file = FileUploadModel()
             file.data = fileData
@@ -741,7 +722,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             
             let messageModel = CommentModel()
             messageModel.message = caption
-//            messageModel.type = "file" // TODO sementara dicomment
             messageModel.type = "file_attachment"
             messageModel.roomId = roomId
             
@@ -750,14 +730,12 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 file: file,
                 progressUploadListener: {
                     (progress: Double) in
-                    print("progress listener \(progress)")
                     self.eventHandler.onFileUploadProgress(withProgress: progress)
             },
                 onSuccess: {
                     (commentModel: CommentModel) in
                     let commentModelDictonary = self.qiscusSdkHelper.commentModelToDic(withComment: commentModel)
                     let commentModelDictionaryEncode = self.qiscusSdkHelper.toJson(withData: commentModelDictonary)
-                    print("print encode dictionary \(commentModelDictionaryEncode)")
                     result(commentModelDictionaryEncode)
             },
                 onError: {

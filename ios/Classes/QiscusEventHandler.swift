@@ -9,8 +9,6 @@ import Foundation
 import Flutter
 import QiscusCore
 
-
-
 class QiscusEventHandler {
     private var eventChannel: FlutterEventChannel!
     private let EVENT_CHANNEL_NAME: String = "bahaso.com/qiscus_chat_sdk/events"
@@ -48,7 +46,6 @@ class QiscusEventHandler {
             var result: [String: Any] = [:]
             result["type"] = "file_upload_progress"
             result["progress"] = Int(progress)
-            print("file upload progress \(result)")
             DispatchQueue.main.async {
                 eventSink(self.qiscusSdkHelper.toJson(withData: result))
             }
@@ -98,6 +95,7 @@ extension QiscusEventHandler: QiscusCoreDelegate {
         
         args["type"] = "comment_received"
         args["comment"] = self.qiscusSdkHelper.toJson(withData: commentDic)
+        print("iOS || onRoomDidChangeComment \(args)")
         
         if let eventSink = getEventSink() {
             eventSink(self.qiscusSdkHelper.toJson(withData: args))
@@ -172,11 +170,10 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
         let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message)
         
         args["type"] = "comment_received"
-        args["comment"] = commentDic
+        args["comment"] = self.qiscusSdkHelper.toJson(withData: commentDic)
         
         if let eventSink = getEventSink() {
             DispatchQueue.main.async {
-                print("send comment received \(args)")
                 eventSink(self.qiscusSdkHelper.toJson(withData: args))
             }
         }
