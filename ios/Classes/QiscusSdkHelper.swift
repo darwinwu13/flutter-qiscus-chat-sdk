@@ -93,6 +93,16 @@ class QiscusSdkHelper {
         return comments
     }
     
+    public func memberModelsToListDic(withMembers memberModels: [MemberModel]) -> [[String: Any]]{
+        var members: [[String: Any]] = [[String: Any]]()
+        for member in memberModels {
+            let tmpMember: [String: Any] = self.memberModelToDic(withMemberModel: member)
+            members.append(tmpMember)
+        }
+        
+        return members
+    }
+    
     public func memberModelToDic(withMemberModel memberModel: MemberModel) -> [String: Any] {
         var tmpMemberModel: [String: Any] = [:]
         tmpMemberModel["id"] = Int(memberModel.id)
@@ -101,7 +111,7 @@ class QiscusSdkHelper {
         tmpMemberModel["lastCommentReadId"] = memberModel.lastCommentReadId
         tmpMemberModel["lastCommentReceivedId"] = memberModel.lastCommentReceivedId
         tmpMemberModel["username"] = memberModel.username
-        
+        tmpMemberModel["extras"] = memberModel.extras
         return tmpMemberModel
     }
     
@@ -115,19 +125,22 @@ class QiscusSdkHelper {
         tmpRoomModel["unreadCount"] = roomModel.unreadCount
         
         if let participants = roomModel.participants {
-            tmpRoomModel["participants"] = self.memberModelsToListJson(withMemberModel: participants)
+//            tmpRoomModel["participants"] = self.memberModelsToListJson(withMemberModel: participants)
+            tmpRoomModel["member"] = self.memberModelsToListDic(withMembers: participants)
         }else {
-            tmpRoomModel["participants"] = []
+            tmpRoomModel["member"] = []
         }
         
         if let lastComment = roomModel.lastComment {
             tmpRoomModel["lastComment"] = self.commentModelToDic(withComment: lastComment)
+//            tmpRoomModel["lastComment"] = self.toJson(withData: lastComment)
         }else {
             tmpRoomModel["lastComment"] = [:]
         }
         
         if let options = roomModel.options {
             tmpRoomModel["options"] = convertToDictionary(string: self.removeNewLineAndWhiteSpace(string: options))
+//            tmpRoomModel["options"] = options
         }else {
             tmpRoomModel["options"] = [:]
         }
@@ -197,8 +210,9 @@ class QiscusSdkHelper {
         
         var roomAndComment: [String: String] = [String: String]()
         roomAndComment["chatRoom"] = self.toJson(withData: roomModelDic)
+//        roomAndComment["messages"] = self.commentModelsToListJson(withCommentModels: commentModel)
         roomAndComment["messages"] = self.toJson(withData: commentModelDic)
-        
+    
         return roomAndComment
     }
     

@@ -146,6 +146,18 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             updateChatRoom(withRoomId: roomId, withName: name, withAvatarUrl: avatarUrl, withExtras: extras, withResult: result)
             break
         case "addOrUpdateLocalChatRoom":
+//            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+//            let roomId: String = arguments["roomId"] as? String ?? ""
+//            let name: String? = arguments["name"] as? String ?? ""
+//            let avatar: String = arguments["avatarUrl"] as? String ?? ""
+//            let avatarUrl: URL? = avatar != "" ? URL(string: avatar) : nil
+//            let stringExtras: String = arguments["extras"] as? String ?? String()
+//            var extras: [String: Any]? = [:]
+//            if stringExtras != String() {
+//                extras = self.qiscusSdkHelper.convertToDictionary(string: stringExtras)
+//            }
+            
+//            updateChatRoom(withRoomId: roomId, withName: name, withAvatarUrl: avatarUrl, withExtras: extras, withResult: result)
             result(true)
             break
         case "getChatRoomWithMessages":
@@ -544,7 +556,9 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 (room: RoomModel) in
                 let roomModelDic = self.qiscusSdkHelper.roomModelToDic(withRoomModel: room)
                 let roomModelDicEncode = self.qiscusSdkHelper.toJson(withData: roomModelDic)
-                
+                if let room = QiscusCore.database.room.find(id: roomId){
+                    print("room name \(room.id) \(room.name)")
+                }
                 result(roomModelDicEncode)
             },
             onError: {
@@ -556,9 +570,11 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     
     private func addOrUpdateLocalChatRoom(withChatRoom chatRoom: [String: Any]?, withResult result: @escaping FlutterResult) {
         // add or update
+        
     }
     
     private func getChatRoomWithMessages(withRoomId roomId: String, withResult result: @escaping FlutterResult) {
+        print("room id \(String(roomId))")
         QiscusCore.shared.getChatRoomWithMessages(
             roomId: roomId,
             onSuccess: {
@@ -915,7 +931,8 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             messageId: messageId,
             onSuccess: {
                 (comments: [CommentModel]) in
-                let commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: comments)
+//                let commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: comments)
+                let commentModelsDic = self.qiscusSdkHelper.commentModelsToListDic(withCommentModels: comments)
                 let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
                 
                 result(commentModelsDicEncode)
