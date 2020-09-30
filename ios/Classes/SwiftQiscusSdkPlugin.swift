@@ -215,6 +215,11 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             let limit: Int = arguments["limit"] as? Int ?? Int()
             let offset = arguments["offset"] as? Int ?? nil
             
+            let path = NSSearchPathForDirectoriesInDomains(
+                .applicationSupportDirectory, .userDomainMask, true
+            ).first!
+            
+            print("path \(path)")
             getLocalChatRooms(withLimit: limit, withOffset: offset, withResult: result);
             break
         case "getTotalUnreadCount":
@@ -676,7 +681,18 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func getLocalChatRooms(withLimit limit: Int, withOffset offset: Int?, withResult result: @escaping FlutterResult) {
-        qiscusRepository.getLocalChatRooms(withLimit: 10);
+        print("get local chat rooms limit \(limit)")
+        let roomModels: [RoomModel] = QiscusCore.database.room.findChatRooms(limit: limit, offset: offset!)!
+        let roomModelsDic = qiscusSdkHelper.roomModelsToDic(withRoomModels: roomModels)
+        let roomModelsDicEncode = self.qiscusSdkHelper.toJson(withData: roomModelsDic)
+        
+        for room in roomModels {
+            print("distinc id \(room.id)")
+        }
+        //qiscusRepository.getLocalChatRooms(withLimit: 10);
+        result(roomModelsDicEncode)
+        
+        
     }
     
     private func getTotalUnreadCount(withResult result: @escaping FlutterResult) {
@@ -958,8 +974,9 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let comments = QiscusCore.database.comment.findOlderCommentsThan(roomId: roomId, message: _qiscusComment, limit: limit)
                 
                 if let _comments = comments {
-                    let commentsModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
-                    let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentsModelsDic)
+//                    let commentsModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
+                    let commentModelsDic = self.qiscusSdkHelper.commentModelsToListDic(withCommentModels: _comments)
+                    let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
                     
                     result(commentModelsDicEncode)
                     return

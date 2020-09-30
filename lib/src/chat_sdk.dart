@@ -488,6 +488,7 @@ class ChatSdk {
     String json = await _channel.invokeMethod('getLocalChatRooms', arguments);
 
     return (jsonDecode(json) as List).map((each) {
+      print("chat room decode $each");
       return QiscusChatRoom.fromJson(each);
     }).toList();
   }

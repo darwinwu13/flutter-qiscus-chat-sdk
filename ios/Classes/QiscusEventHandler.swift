@@ -58,32 +58,19 @@ class QiscusEventHandler {
 extension QiscusEventHandler: QiscusCoreDelegate {
     
     func onRoomMessageReceived(_ room: RoomModel, message: CommentModel) {
-        self.handleMessageRecieved(messageComment: message)
+        self.mappingCommentReceive(messageComment: message)
     }
     
     func onRoomMessageDeleted(room: RoomModel, message: CommentModel) {
-//        let commentDic = self.qiscusSdkHelper.commentModelToDicWithRomm(withComment: message, room)
-//
-//        var args: [String: Any] = [String: Any]()
-//        args["type"] = "chat_room_event_received"
-//        args["chatRoomEvent"] = commentDic
-////        args["chatRoomEvent"] = self.qiscusSdkHelper.toJson(withData: commentDic)
-//
-//        if let eventSink = getEventSink() {
-//            DispatchQueue.main.async {
-//                eventSink(self.qiscusSdkHelper.toJson(withData: args))
-//            }
-//        }
+
     }
     
     func onRoomMessageDelivered(message: CommentModel) {
         // ROOM meessage deliverd
-//        handleMessageState(messageComment: message)
     }
     
     func onRoomMessageRead(message: CommentModel) {
-        // message has been read
-//        handleMessageState(messageComment: message)
+        // TODO message has been read
     }
     
     func onChatRoomCleared(roomId: String) {
@@ -91,17 +78,7 @@ extension QiscusEventHandler: QiscusCoreDelegate {
     }
     
     func onRoomDidChangeComment(comment: CommentModel, changeStatus status: CommentStatus) {
-//        var args: [String: Any] = [String: Any]()
-//        let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: comment)
-//
-//        args["type"] = "comment_received"
-////        args["comment"] = self.qiscusSdkHelper.toJson(withData: commentDic)
-//        args["comment"] = commentDic
-//        print("iOS || onRoomDidChangeComment \(args)")
-//
-//        if let eventSink = getEventSink() {
-//            eventSink(self.qiscusSdkHelper.toJson(withData: args))
-//        }
+
     }
     
     func onRoom(update room: RoomModel) {
@@ -121,23 +98,23 @@ extension QiscusEventHandler: QiscusCoreDelegate {
 // MARK: Core Delegate of Chat Room
 extension QiscusEventHandler: QiscusCoreRoomDelegate{
     func onMessageReceived(message: CommentModel) {
-        handleMessageRecieved(messageComment: message)
+        mappingCommentReceive(messageComment: message)
     }
     
     func didComment(comment: CommentModel, changeStatus status: CommentStatus) {
-        // sfasdfa
+        
     }
     
     func onMessageDelivered(message: CommentModel) {
-        //handleMessageState(messageComment: message)
+       
     }
     
     func onMessageRead(message: CommentModel) {
-       // handleMessageState(messageComment: message)
+       
     }
     
     func onMessageDeleted(message: CommentModel) {
-        //handleMessageState(messageComment: message)
+        
     }
     
     func onUserTyping(userId: String, roomId: String, typing: Bool) {
@@ -153,13 +130,12 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
         
     }
     
-    private func handleMessageState(messageComment message: CommentModel){
+    private func mappingChatRoomEvent(messageComment message: CommentModel){
         var args: [String: Any] = [String: Any]()
         let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message)
         
         args["type"] = "chat_room_event_received"
         args["chatRoomEvent"] = commentDic
-//        args["chatRoomEvent"] = self.qiscusSdkHelper.toJson(withData: commentDic)
         
         if let eventSink = getEventSink() {
             DispatchQueue.main.async {
@@ -168,12 +144,11 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
         }
     }
     
-    private func handleMessageRecieved(messageComment message: CommentModel){
+    private func mappingCommentReceive(messageComment message: CommentModel){
         var args: [String: Any] = [String: Any]()
         let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message)
         
         args["type"] = "comment_received"
-//        args["comment"] = self.qiscusSdkHelper.toJson(withData: commentDic)
         args["comment"] = commentDic
         
         if let eventSink = getEventSink() {

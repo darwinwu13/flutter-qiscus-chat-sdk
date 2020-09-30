@@ -139,7 +139,8 @@ class QiscusSdkHelper {
         }
         
         if let options = roomModel.options {
-            tmpRoomModel["options"] = convertToDictionary(string: self.removeNewLineAndWhiteSpace(string: options))
+//            tmpRoomModel["options"] = convertToDictionary(string: self.removeNewLineAndWhiteSpace(string: options))
+            tmpRoomModel["options"] = convertToDictionary(string: options)
 //            tmpRoomModel["options"] = options
         }else {
             tmpRoomModel["options"] = [:]
@@ -256,7 +257,8 @@ class QiscusSdkHelper {
     }
     
     public func removeNewLineAndWhiteSpace(string: String) -> String {
-        return String(string.filter { !" \n\t\r".contains($0) })
+//        return String(string.filter { !" \n\t\r".contains($0) })
+        return String(string.filter { !"\n\t\r".contains($0) })
     }
     
     public func covertToListOfString(data: [Int]) -> [String] {
