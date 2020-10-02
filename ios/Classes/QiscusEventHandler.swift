@@ -58,7 +58,8 @@ class QiscusEventHandler {
 extension QiscusEventHandler: QiscusCoreDelegate {
     
     func onRoomMessageReceived(_ room: RoomModel, message: CommentModel) {
-        self.mappingCommentReceive(messageComment: message)
+        self.mappingChatRoomEvent(withRoom: room, messageComment: message)
+        
     }
     
     func onRoomMessageDeleted(room: RoomModel, message: CommentModel) {
@@ -71,6 +72,11 @@ extension QiscusEventHandler: QiscusCoreDelegate {
     
     func onRoomMessageRead(message: CommentModel) {
         // TODO message has been read
+        print("List of Chat Room | has been read \(message.message) \(message.status.rawValue)")
+//        if message.status == CommentStatus.read{
+//            QiscusCore.shared.markAsRead(roomId: message.roomId, commentId: message.id)
+//        }
+//        mappingChatRoomEvent(messageComment: message)
     }
     
     func onChatRoomCleared(roomId: String) {
@@ -98,6 +104,9 @@ extension QiscusEventHandler: QiscusCoreDelegate {
 // MARK: Core Delegate of Chat Room
 extension QiscusEventHandler: QiscusCoreRoomDelegate{
     func onMessageReceived(message: CommentModel) {
+        if message.status == CommentStatus.read{
+            QiscusCore.shared.markAsRead(roomId: message.roomId, commentId: message.id)
+        }
         mappingCommentReceive(messageComment: message)
     }
     
@@ -110,7 +119,11 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
     }
     
     func onMessageRead(message: CommentModel) {
-       
+        print("Chat Room | has been read \(message.message) \(message.status.rawValue)")
+//        mappingCommentReceive(messageComment: message)
+        if message.status == CommentStatus.read{
+            QiscusCore.shared.markAsRead(roomId: message.roomId, commentId: message.id)
+        }
     }
     
     func onMessageDeleted(message: CommentModel) {
@@ -130,12 +143,21 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
         
     }
     
-    private func mappingChatRoomEvent(messageComment message: CommentModel){
+    private func mappingChatRoomEvent(withRoom room: RoomModel, messageComment message: CommentModel){
         var args: [String: Any] = [String: Any]()
         let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message)
-        
+        var chatRoomEvent: [String: Any] = [String: Any]()
+        chatRoomEvent["roomId"] = room.id
+        chatRoomEvent["commentId"] = message.id
+        chatRoomEvent["commentUniqueId"] = message.uniqId
+        chatRoomEvent["typing"] = ""
+        chatRoomEvent["user"] = message.userEmail
+        chatRoomEvent["event"] = qiscusSdkHelper.mappingEventState(commentStatus: message.status).hashValue
+        chatRoomEvent["eventData"] = room.options
+        print("event name \(qiscusSdkHelper.mappingEventState(commentStatus: message.status))")
         args["type"] = "chat_room_event_received"
-        args["chatRoomEvent"] = commentDic
+//        args["chatRoomEvent"] = commentDic
+        args["chatRoomEvent"] = chatRoomEvent
         
         if let eventSink = getEventSink() {
             DispatchQueue.main.async {
@@ -147,7 +169,7 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
     private func mappingCommentReceive(messageComment message: CommentModel){
         var args: [String: Any] = [String: Any]()
         let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message)
-        
+        print("comment state \(commentDic["state"] as? Int ?? 0)")
         args["type"] = "comment_received"
         args["comment"] = commentDic
         
@@ -213,4 +235,11 @@ class QiscusEventStreamHandler: NSObject, FlutterStreamHandler {
         
         return nil
     }
+}
+
+public enum Event: String {
+    case TYPING = "TYPING"
+    case DELIVERED = "DELIVERED"
+    case READ = "READ"
+    case CUSTOM = "CUSTOM"
 }

@@ -287,11 +287,10 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             markCommentAsRead(withRoomId: String(roomId), withCommentId: commentId, withResult: result)
             break
         case "addOrUpdateLocalComment":
-//            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-//            let comment: [String: Any] = arguments["comment"] as? [String: Any] ?? [:]
-//
-//            addOrUpdateLocalComment(withComment: comment, withResult: result)
-            result(true)
+            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
+            let comment: [String: Any] = qiscusSdkHelper.convertToDictionary(string: arguments["comment"] as! String)!
+            
+            addOrUpdateLocalComment(withComment: comment, withResult: result)
             break
         case "subscribeToChatRoom":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
@@ -847,6 +846,16 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     
     private func addOrUpdateLocalComment(withComment comment: [String: Any], withResult result: @escaping FlutterResult) {
         // add or update
+        if comment.count > 0 {
+            let commentId: Int = comment["id"] as? Int ?? 0
+            let commentState: Int = comment["state"] as? Int ?? 0
+            let commentModel: CommentModel = QiscusCore.database.comment!.find(id: String(commentId))!
+            print("comment Status \(commentModel.status.rawValue) message \(commentModel.message)")
+            commentModel.status = qiscusSdkHelper.convertStateToCommentStatus(commentState: commentState)
+//            commentModel.status = CommentStatus.read
+            QiscusCore.database.comment!.save([commentModel])
+        }
+        result(true)
     }
     
     private func subscribeToChatRoom(withChatRoom chatRoom: [String: Any], withResult result: @escaping FlutterResult) {

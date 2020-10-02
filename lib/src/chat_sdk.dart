@@ -75,16 +75,9 @@ class ChatSdk {
 
         switch (result['type']) {
           case "comment_received":
-            // Map<String, dynamic> resultCommentReceived =
-            //     Platform.isIOS ? jsonDecode(result["comment"]) : result["comment"];
-
-            // _commentReceiveController.add(QiscusComment.fromJson(resultCommentReceived));
             _commentReceiveController.add(QiscusComment.fromJson(result["comment"]));
             break;
           case "chat_room_event_received":
-//            dev.log(result['chatRoomEvent'], name: "chat sdk event channel");
-//             Map<String, dynamic> resultChatRoomEvent =
-//                 Platform.isIOS ? jsonDecode(result["chatRoomEvent"]) : result["chatRoomEvent"];
             _chatRoomEventController.add(QiscusChatRoomEvent.fromJson(result['chatRoomEvent']));
             break;
           case "file_upload_progress":
@@ -409,7 +402,7 @@ class ChatSdk {
 
   static Future<bool> addOrUpdateLocalComment(QiscusComment comment) async {
     var args = {'comment': jsonEncode(comment)};
-
+    print("Flutter || save comment $args");
     return await _channel.invokeMethod(
       'addOrUpdateLocalComment',
       args,

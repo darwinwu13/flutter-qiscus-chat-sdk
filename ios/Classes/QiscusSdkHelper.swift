@@ -133,7 +133,6 @@ class QiscusSdkHelper {
         
         if let lastComment = roomModel.lastComment {
             tmpRoomModel["lastComment"] = self.commentModelToDic(withComment: lastComment)
-//            tmpRoomModel["lastComment"] = self.toJson(withData: lastComment)
         }else {
             tmpRoomModel["lastComment"] = [:]
         }
@@ -173,6 +172,7 @@ class QiscusSdkHelper {
         comment["replyTo"] = commentModel.payload?["replyTo"] as? [String: Any] ?? [:]
         comment["attachmentName"] = commentModel.payload?["attachmentName"] as? String ?? "" // TODO return String
     
+        print("comment state \(comment["state"]!)")
         return comment
     }
     
@@ -217,7 +217,18 @@ class QiscusSdkHelper {
         return roomAndComment
     }
     
-    private func mappingCommentState(commentStatus status: CommentStatus) -> Int {
+    public func mappingEventState(commentStatus status: CommentStatus) -> Event{
+        switch status {
+        case .delivered:
+            return Event.DELIVERED
+        case .read:
+            return Event.READ
+        default:
+            return Event.CUSTOM
+        }
+    }
+    
+    public func mappingCommentState(commentStatus status: CommentStatus) -> Int {
         switch status {
         case .failed:
             return -1
@@ -233,6 +244,25 @@ class QiscusSdkHelper {
             return 4
         default:
             return -2 // TODO i don't know what deleted and deleting
+        }
+    }
+    
+    public func convertStateToCommentStatus(commentState state: Int) -> CommentStatus {
+        switch state {
+        case -1:
+            return CommentStatus.failed
+        case 0:
+            return CommentStatus.pending
+        case 1:
+            return CommentStatus.sending
+        case 2:
+            return CommentStatus.sent
+        case 3:
+            return CommentStatus.delivered
+        case 4:
+            return CommentStatus.read
+        default:
+            return CommentStatus.deleting
         }
     }
     
@@ -257,8 +287,7 @@ class QiscusSdkHelper {
     }
     
     public func removeNewLineAndWhiteSpace(string: String) -> String {
-//        return String(string.filter { !" \n\t\r".contains($0) })
-        return String(string.filter { !"\n\t\r".contains($0) })
+        return String(string.filter { !" \n\t\r".contains($0) })
     }
     
     public func covertToListOfString(data: [Int]) -> [String] {
@@ -274,4 +303,29 @@ class QiscusSdkHelper {
     public func getLastQiscusComment(withRoomModel roomModel: RoomModel) -> CommentModel? {
         return roomModel.lastComment
     }
+    
+//    public func parseQiscusComment(withDict commentDict: [String: Any]) -> CommentModel {
+//        var commentModel: CommentModel = CommentModel()
+//        public internal(set) var commentBeforeId      : String        = ""
+//        public internal(set) var id                   : String        = ""
+//        public internal(set) var isDeleted            : Bool          = false
+//        public internal(set) var isPublicChannel      : Bool          = false
+//        public var status               : CommentStatus = .sending
+//        public var message              : String        = ""
+//        /// Comment payload, to describe comment type.
+//        public var payload              : [String:Any]? = nil
+//        /// Extra data, set after comment is complate.
+//        public var extras               : [String:Any]? = nil
+//        public var userExtras           : [String:Any]? = nil
+//        public var roomId               : String        = ""
+//        public internal(set) var timestamp            : String        = ""
+//        public var type                 : String        = "text"
+//        public internal(set) var uniqId               : String        = ""
+//        public internal(set) var unixTimestamp        : Int64         = 0
+//        public internal(set) var userAvatarUrl        : URL?          = nil
+//        public internal(set) var userId               : String        = ""
+//        public internal(set) var username             : String        = ""
+//        public internal(set) var userEmail            : String        = ""
+//        let commentBeforeId: Int = commentDict["commentBeforeId"] as? Int ?? 0
+//    }
 }
