@@ -125,7 +125,6 @@ class QiscusSdkHelper {
         tmpRoomModel["unreadCount"] = roomModel.unreadCount
         
         if let participants = roomModel.participants {
-//            tmpRoomModel["participants"] = self.memberModelsToListJson(withMemberModel: participants)
             tmpRoomModel["member"] = self.memberModelsToListDic(withMembers: participants)
         }else {
             tmpRoomModel["member"] = []
@@ -138,9 +137,7 @@ class QiscusSdkHelper {
         }
         
         if let options = roomModel.options {
-//            tmpRoomModel["options"] = convertToDictionary(string: self.removeNewLineAndWhiteSpace(string: options))
             tmpRoomModel["options"] = convertToDictionary(string: options)
-//            tmpRoomModel["options"] = options
         }else {
             tmpRoomModel["options"] = [:]
         }
@@ -218,11 +215,14 @@ class QiscusSdkHelper {
     }
     
     public func mappingEventState(commentStatus status: CommentStatus) -> Event{
+        print("message comment status \(status)")
         switch status {
         case .delivered:
             return Event.DELIVERED
         case .read:
             return Event.READ
+        case .sent:
+            return Event.DELIVERED
         default:
             return Event.CUSTOM
         }
@@ -303,29 +303,4 @@ class QiscusSdkHelper {
     public func getLastQiscusComment(withRoomModel roomModel: RoomModel) -> CommentModel? {
         return roomModel.lastComment
     }
-    
-//    public func parseQiscusComment(withDict commentDict: [String: Any]) -> CommentModel {
-//        var commentModel: CommentModel = CommentModel()
-//        public internal(set) var commentBeforeId      : String        = ""
-//        public internal(set) var id                   : String        = ""
-//        public internal(set) var isDeleted            : Bool          = false
-//        public internal(set) var isPublicChannel      : Bool          = false
-//        public var status               : CommentStatus = .sending
-//        public var message              : String        = ""
-//        /// Comment payload, to describe comment type.
-//        public var payload              : [String:Any]? = nil
-//        /// Extra data, set after comment is complate.
-//        public var extras               : [String:Any]? = nil
-//        public var userExtras           : [String:Any]? = nil
-//        public var roomId               : String        = ""
-//        public internal(set) var timestamp            : String        = ""
-//        public var type                 : String        = "text"
-//        public internal(set) var uniqId               : String        = ""
-//        public internal(set) var unixTimestamp        : Int64         = 0
-//        public internal(set) var userAvatarUrl        : URL?          = nil
-//        public internal(set) var userId               : String        = ""
-//        public internal(set) var username             : String        = ""
-//        public internal(set) var userEmail            : String        = ""
-//        let commentBeforeId: Int = commentDict["commentBeforeId"] as? Int ?? 0
-//    }
 }

@@ -20,7 +20,7 @@ import QiscusCore
     }
     
     override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        
+        print("receive device token \(deviceToken)")
         var tokenString: String = ""
         for i in 0..<deviceToken.count {
             tokenString += String(format: "%02.2hhx", deviceToken[i] as CVarArg)
@@ -29,7 +29,7 @@ import QiscusCore
         
         QiscusCore.shared.registerDeviceToken(token: tokenString, isDevelopment: true, onSuccess: {
             (success) in
-            print("success")
+            print("register token success")
         }){ (error) in
             print("error \(error.message)")
         }

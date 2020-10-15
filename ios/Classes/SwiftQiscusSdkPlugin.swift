@@ -29,6 +29,7 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         print("call handle method \(call.method)")
+        QiscusCore.enableDebugMode(value: true)
         switch call.method {
         case "setup":
             let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
@@ -146,18 +147,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             updateChatRoom(withRoomId: roomId, withName: name, withAvatarUrl: avatarUrl, withExtras: extras, withResult: result)
             break
         case "addOrUpdateLocalChatRoom":
-//            let arguments: [String: Any] = call.arguments as? [String: Any] ?? [:]
-//            let roomId: String = arguments["roomId"] as? String ?? ""
-//            let name: String? = arguments["name"] as? String ?? ""
-//            let avatar: String = arguments["avatarUrl"] as? String ?? ""
-//            let avatarUrl: URL? = avatar != "" ? URL(string: avatar) : nil
-//            let stringExtras: String = arguments["extras"] as? String ?? String()
-//            var extras: [String: Any]? = [:]
-//            if stringExtras != String() {
-//                extras = self.qiscusSdkHelper.convertToDictionary(string: stringExtras)
-//            }
-            
-//            updateChatRoom(withRoomId: roomId, withName: name, withAvatarUrl: avatarUrl, withExtras: extras, withResult: result)
             result(true)
             break
         case "getChatRoomWithMessages":
@@ -520,7 +509,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         if let _extras = extras {
             extrasString = self.qiscusSdkHelper.toJson(withData: _extras)
         }
-        
         QiscusCore.shared.chatUser(
             userId: userId,
             extras: extrasString,
@@ -849,11 +837,12 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
         if comment.count > 0 {
             let commentId: Int = comment["id"] as? Int ?? 0
             let commentState: Int = comment["state"] as? Int ?? 0
-            let commentModel: CommentModel = QiscusCore.database.comment!.find(id: String(commentId))!
-            print("comment Status \(commentModel.status.rawValue) message \(commentModel.message)")
-            commentModel.status = qiscusSdkHelper.convertStateToCommentStatus(commentState: commentState)
-//            commentModel.status = CommentStatus.read
-            QiscusCore.database.comment!.save([commentModel])
+            if let commentModel: CommentModel = QiscusCore.database.comment!.find(id: String(commentId)){
+                //print("comment Status \(commentModel.status.rawValue) message \(commentModel.message)")
+                commentModel.status = qiscusSdkHelper.convertStateToCommentStatus(commentState: commentState)
+                //            commentModel.status = CommentStatus.read
+                QiscusCore.database.comment!.save([commentModel])
+            }
         }
         result(true)
     }
@@ -956,7 +945,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
             messageId: messageId,
             onSuccess: {
                 (comments: [CommentModel]) in
-//                let commentModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: comments)
                 let commentModelsDic = self.qiscusSdkHelper.commentModelsToListDic(withCommentModels: comments)
                 let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
                 
@@ -983,7 +971,6 @@ public class SwiftQiscusSdkPlugin: NSObject, FlutterPlugin {
                 let comments = QiscusCore.database.comment.findOlderCommentsThan(roomId: roomId, message: _qiscusComment, limit: limit)
                 
                 if let _comments = comments {
-//                    let commentsModelsDic = self.qiscusSdkHelper.commentModelsToListJson(withCommentModels: _comments)
                     let commentModelsDic = self.qiscusSdkHelper.commentModelsToListDic(withCommentModels: _comments)
                     let commentModelsDicEncode = self.qiscusSdkHelper.toJson(withData: commentModelsDic)
                     

@@ -58,8 +58,10 @@ class QiscusEventHandler {
 extension QiscusEventHandler: QiscusCoreDelegate {
     
     func onRoomMessageReceived(_ room: RoomModel, message: CommentModel) {
+        if message.status == CommentStatus.read{
+            QiscusCore.shared.markAsRead(roomId: message.roomId, commentId: message.id)
+        }
         self.mappingChatRoomEvent(withRoom: room, messageComment: message)
-        
     }
     
     func onRoomMessageDeleted(room: RoomModel, message: CommentModel) {
@@ -76,7 +78,6 @@ extension QiscusEventHandler: QiscusCoreDelegate {
 //        if message.status == CommentStatus.read{
 //            QiscusCore.shared.markAsRead(roomId: message.roomId, commentId: message.id)
 //        }
-//        mappingChatRoomEvent(messageComment: message)
     }
     
     func onChatRoomCleared(roomId: String) {
@@ -84,7 +85,10 @@ extension QiscusEventHandler: QiscusCoreDelegate {
     }
     
     func onRoomDidChangeComment(comment: CommentModel, changeStatus status: CommentStatus) {
-
+        /// TODO untuk next disini untuk merubah status comment ketika terkirim, diterima dan terbaca.
+        /// sebelumnya perlu menyimpan list chat disini terlebih dahulu, kemudian merubah statusnya bisa cek berdasarkan comment id
+        /// untuk di case ini sementara bisa dikeep dulu
+        print("did change comment \(comment.message) \(status)")
     }
     
     func onRoom(update room: RoomModel) {
@@ -111,7 +115,9 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
     }
     
     func didComment(comment: CommentModel, changeStatus status: CommentStatus) {
-        
+        /// TODO untuk next disini untuk merubah status comment ketika terkirim, diterima dan terbaca.
+        /// sebelumnya perlu menyimpan list chat disini terlebih dahulu, kemudian merubah statusnya bisa cek berdasarkan comment id
+        print("comment status in \(comment.message) \(status.rawValue)")
     }
     
     func onMessageDelivered(message: CommentModel) {
@@ -119,11 +125,11 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
     }
     
     func onMessageRead(message: CommentModel) {
-        print("Chat Room | has been read \(message.message) \(message.status.rawValue)")
+//        print("Chat Room | has been read \(message.message) \(message.status.rawValue)")
 //        mappingCommentReceive(messageComment: message)
-        if message.status == CommentStatus.read{
-            QiscusCore.shared.markAsRead(roomId: message.roomId, commentId: message.id)
-        }
+//        if message.status == CommentStatus.read{
+//            QiscusCore.shared.markAsRead(roomId: message.roomId, commentId: message.id)
+//        }
     }
     
     func onMessageDeleted(message: CommentModel) {
@@ -147,17 +153,16 @@ extension QiscusEventHandler: QiscusCoreRoomDelegate{
         var args: [String: Any] = [String: Any]()
         let commentDic = self.qiscusSdkHelper.commentModelToDic(withComment: message)
         var chatRoomEvent: [String: Any] = [String: Any]()
-        chatRoomEvent["roomId"] = room.id
-        chatRoomEvent["commentId"] = message.id
+        chatRoomEvent["roomId"] = Int(room.id)
+        chatRoomEvent["commentId"] = Int(message.id)
         chatRoomEvent["commentUniqueId"] = message.uniqId
-        chatRoomEvent["typing"] = ""
+        chatRoomEvent["typing"] = false
         chatRoomEvent["user"] = message.userEmail
-        chatRoomEvent["event"] = qiscusSdkHelper.mappingEventState(commentStatus: message.status).hashValue
-        chatRoomEvent["eventData"] = room.options
-        print("event name \(qiscusSdkHelper.mappingEventState(commentStatus: message.status))")
+        chatRoomEvent["event"] = qiscusSdkHelper.mappingEventState(commentStatus: message.status).rawValue
+        chatRoomEvent["eventData"] = qiscusSdkHelper.convertToDictionary(string: room.options!)
         args["type"] = "chat_room_event_received"
-//        args["chatRoomEvent"] = commentDic
-        args["chatRoomEvent"] = chatRoomEvent
+        args["chatRoomEvent"] = commentDic
+//        args["chatRoomEvent"] = chatRoomEvent
         
         if let eventSink = getEventSink() {
             DispatchQueue.main.async {

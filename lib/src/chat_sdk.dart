@@ -502,7 +502,7 @@ class ChatSdk {
     if (await hasLogin()) {
       String caption = "";
 
-      const String environment = "dev";
+      const String environment = "dev2";
 
       if (type == CommentType.FILE_ATTACHMENT) {
         caption = message;
